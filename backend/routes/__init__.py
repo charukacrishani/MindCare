@@ -1,0 +1,7 @@
+from .register_routes import router as register_router
+from .chat_routes import router as chat_router
+from .login_routes import router as login_router
+from .user_routes import router as user_router
+from .user_info_routes import router as user_info_router
+from .doctor_info_routes import router as doctor_info_router
+from .doctor_routes import router as doctor_router
