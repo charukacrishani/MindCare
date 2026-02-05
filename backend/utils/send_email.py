@@ -1,11 +1,12 @@
+import os
 import smtplib
 import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 def send_email(to_email: str, subject: str, html_body: str) -> str | Exception:
-    sender_email = "nehan.sudasinghe@gmail.com"
-    app_password = "glkm gsce ajiy oxwp" 
+    sender_email = os.getenv('GOOGLE_EMAIL')
+    app_password = os.getenv('GOOGLE_PASSWORD')
 
     msg = MIMEMultipart()
     msg["From"] = sender_email

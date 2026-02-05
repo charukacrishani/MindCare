@@ -1,4 +1,9 @@
-from fastapi import Depends, FastAPI
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from fastapi import FastAPI
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import select
@@ -27,12 +32,12 @@ def on_startup():
     session = next(session_gen)
 
     try:
-        existing = session.exec(select(Users).where(Users.userid == "nehan")).first()
+        existing = session.exec(select(Users).where(Users.userid == "charuka")).first()
         if existing:
             return
 
-        password = hash_password("nehan")
-        user = Users(userid="nehan", name="Nehan Sudasinghe", email="nehan.sudasinghe@gmail.com", password=password, role='user')
+        password = hash_password("charuka")
+        user = Users(userid="charuka", name="Charuka Crishani", email="fcharuka18@gmail.com", password=password, role='user')
 
         session.add(user)
         session.commit()
@@ -49,15 +54,15 @@ app.include_router(chat_router)
 app.include_router(user_info_router)
 app.include_router(doctor_info_router)
 
-root = Path("C:/Users/DELL/Desktop/Learning/root")
+# root = Path(os.getenv("root"))
 
-@app.get("/{full_path:path}", response_class=HTMLResponse)
-def serve_react_app(full_path: str, auth = Depends(get_context_html)):
-    if isinstance(auth, RedirectResponse):
-        return auth
-    index_file = root / "frontend/index.html"
+# @app.get("/{full_path:path}", response_class=HTMLResponse)
+# def serve_react_app(full_path: str, auth = Depends(get_context_html)):
+#     if isinstance(auth, RedirectResponse):
+#         return auth
+#     index_file = root / "frontend/index.html"
 
-    if index_file.exists():
-        return FileResponse(index_file)
+#     if index_file.exists():
+#         return FileResponse(index_file)
 
-    return HTMLResponse("<h1>MindCare is offline</h1>", status_code=404)
+#     return HTMLResponse("<h1>MindCare is offline</h1>", status_code=404)

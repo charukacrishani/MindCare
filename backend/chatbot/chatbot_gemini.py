@@ -38,7 +38,7 @@ Ask about 12-15 questions total. Start with general daily life questions, then m
 
         # NEW Gemini client
         self.client = genai.Client(
-            api_key="AIzaSyByTW3s99WnskFFr_-Lkg9jUXiDSeOGj7c"
+            api_key=os.getenv("GEMINI_API_KEY")
         )   
 
         self.model = "gemini-2.5-flash"
