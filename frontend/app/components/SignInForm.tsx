@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { apiClient } from "@/lib/apiClient";
+import { useRouter } from 'next/navigation'; 
 
 export default function SignInForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    emailOrUsername: "",
+    username: "",
     password: "",
   });
 
@@ -20,10 +23,17 @@ export default function SignInForm() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
-    // Handle form submission logic here
+    try {
+      const response = await apiClient.post('/login', formData)
+      if (response.success) {
+        router.push('/');
+      }
+    } catch (error) {
+      // handle errors
+    }
   };
 
   const handleGoogleSignIn = () => {
@@ -57,16 +67,16 @@ export default function SignInForm() {
             {/* Email or Username */}
             <div className="space-y-1.5">
               <Label
-                htmlFor="emailOrUsername"
+                htmlFor="username"
                 className="text-sm font-medium text-gray-700"
               >
                 Email or Username
               </Label>
               <Input
                 type="text"
-                id="emailOrUsername"
-                name="emailOrUsername"
-                value={formData.emailOrUsername}
+                id="username"
+                name="username"
+                value={formData.username}
                 onChange={handleInputChange}
                 className="bg-white border-gray-200 focus-visible:ring-purple-400"
                 required

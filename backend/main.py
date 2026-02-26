@@ -11,7 +11,7 @@ from pathlib import Path
 from context import get_context_html
 from db import get_session, init_db
 from models.user import Users
-from routes import register_router, chat_router, login_router, user_router, doctor_router, user_info_router, doctor_info_router
+from routes import register_router, chat_router, login_router, user_router, doctor_router, user_info_router, doctor_info_router, questionnaire_router
 from utils.hash import hash_password
 
 app = FastAPI()
@@ -28,22 +28,22 @@ app.add_middleware(
 def on_startup():
     init_db()
 
-    session_gen = get_session()
-    session = next(session_gen)
+    # session_gen = get_session()
+    # session = next(session_gen)
 
-    try:
-        existing = session.exec(select(Users).where(Users.userid == "charuka")).first()
-        if existing:
-            return
+    # try:
+    #     existing = session.exec(select(Users).where(Users.userid == "charuka")).first()
+    #     if existing:
+    #         return
 
-        password = hash_password("charuka")
-        user = Users(userid="charuka", name="Charuka Crishani", email="fcharuka18@gmail.com", password=password, role='user')
+    #     password = hash_password("charuka")
+    #     user = Users(userid="charuka", name="Charuka Crishani", email="fcharuka18@gmail.com", password=password, role='user')
 
-        session.add(user)
-        session.commit()
+    #     session.add(user)
+    #     session.commit()
 
-    finally:
-        session.close()
+    # finally:
+    #     session.close()
 
 # Include API routers BEFORE catch-all routes
 app.include_router(login_router)
@@ -53,6 +53,7 @@ app.include_router(doctor_router)
 app.include_router(chat_router)
 app.include_router(user_info_router)
 app.include_router(doctor_info_router)
+app.include_router(questionnaire_router)
 
 # root = Path(os.getenv("root"))
 

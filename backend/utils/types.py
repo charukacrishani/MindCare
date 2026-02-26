@@ -27,3 +27,13 @@ class MessagesResponse(BaseModel):
     chatid: str
     isActive: bool
     messages: List[MessageParsed]
+
+class AnswerItem(BaseModel):
+    id: int
+    answer: int
+
+class QuestionnaireSubmitResponse(BaseModel):
+    id:     str
+    depression_score: int 
+    anxiety_score: int 
+    stress_score: int 

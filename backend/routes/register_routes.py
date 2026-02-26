@@ -84,7 +84,7 @@ def get_valid_verification(token: str) -> VerifyInfo | None:
 @router.post("/")
 def create_user(user: Users, session: Session = Depends(get_session)):
     try:
-        if user.role != 'user' | 'doctor':
+        if user.role not in ('user', 'doctor'):
             return ResponseHelper.error(message='Invalid role type')
         user.password = hash_password(user.password)
 
@@ -100,7 +100,7 @@ def create_user(user: Users, session: Session = Depends(get_session)):
         return ResponseHelper.success(message="User registered. Verification email sent.")
     except Exception as e:
         session.rollback()
-        return ResponseHelper.error(message=str(e), status_code=500)
+        return ResponseHelper.error(message=str(e))
 
 @router.get("/verify")
 def verify_user(token: str, session: Session = Depends(get_session)):
@@ -182,7 +182,7 @@ def verification_email_helper(userid: str, email: str, username: str):
     )
     activeVerifications.append(verify_obj)
 
-    verify_link = f"http://127.0.0.1:8000/api/users/verify?token={str(token)}"
+    verify_link = f"http://localhost:8000/api/users/verify?token={str(token)}"
 
     res = send_email(
         to_email=email,
@@ -212,6 +212,10 @@ def verification_email_helper(userid: str, email: str, username: str):
 
             <p style="font-size: 13px; word-break: break-all; color: #2563eb;">
                 {verify_link}
+            </p>
+            
+            <p style="font-size: 13px; word-break: break-all; color: #2563eb;">
+                {str(token)}
             </p>
 
             <hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;" />
