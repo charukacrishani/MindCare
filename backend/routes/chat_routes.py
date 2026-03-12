@@ -13,7 +13,6 @@ from utils.types import MessageParsed, MessagesResponse, NewSession, SubmitReque
 router = APIRouter(prefix="/api/chats", tags=["Chats"])
 chatbot = MentalHealthChatbot_GEMINI()
 
-
 def create_chat(ctx: Context, submitreq: SubmitRequest):
     query = select(Chats).where(Chats.userid == ctx.user.user_id, Chats.active == True)
     chat = ctx.db.exec(query).first()
@@ -100,6 +99,20 @@ def get_all_chats(ctx: Context = Depends(get_context)):
     chats = ctx.db.exec(query).all()
     
     return ctx.response.success(data=ctx.serialize(chats))
+
+@router.get("/latest")
+def get_active_chat(ctx: Context = Depends(get_context)):
+    query = select(Chats).where(Chats.userid == ctx.user.user_id, Chats.active == True)
+    chat = ctx.db.exec(query).first()
+    
+    if chat is None:
+        return ctx.response.error(message='no active chat found')
+    
+    messages = get_all_messages_of_session(ctx, chat.chatid)
+    
+    response = MessagesResponse(chatid=chat.chatid, messages=messages, isActive=chat.active)
+    
+    return ctx.response.success(data=ctx.serialize(response))
 
 @router.get('/messages')
 def get_chat_messages(chatid: str, ctx: Context = Depends(get_context)):

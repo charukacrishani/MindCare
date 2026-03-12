@@ -66,11 +66,30 @@ class ApiClient {
 
     if (!response.ok) {
       let errorMessage = `HTTP error ${response.status}`;
+      let errorData: any = null;
+
       try {
-        const errorData = await response.json();
-        errorMessage = errorData?.message || errorMessage;
+        errorData = await response.json();
+        // pull message from nested detail if necessary
+        errorMessage =
+          errorData?.message ||
+          errorData?.detail?.message ||
+          errorMessage;
       } catch {
         // ignore JSON parsing errors
+      }
+
+      // if server sent a redirect instruction, perform it immediately
+      if (
+        errorData?.detail?.redirect?.value === true &&
+        errorData?.detail?.redirect?.url
+      ) {
+        // navigate before throwing so caller doesn't continue
+        window.location.href = errorData.detail.redirect.url;
+        // return a rejected promise so callers can still handle the error if needed
+        return Promise.reject(
+          new Error(errorMessage || 'Redirecting…')
+        ) as unknown as ServerResponse<T>;
       }
 
       switch (response.status) {
@@ -79,7 +98,7 @@ class ApiClient {
         case 401:
           throw new Error('Unauthorized');
         case 403:
-          throw new Error('Forbidden');
+          throw new Error(errorMessage || 'Forbidden');
         case 404:
           throw new Error('Not Found');
         case 500:

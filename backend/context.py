@@ -33,7 +33,7 @@ def get_context(
     if current_user     is None:
         ResponseHelper.raise_http_exception(
             message='Not authenticated',
-            redirect=RedirectInfo(url='/login', value=True),
+            redirect=RedirectInfo(url='/signin', value=True),
             status_code=401
         )
         
@@ -50,7 +50,7 @@ def get_context(
         ResponseHelper.raise_http_exception(
             message="Please verify your email",
             status_code=403,
-            redirect=RedirectInfo(value=True, url="/user/verify")
+            redirect=RedirectInfo(value=True, url="/verify-email")
         )
 
     return Context(user=current_user, db=db, request=request)
@@ -63,7 +63,7 @@ def get_context_unverified(
     if current_user is None:
         ResponseHelper.raise_http_exception(
             message='Not authenticated',
-            redirect=RedirectInfo(url='/login', value=True),
+            redirect=RedirectInfo(url='/signin', value=True),
             status_code=401
         )
     ctx = Context(user=current_user, db=db, request=request)
