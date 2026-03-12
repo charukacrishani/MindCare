@@ -1,4 +1,4 @@
-// src/api/ApiClient.ts
+// src/api/ApiClient.tss
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 
 export interface ServerResponse<T = any> {
