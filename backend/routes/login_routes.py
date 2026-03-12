@@ -17,11 +17,11 @@ class LoginRequest(BaseModel):
 
 @router.post("")
 def userLogin(request: LoginRequest, session: Session = Depends(get_session)):
-    query = select(Users).where(Users.userid == request.username)
+    query = select(Users).where(Users.username == request.username)
     user = session.exec(query).first()
     
     if user is None:
-        return ResponseHelper.error('Invalid username or password', status.HTTP_401_UNAUTHORIZED)
+        return ResponseHelper.error('User does not exist', status.HTTP_401_UNAUTHORIZED)
     
     if not verify_password(request.password, user.password):
         return ResponseHelper.error('Invalid username or password', status.HTTP_401_UNAUTHORIZED)
