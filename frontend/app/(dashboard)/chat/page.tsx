@@ -101,24 +101,16 @@ export default function Page() {
   }, []);
 
   const initHomepage = async () => {
-    await loadUserInformation();
     await loadChatFromServer();
   }
 
-  const loadUserInformation = async () => {
+  const loadChatFromServer = async () => {
     try {
-      const response = await apiClient.get("/user/me");
-      if (response.success) {
-        // User is authenticated, you can load user-specific data here if needed
-      } else {
-        router.push("/signin");
-      }
+
     } catch (err) {
-      router.push("/signin");
+      
     }
   }
-
-  const loadChatFromServer = async () => {}
 
   // Scroll to bottom when messages update
   useEffect(() => {

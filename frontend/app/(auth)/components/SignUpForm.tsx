@@ -34,6 +34,7 @@ export default function SignUpForm() {
     agreedToTerms: false,
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -50,6 +51,7 @@ export default function SignUpForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
     if (!isPasswordValid || !formData.agreedToTerms) return;
 
     try {
@@ -71,11 +73,9 @@ export default function SignUpForm() {
       const e = error as Error;
       setError(e.message || "An unexpected error occurred. Please try again.");
       console.error(error);
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleGoogleSignUp = () => {
-    console.log("Sign up with Google");
   };
 
   return (
@@ -112,6 +112,7 @@ export default function SignUpForm() {
                 type="text"
                 id="username"
                 name="username"
+                disabled={loading}
                 value={formData.username}
                 onChange={handleInputChange}
                 className="bg-white border-gray-200 focus-visible:ring-purple-400"
@@ -128,6 +129,7 @@ export default function SignUpForm() {
                 type="text"
                 id="firstName"
                 name="firstName"
+                disabled={loading}
                 value={formData.firstName}
                 onChange={handleInputChange}
                 className="bg-white border-gray-200 focus-visible:ring-purple-400"
@@ -144,6 +146,7 @@ export default function SignUpForm() {
                 type="text"
                 id="lastName"
                 name="lastName"
+                disabled={loading}
                 value={formData.lastName}
                 onChange={handleInputChange}
                 className="bg-white border-gray-200 focus-visible:ring-purple-400"
@@ -160,6 +163,7 @@ export default function SignUpForm() {
                 type="email"
                 id="email"
                 name="email"
+                disabled={loading}
                 value={formData.email}
                 onChange={handleInputChange}
                 className="bg-white border-gray-200 focus-visible:ring-purple-400"
@@ -173,6 +177,7 @@ export default function SignUpForm() {
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   type="button"
+                disabled={loading}
                   variant={formData.role === "User" ? "default" : "outline"}
                   onClick={() => handleRoleChange("User")}
                   className={
@@ -185,6 +190,8 @@ export default function SignUpForm() {
                 </Button>
                 <Button
                   type="button"
+                disabled={loading}
+
                   variant={formData.role === "counselor" ? "default" : "outline"}
                   onClick={() => handleRoleChange("counselor")}
                   className={
@@ -206,6 +213,8 @@ export default function SignUpForm() {
               <Input
                 type="password"
                 id="password"
+                disabled={loading}
+
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
@@ -239,6 +248,8 @@ export default function SignUpForm() {
             <div className="flex items-center gap-2">
               <Checkbox
                 id="agreedToTerms"
+                disabled={loading}
+
                 checked={formData.agreedToTerms}
                 onCheckedChange={(checked) =>
                   setFormData((prev) => ({ ...prev, agreedToTerms: checked === true }))
@@ -259,7 +270,7 @@ export default function SignUpForm() {
             {/* Sign Up Button */}
             <Button
               type="submit"
-              disabled={!isPasswordValid || !formData.agreedToTerms}
+              disabled={loading || !isPasswordValid || !formData.agreedToTerms}
               className="w-full bg-gradient-to-r from-purple-400 via-pink-400 to-pink-500 text-white hover:from-purple-500 hover:via-pink-500 hover:to-pink-600 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               size="lg"
             >
@@ -294,12 +305,12 @@ export default function SignUpForm() {
             </Button> */}
 
             {/* Sign In Link */}
-            <p className="text-center text-sm text-gray-400 pt-1">
+            {!loading && (<p className="text-center text-sm text-gray-400 pt-1">
               Already have an account?{" "}
               <a href="/signin" className="text-blue-500 hover:underline">
                 Sign in
               </a>
-            </p>
+            </p>)}
           </form>
         </CardContent>
       </Card>

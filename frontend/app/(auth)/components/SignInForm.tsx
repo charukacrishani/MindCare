@@ -14,6 +14,8 @@ export default function SignInForm() {
     username: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,20 +27,22 @@ export default function SignInForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
     console.log("Form submitted:", formData);
     try {
       const response = await apiClient.post('/login', formData)
       if (response.success) {
         router.push('/');
+      } else {
+        setError(response.message || "Invalid username or password");
       }
     } catch (error) {
-      // handle errors
+      const e  = error as Error
+      setError(e.message || "Invalid username or password");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleGoogleSignIn = () => {
-    console.log("Sign in with Google");
-    // Handle Google OAuth logic here
   };
 
   return (
@@ -62,6 +66,11 @@ export default function SignInForm() {
         </CardHeader>
 
         <CardContent className="space-y-4 px-6 ">
+          {error && (
+            <div className="bg-red-100 text-red-700 p-3 rounded-md text-sm">
+              {error}
+            </div>
+          )}
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email or Username */}
@@ -76,6 +85,7 @@ export default function SignInForm() {
                 type="text"
                 id="username"
                 name="username"
+                disabled={loading}
                 value={formData.username}
                 onChange={handleInputChange}
                 className="bg-white border-gray-200 focus-visible:ring-purple-400"
@@ -95,6 +105,7 @@ export default function SignInForm() {
                 type="password"
                 id="password"
                 name="password"
+                disabled={loading}
                 value={formData.password}
                 onChange={handleInputChange}
                 className="bg-white border-gray-200 focus-visible:ring-purple-400"
@@ -105,6 +116,7 @@ export default function SignInForm() {
             {/* Sign In Button */}
             <Button
               type="submit"
+              disabled={loading}
               className="w-full bg-gradient-to-r from-purple-400 via-pink-400 to-pink-500 text-white hover:from-purple-500 hover:via-pink-500 hover:to-pink-600 shadow-lg"
               size="lg"
             >
@@ -151,12 +163,12 @@ export default function SignInForm() {
             </Button> */}
 
             {/* Sign Up Link */}
-            <p className="text-center text-sm text-gray-400 pt-1">
+            {!loading && (<p className="text-center text-sm text-gray-400 pt-1">
               Don&apos;t have an account?{" "}
               <a href="/signup" className="text-blue-500 hover:underline">
                 Sign up
               </a>
-            </p>
+            </p>)}
           </form>
         </CardContent>
       </Card>
