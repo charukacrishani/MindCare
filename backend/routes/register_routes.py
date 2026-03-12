@@ -1,8 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List
 import uuid
 from fastapi import APIRouter, Depends
-from openai import BaseModel
+from pydantic import BaseModel, EmailStr
 from sqlmodel import Session, select
 from context import Context, get_context_unverified
 from db import get_session
@@ -10,118 +10,228 @@ from models import Users
 from utils.send_email import send_email
 from utils.hash import hash_password
 from utils.responses import ResponseHelper
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/register", tags=["Register"])
+
+# ─────────────────────────────────────────────
+# Request schema — matches the frontend form
+# ─────────────────────────────────────────────
+
+VALID_ROLES = {"user", "counselor"}
+
+class RegisterRequest(BaseModel):
+    username: str
+    first_name: str
+    last_name: str
+    email: str
+    role: str           # "user" | "counselor"  (frontend sends "User" → normalised below)
+    password: str
+
+
+# ─────────────────────────────────────────────
+# In-memory verification store
+# ─────────────────────────────────────────────
 
 class VerifyInfo(BaseModel):
     email: str
     userid: str
     token: str
     created_at: datetime = datetime.utcnow()
-    expires_in: int = 3600
+    expires_in: int = 3600          # seconds
 
 activeVerifications: List[VerifyInfo] = []
 
+# Rate-limit buckets
 verification_attempts: dict[str, list[datetime]] = {}
 MAX_ATTEMPTS = 5
 WINDOW_SECONDS = 60
 
+email_attempts: dict[str, list[datetime]] = {}
 MAX_EMAIL_ATTEMPTS = 3
 EMAIL_WINDOW_SECONDS = 200
-email_attempts: dict[str, list[datetime]] = {}
 
-def generate_token():
-    return uuid.uuid4()
 
-def check_rate_limit(userid: str):
+# ─────────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────────
+
+def generate_token() -> str:
+    return str(uuid.uuid4())
+
+
+def check_rate_limit(userid: str) -> bool:
     now = datetime.utcnow()
-    attempts = verification_attempts.get(userid, [])
-
-    # Keep only attempts within the window
-    attempts = [t for t in attempts if (now - t).total_seconds() < WINDOW_SECONDS]
-
+    attempts = [
+        t for t in verification_attempts.get(userid, [])
+        if (now - t).total_seconds() < WINDOW_SECONDS
+    ]
     if len(attempts) >= MAX_ATTEMPTS:
-        # Too many attempts
         return False
-
-    # Record this attempt
     attempts.append(now)
     verification_attempts[userid] = attempts
     return True
 
-def check_email_rate_limit(userid: str):
+
+def check_email_rate_limit(userid: str) -> bool:
     now = datetime.utcnow()
-    attempts = email_attempts.get(userid, [])
-
-    # Keep only attempts within the window
-    attempts = [t for t in attempts if (now - t).total_seconds() < EMAIL_WINDOW_SECONDS]
-
+    attempts = [
+        t for t in email_attempts.get(userid, [])
+        if (now - t).total_seconds() < EMAIL_WINDOW_SECONDS
+    ]
     if len(attempts) >= MAX_EMAIL_ATTEMPTS:
-        # Too many email requests
         return False
-
-    # Record this attempt
     attempts.append(now)
     email_attempts[userid] = attempts
     return True
 
 
 def get_valid_verification(token: str) -> VerifyInfo | None:
-    """Returns the VerifyInfo if token is valid, else None"""
+    """Return VerifyInfo if the token exists and has not expired."""
     global activeVerifications
     now = datetime.utcnow()
-    
-    # Filter out expired tokens
     activeVerifications = [
         v for v in activeVerifications
         if (now - v.created_at).total_seconds() < v.expires_in
     ]
-    
-    # Return matching token if it exists
     return next((v for v in activeVerifications if v.token == token), None)
 
 
+def send_verification_email(userid: str, email: str, username: str) -> Exception | None:
+    """Queue a verification token and dispatch the email. Returns an Exception on failure."""
+    token = generate_token()
+
+    activeVerifications.append(VerifyInfo(
+        email=email,
+        userid=userid,
+        token=token,
+    ))
+
+    verify_link = f"http://localhost:8000/api/register/verify?token={token}"
+
+    return send_email(
+        to_email=email,
+        subject="MindCare – Verify your account",
+        html_body=f"""
+        <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;
+                    padding:20px;border:1px solid #eee;border-radius:10px;">
+            <h2 style="color:#2c3e50;text-align:center;">Welcome to MindCare 💙</h2>
+
+            <p style="font-size:15px;color:#444;">Hi <b>{username}</b>,</p>
+
+            <p style="font-size:15px;color:#444;">
+                Thanks for signing up! Please confirm your email address by clicking
+                the button below:
+            </p>
+
+            <div style="text-align:center;margin:25px 0;">
+                <a href="{verify_link}"
+                   style="background:#2563eb;color:white;padding:12px 22px;
+                          text-decoration:none;border-radius:8px;font-weight:bold;
+                          display:inline-block;">
+                    Verify Email
+                </a>
+            </div>
+
+            <p style="font-size:14px;color:#666;">
+                If the button doesn't work, copy and paste this link into your browser:
+            </p>
+            <p style="font-size:13px;word-break:break-all;color:#2563eb;">{verify_link}</p>
+
+            <hr style="margin:25px 0;border:none;border-top:1px solid #eee;" />
+
+            <p style="font-size:12px;color:#999;text-align:center;">
+                If you didn't create a MindCare account, you can safely ignore this email.
+            </p>
+        </div>
+        """,
+    )
+
+
+# ─────────────────────────────────────────────
+# Routes
+# ─────────────────────────────────────────────
+
 @router.post("/")
-def create_user(user: Users, session: Session = Depends(get_session)):
+def create_user(body: RegisterRequest, session: Session = Depends(get_session)):
+    """Register a new user and send a verification email."""
     try:
-        if user.role not in ('user', 'doctor'):
-            return ResponseHelper.error(message='Invalid role type')
-        user.password = hash_password(user.password)
+        # Normalise role to lowercase and validate
+        role = body.role.lower()
+        if role not in VALID_ROLES:
+            return ResponseHelper.error(message="Invalid role. Must be 'user' or 'counselor'.")
 
-        session.add(user)
+        # Check for duplicate username / email
+        existing_username = session.exec(
+            select(Users).where(Users.username == body.username)
+        ).first()
+        if existing_username:
+            return ResponseHelper.error(message="Username already taken.")
+
+        existing_email = session.exec(
+            select(Users).where(Users.email == body.email)
+        ).first()
+        if existing_email:
+            return ResponseHelper.error(message="Email already registered.")
+
+        # Build and persist the user row
+        new_user = Users(
+            userid=str(uuid.uuid4()),
+            username=body.username,
+            first_name=body.first_name,
+            last_name=body.last_name,
+            email=body.email,
+            role=role,
+            password=hash_password(body.password),
+        )
+
+        session.add(new_user)
         session.commit()
-        session.refresh(user)
-        
-        res = verification_email_helper(email=user.email, userid=user.userid, username="")
-        
-        if isinstance(res, Exception):
-            return ResponseHelper.error(message="Verification failed", errors=res)
+        session.refresh(new_user)
 
-        return ResponseHelper.success(message="User registered. Verification email sent.")
+        # Send verification email (non-fatal if it fails)
+        err = send_verification_email(
+            userid=new_user.userid,
+            email=new_user.email,
+            username=new_user.username,
+        )
+        if isinstance(err, Exception):
+            return ResponseHelper.error(
+                message="User registered but verification email could not be sent.",
+                errors=str(err),
+            )
+
+        return ResponseHelper.success(
+            message="User registered successfully. Verification email sent."
+        )
+
     except Exception as e:
         session.rollback()
         return ResponseHelper.error(message=str(e))
 
+
 @router.get("/verify")
 def verify_user(token: str, session: Session = Depends(get_session)):
+    """Activate a user account via the emailed token."""
     try:
         verify_data = get_valid_verification(token)
         if not verify_data:
-            return ResponseHelper.error(
-                message="Invalid or expired token", status_code=400
-            )
+            return ResponseHelper.error(message="Invalid or expired token.", status_code=400)
 
         if not check_rate_limit(verify_data.userid):
             return ResponseHelper.error(
-                message=f"Too many verification attempts. Try again later.",
-                status_code=429
+                message="Too many verification attempts. Please try again later.",
+                status_code=429,
             )
 
-        user = session.exec(select(Users).where(Users.userid == verify_data.userid)).first()
+        user = session.exec(
+            select(Users).where(Users.userid == verify_data.userid)
+        ).first()
         if not user:
-            return ResponseHelper.error(
-                message="User not found", status_code=404
-            )
+            return ResponseHelper.error(message="User not found.", status_code=404)
+
+        if user.isVerified:
+            return ResponseHelper.error(message="Account is already verified.")
 
         user.isVerified = True
         session.add(user)
@@ -133,98 +243,37 @@ def verify_user(token: str, session: Session = Depends(get_session)):
 
     except Exception as e:
         session.rollback()
-        return ResponseHelper.error(
-            message=f"Internal server error: {str(e)}", status_code=500
-        )
+        return ResponseHelper.error(message=f"Internal server error: {str(e)}", status_code=500)
 
-@router.post('/send-verification')
+
+@router.post("/send-verification")
 def send_verification(ctx: Context = Depends(get_context_unverified)):
+    """Re-send the verification email for the currently authenticated (unverified) user."""
     try:
-        query = select(Users).where(Users.userid == ctx.user.user_id)
-        user = ctx.db.exec(query).first()
-        
-        if user is None:
-            return ctx.response.error(message='User not found')
-        
-        if user.isVerified:
-            return ctx.response.error(message='User already verified')
+        user = ctx.db.exec(select(Users).where(Users.userid == ctx.user.user_id)).first()
 
-        # Rate limit email sending
+        if user is None:
+            return ctx.response.error(message="User not found.")
+        if user.isVerified:
+            return ctx.response.error(message="Account is already verified.")
         if not check_email_rate_limit(user.userid):
             return ctx.response.error(
-                message=f"Too many email requests. Try again later.",
-                status_code=429
+                message="Too many email requests. Please try again later.",
+                status_code=429,
             )
 
-        # Send verification email
-        res = verification_email_helper(userid=user.userid, email=user.email, username="")
-        if isinstance(res, Exception):
+        err = send_verification_email(
+            userid=user.userid,
+            email=user.email,
+            username=user.username,
+        )
+        if isinstance(err, Exception):
             return ctx.response.error(
-                message="Verification email failed", errors=res
+                message="Verification email could not be sent.",
+                errors=str(err),
             )
 
         return ctx.response.success(message="Verification email sent successfully!")
 
     except Exception as e:
-        return ctx.response.error(
-            message='Send verification email failed', errors=str(e)
-        )
-
-
-        
-def verification_email_helper(userid: str, email: str, username: str):
-    token = generate_token()
-
-    verify_obj = VerifyInfo(
-        email=email,
-        userid=str(userid),
-        token=str(token)
-    )
-    activeVerifications.append(verify_obj)
-
-    verify_link = f"http://localhost:8000/api/users/verify?token={str(token)}"
-
-    res = send_email(
-        to_email=email,
-        subject="MindCare - Verify Account",
-        html_body=f"""
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-            <h2 style="color: #2c3e50; text-align: center;">Welcome to MindCare 💙</h2>
-
-            <p style="font-size: 15px; color: #444;">
-                Hi <b>{"there"}</b>,
-            </p>
-
-            <p style="font-size: 15px; color: #444;">
-                Thanks for signing up! Please confirm your email address by clicking the button below:
-            </p>
-
-            <div style="text-align: center; margin: 25px 0;">
-                <a href="{verify_link}"
-                style="background: #2563eb; color: white; padding: 12px 22px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-                    Verify Email
-                </a>
-            </div>
-
-            <p style="font-size: 14px; color: #666;">
-                If the button doesn’t work, copy and paste this link into your browser:
-            </p>
-
-            <p style="font-size: 13px; word-break: break-all; color: #2563eb;">
-                {verify_link}
-            </p>
-            
-            <p style="font-size: 13px; word-break: break-all; color: #2563eb;">
-                {str(token)}
-            </p>
-
-            <hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;" />
-
-            <p style="font-size: 12px; color: #999; text-align: center;">
-                If you didn’t create a MindCare account, you can safely ignore this email.
-            </p>
-        </div>
-        """
-    )
-    
-    return res
+        return ctx.response.error(message="Failed to send verification email.", errors=str(e))
