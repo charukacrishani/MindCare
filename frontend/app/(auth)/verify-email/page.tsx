@@ -8,9 +8,11 @@ export default function page() {
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
     const [verificationCode, setVerificationCode] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleResendEmail = async () => {
         try {
+            setLoading(true)
             const response = await apiClient.post("/register/send-verification")
             if(response.success) {
                 setMessage("Verification email sent successfully.");
@@ -19,11 +21,14 @@ export default function page() {
             }
         } catch (error) {
             setError("An error occurred while sending the verification email. Please try again.");
+        } finally {
+            setLoading(false)
         }
     }
 
     const handleVerifyEmail = async () => {
         try {
+            setLoading(true)
             const response = await apiClient.get("/register/verify", { token: verificationCode })
             if(response.success) {
                 setMessage("Email verified successfully. You can now log in.");
@@ -33,6 +38,8 @@ export default function page() {
             }
         } catch (error) {
             setError("An error occurred while verifying your email. Please try again.");
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -63,10 +70,10 @@ export default function page() {
                     onChange={(e) => setVerificationCode(e.target.value)}
                 />
                 <div className="flex gap-4">
-                    <button className="mt-4 px-4 py-2 bg-[#980194] text-white rounded hover:bg-[#7a0175] transition-colors" onClick={handleVerifyEmail}>
+                    <button className="mt-4 px-4 py-2 bg-[#980194] text-white rounded hover:bg-[#7a0175] transition-colors" onClick={handleVerifyEmail} disabled={loading || verificationCode.trim() === ""}>
                         Verify
                     </button>
-                    <button className="mt-4 px-4 py-2 bg-[#980194] text-white rounded hover:bg-[#7a0175] transition-colors" onClick={handleResendEmail}>
+                    <button className="mt-4 px-4 py-2 bg-[#980194] text-white rounded hover:bg-[#7a0175] transition-colors" onClick={handleResendEmail} disabled={loading}>
                         Resend
                     </button>
                 </div>

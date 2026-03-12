@@ -106,9 +106,26 @@ export default function Page() {
 
   const loadChatFromServer = async () => {
     try {
-
+      setShowChat(false);
+      const response = await apiClient.get<{ chatid: string; messages: { questionid: string; content: string; role: string;}[] }>(`/chats/latest`);
+      if (response.success) {
+        const { chatid, messages } = response.data;
+        setChatid(chatid);
+        const formattedMessages = messages.map((msg) => ({
+          id: msg.questionid,
+          text: msg.content,
+          sender: msg.role === "user" ? "user" : "bot",
+          timestamp: Date.now(),
+        } as Message));
+        setMessages(formattedMessages);
+        setQuestionid(messages[messages.length - 1].questionid);
+        setShowChat(true);
+      } else {
+        console.log("No previous chat found, starting fresh.");
+        setShowChat(true)
+      }
     } catch (err) {
-      
+      console.error("Error loading chat from server:", err);
     }
   }
 
