@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { guid } from "@/lib/generateguid";
 import { apiClient } from "@/lib/apiClient";
+import { useRouter } from "next/dist/client/components/navigation";
 
 interface Message {
   id: string;
@@ -84,6 +85,7 @@ const getRandomResponse = (): string => {
 };
 
 export default function Page() {
+  const router = useRouter();
   const [chatid, setChatid] = useState<string | null>(null)
   const [questionid, setQuestionid] = useState<string>(guid())
   const [messages, setMessages] = useState<Message[]>([]);
@@ -95,13 +97,28 @@ export default function Page() {
 
   // Load messages from localStorage on mount
   useEffect(() => {
-    // const storedMessages = localStorage.getItem("chatMessages");
-    // if (storedMessages) {
-    //   const parsedMessages = JSON.parse(storedMessages);
-    //   setMessages(parsedMessages);
-    //   setShowChat(parsedMessages.length > 0);
-    // }
+    initHomepage();
   }, []);
+
+  const initHomepage = async () => {
+    await loadUserInformation();
+    await loadChatFromServer();
+  }
+
+  const loadUserInformation = async () => {
+    try {
+      const response = await apiClient.get("/user/me");
+      if (response.success) {
+        // User is authenticated, you can load user-specific data here if needed
+      } else {
+        router.push("/signin");
+      }
+    } catch (err) {
+      router.push("/signin");
+    }
+  }
+
+  const loadChatFromServer = async () => {}
 
   // Scroll to bottom when messages update
   useEffect(() => {
@@ -137,9 +154,9 @@ export default function Page() {
     }
 
     try {
-      let ep="/chats/submit"
-      if (chatid){
-        ep += "?chatid="+chatid
+      let ep = "/chats/submit"
+      if (chatid) {
+        ep += "?chatid=" + chatid
       }
       const message = await apiClient.post<{ chatid: string; question: string, questionid: string, done: boolean }>(ep, submitReq);
       console.log(message);
@@ -308,27 +325,25 @@ export default function Page() {
           className="w-full max-w-4xl mx-auto py-4 flex gap-2"
         >
           <Input
-  type="text"
-  value={inputValue}
-  onChange={(e) => setInputValue(e.target.value)}
-  placeholder={isChatDone ? "✓ Session complete — thank you for sharing." : initialquestion}
-  className={`bg-white border-gray-200 focus-visible:ring-purple-400 h-12 flex-1 transition-all duration-300 ${
-    isChatDone ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400" : ""
-  }`}
-  required
-  disabled={isChatDone}
-/>
-<Button
-  type="submit"
-  className={`aspect-square h-12 px-6 transition-all duration-300 ${
-    isChatDone
-      ? "bg-gray-300 cursor-not-allowed opacity-50"
-      : "bg-[#980194] hover:bg-[#7a0177]"
-  }`}
-  disabled={isTyping || !inputValue.trim() || isChatDone}
->
-  <Send className={`w-4 h-4 ${isChatDone ? "text-gray-400" : "text-white"}`} />
-</Button>
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder={isChatDone ? "✓ Session complete — thank you for sharing." : initialquestion}
+            className={`bg-white border-gray-200 focus-visible:ring-purple-400 h-12 flex-1 transition-all duration-300 ${isChatDone ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400" : ""
+              }`}
+            required
+            disabled={isChatDone}
+          />
+          <Button
+            type="submit"
+            className={`aspect-square h-12 px-6 transition-all duration-300 ${isChatDone
+              ? "bg-gray-300 cursor-not-allowed opacity-50"
+              : "bg-[#980194] hover:bg-[#7a0177]"
+              }`}
+            disabled={isTyping || !inputValue.trim() || isChatDone}
+          >
+            <Send className={`w-4 h-4 ${isChatDone ? "text-gray-400" : "text-white"}`} />
+          </Button>
         </motion.form>
       </div>
     </div>

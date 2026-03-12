@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { apiClient } from "@/lib/apiClient";
+import { useRouter } from "next/dist/client/components/navigation";
 
 
 const passwordRules = [
@@ -21,6 +23,7 @@ const passwordRules = [
 ];
 
 export default function SignUpForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",
     firstName: "",
@@ -30,6 +33,7 @@ export default function SignUpForm() {
     password: "",
     agreedToTerms: false,
   });
+  const [error, setError] = useState("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,36 +47,32 @@ export default function SignUpForm() {
   const isPasswordValid = passwordRules.every((r) => r.test(formData.password));
 
   // Replace your existing handleSubmit with this:
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!isPasswordValid || !formData.agreedToTerms) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!isPasswordValid || !formData.agreedToTerms) return;
 
-  try {
-    const response = await fetch("http://localhost:8000/api/register/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      const response = await apiClient.post("/register/", {
         username: formData.username,
         first_name: formData.firstName,
         last_name: formData.lastName,
         email: formData.email,
         role: formData.role,
         password: formData.password,
-      }),
-    });
+      });
 
-    const data = await response.json();
-
-    if (data.success) {
-      alert("Account created! Please check your email to verify your account.");
-    } else {
-      alert(data.message || "Registration failed.");
+      if (response.success) {
+        router.push('/verify-email');
+      } else {
+        setError(response.message || "Registration failed. Please try again.");
+      }
+    } catch (error) {
+      const e = error as Error;
+      setError(e.message || "An unexpected error occurred. Please try again.");
+      console.error(error);
     }
-  } catch (error) {
-    alert("Could not connect to the server. Please try again.");
-    console.error(error);
-  }
-};
+  };
 
   const handleGoogleSignUp = () => {
     console.log("Sign up with Google");
@@ -98,6 +98,9 @@ const handleSubmit = async (e: React.FormEvent) => {
         </CardHeader>
 
         <CardContent className="space-y-4 max-h-[calc(100vh-12rem)] overflow-y-auto px-6">
+          {error && (<div className="text-sm p-2 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+            {error}
+          </div>)}
           <form onSubmit={handleSubmit} className="space-y-4">
 
             {/* Username */}
@@ -274,7 +277,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
 
             {/* Google Sign Up */}
-            <Button
+            {/* <Button
               type="button"
               variant="outline"
               onClick={handleGoogleSignUp}
@@ -288,7 +291,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
               Sign up with Google
-            </Button>
+            </Button> */}
 
             {/* Sign In Link */}
             <p className="text-center text-sm text-gray-400 pt-1">

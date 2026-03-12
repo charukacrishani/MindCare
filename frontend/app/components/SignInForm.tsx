@@ -122,7 +122,7 @@ export default function SignInForm() {
             </div>
 
             {/* Google Sign In */}
-            <Button
+            {/* <Button
               type="button"
               variant="outline"
               onClick={handleGoogleSignIn}
@@ -148,7 +148,7 @@ export default function SignInForm() {
                 />
               </svg>
               Sign in with Google
-            </Button>
+            </Button> */}
 
             {/* Sign Up Link */}
             <p className="text-center text-sm text-gray-400 pt-1">

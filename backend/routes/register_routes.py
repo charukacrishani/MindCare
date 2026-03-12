@@ -2,11 +2,13 @@ from datetime import datetime
 from typing import List
 import uuid
 from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr
 from sqlmodel import Session, select
 from context import Context, get_context_unverified
 from db import get_session
 from models import Users
+from utils.auth import create_access_token
 from utils.send_email import send_email
 from utils.hash import hash_password
 from utils.responses import ResponseHelper
@@ -107,8 +109,6 @@ def send_verification_email(userid: str, email: str, username: str) -> Exception
         token=token,
     ))
 
-    verify_link = f"http://localhost:8000/api/register/verify?token={token}"
-
     return send_email(
         to_email=email,
         subject="MindCare – Verify your account",
@@ -120,23 +120,10 @@ def send_verification_email(userid: str, email: str, username: str) -> Exception
             <p style="font-size:15px;color:#444;">Hi <b>{username}</b>,</p>
 
             <p style="font-size:15px;color:#444;">
-                Thanks for signing up! Please confirm your email address by clicking
-                the button below:
+                Thanks for signing up! Please confirm your email address by pasting this code in MindCare.
             </p>
 
-            <div style="text-align:center;margin:25px 0;">
-                <a href="{verify_link}"
-                   style="background:#2563eb;color:white;padding:12px 22px;
-                          text-decoration:none;border-radius:8px;font-weight:bold;
-                          display:inline-block;">
-                    Verify Email
-                </a>
-            </div>
-
-            <p style="font-size:14px;color:#666;">
-                If the button doesn't work, copy and paste this link into your browser:
-            </p>
-            <p style="font-size:13px;word-break:break-all;color:#2563eb;">{verify_link}</p>
+            <div style="text-align:center;margin:25px 0;">{token}</div>
 
             <hr style="margin:25px 0;border:none;border-top:1px solid #eee;" />
 
@@ -200,10 +187,18 @@ def create_user(body: RegisterRequest, session: Session = Depends(get_session)):
                 message="User registered but verification email could not be sent.",
                 errors=str(err),
             )
-
-        return ResponseHelper.success(
-            message="User registered successfully. Verification email sent."
+            
+        token = create_access_token({ "user_id": new_user.userid })    
+        response = JSONResponse(content={"success": True})
+        response.set_cookie(
+            key="mindcare",
+            value=token,
+            httponly=True,
+            secure=False,
+            max_age=60 * 60,
+            samesite="lax"
         )
+        return response
 
     except Exception as e:
         session.rollback()

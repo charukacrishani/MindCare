@@ -28,7 +28,6 @@ def userLogin(request: LoginRequest, session: Session = Depends(get_session)):
     
     token = create_access_token({ "user_id": user.userid })
     
-    
     response = JSONResponse(content={"success": True})
     response.set_cookie(
         key="mindcare",

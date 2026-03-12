@@ -18,7 +18,7 @@ class ApiClient {
   private baseUrl: string;
 
   private constructor() {
-    this.baseUrl = 'https://localhost:8080/api';
+    this.baseUrl = '/api';
   }
 
   public static getInstance(): ApiClient {
@@ -29,19 +29,27 @@ class ApiClient {
   }
 
   private buildUrl(path: string, params?: Record<string, any>): string {
-    const url = new URL(this.baseUrl + path);
+    // Ensure baseUrl always ends with '/'
+    const base = this.baseUrl.endsWith('/') ? this.baseUrl : this.baseUrl + '/';
+
+    // Ensure path does not start with '/', so we don't get double slashes
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+
+    const url = new URL(base + cleanPath, window.location.origin);
+
+    // Append query params
     if (params) {
-      Object.keys(params).forEach((key) => {
-        const value = params[key];
+      Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           url.searchParams.append(key, String(value));
         }
       });
     }
+
     return url.toString();
   }
 
-  private async request<T>(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<ServerResponse<T>>  {
+  private async request<T>(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<ServerResponse<T>> {
     const { params, body, headers } = options;
     const url = this.buildUrl(path, params);
 
