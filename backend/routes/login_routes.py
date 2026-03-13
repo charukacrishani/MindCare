@@ -39,3 +39,9 @@ def userLogin(request: LoginRequest, session: Session = Depends(get_session)):
     )
     
     return response
+
+@router.post("/revoke-session")
+def userLogout():
+    response = JSONResponse(content={"success": True})
+    response.delete_cookie(key="mindcare")
+    return response
