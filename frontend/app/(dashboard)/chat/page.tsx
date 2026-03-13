@@ -195,7 +195,7 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col overflow-hidden">
+    <div className="w-full h-full flex flex-col overflow-hidden">
       <div className="max-w-7xl w-full px-4 mx-auto flex flex-col flex-1 overflow-hidden">
         <AnimatePresence mode="wait">
           {!showChat ? (

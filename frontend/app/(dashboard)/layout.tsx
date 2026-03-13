@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import NavBar from './components/Navigator';
 import { apiClient } from '@/lib/apiClient';
 import { useRouter } from 'next/navigation';
+import Footer from './components/Footer';
 
 interface User {
   id: string;
@@ -54,8 +55,9 @@ export default function AuthLayout({
   return (
     <UserContext.Provider value={user}>
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <div><NavBar /></div>
-        {children}
+        <div className='w-full'><NavBar /></div>
+        <div className='w-full flex-1'>{children}</div>
+        <div className='w-full'><Footer /></div>
       </div>
     </UserContext.Provider>
   );

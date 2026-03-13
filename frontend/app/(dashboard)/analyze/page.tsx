@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Image from "next/image";
 import { guid } from "@/lib/generateguid";
 import { apiClient } from "@/lib/apiClient";
 
@@ -51,32 +50,7 @@ const QUESTIONS: Question[] = [
   { id: 21, text: "I felt that life was meaningless" },
 ].map((q) => ({ ...q, options: OPTIONS }));
 
-// Navbar
-function Navbar() {
-  return (
-    <nav className="w-full px-8 py-4 flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <div className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
-          <Image src="/images/logo3.png" alt="MindCare" width={24} height={24} className="object-contain" />
-        </div>
-        <span className="text-lg font-bold text-gray-900">MindCare.</span>
-      </div>
-      <button className="bg-[#FF96FC] hover:bg-[#f07dec] text-white text-sm font-medium px-5 py-2 rounded-full transition-colors duration-200">
-        Sign up
-      </button>
-    </nav>
-  );
-}
 
-// Footer
-function Footer() {
-  return (
-    <footer className="w-full px-8 py-4 flex items-center justify-between border-t border-gray-100">
-      <span className="text-xs text-gray-400">Mental Case © 2026 — All rights reserved.</span>
-      <a href="#" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">privacy policy</a>
-    </footer>
-  );
-}
 
 // Progress Bar Component
 function ProgressBar({ current, total }: { current: number; total: number }) {
@@ -206,14 +180,12 @@ export default function Page() {
 
   return (
     <div
-      className="w-full min-h-screen flex flex-col"
+      className="w-full h-full flex flex-col flex-1"
       style={{
         background: "radial-gradient(ellipse at 50% 0%, #e8b4f0 0%, #f5eef8 40%, #faf6f0 70%)",
       }}
     >
-      <Navbar />
-
-      <div className="flex-1 flex flex-col items-center px-4 overflow-y-auto">
+      <div className="h-full flex-1 flex flex-col items-center px-4 overflow-y-auto">
         <div className="w-full max-w-3xl flex flex-col items-center">
 
           <motion.h1
@@ -285,7 +257,6 @@ export default function Page() {
           )}
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

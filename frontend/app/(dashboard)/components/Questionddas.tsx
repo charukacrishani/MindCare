@@ -46,41 +46,6 @@ export const QUESTIONS: Question[] = [
   { id: 21, text: "I felt that life was meaningless" },
 ].map((q) => ({ ...q, options: OPTIONS }));
 
-// ─── Navbar ───────────────────────────────────────────────────────────────────
-
-
-export function Navbar() {
-  return (
-    <nav className="w-full px-8 py-4 flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <div className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
-          <Image src="/images/logo3.png" alt="MindCare" width={24} height={24} className="object-contain" />
-        </div>
-        <span className="text-lg font-bold text-gray-900">MindCare.</span>
-      </div>
-      <Button
-        className="bg-[#FF96FC] hover:bg-[#f07dec] text-white rounded-full px-5"
-        size="sm"
-      >
-        Sign up
-      </Button>
-    </nav>
-  );
-}
-
-// ─── Footer ───────────────────────────────────────────────────────────────────
-
-export function Footer() {
-  return (
-    <footer className="w-full px-8 py-4 flex items-center justify-between border-t border-gray-100">
-      <span className="text-xs text-gray-400">Mental Case © 2026 — All rights reserved.</span>
-      <a href="#" className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
-        privacy policy
-      </a>
-    </footer>
-  );
-}
-
 // ─── Progress Bar ─────────────────────────────────────────────────────────────
 // `answered` = number of questions that have a saved answer (increases on select)
 // `current`  = current question index (for the x / total label)
