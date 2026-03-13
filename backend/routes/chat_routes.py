@@ -95,7 +95,7 @@ def process_message(chatid: str, ctx : Context = Depends(get_context)):
 
 @router.get("/")
 def get_all_chats(ctx: Context = Depends(get_context)):
-    query = select(Chats).where(Chats.userid == ctx.user.user_id)
+    query = select(Chats).where(Chats.userid == ctx.user.user_id).order_by(Chats.date.desc())
     chats = ctx.db.exec(query).all()
     
     return ctx.response.success(data=ctx.serialize(chats))

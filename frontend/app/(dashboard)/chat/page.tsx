@@ -3,14 +3,14 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import React, { useState, useEffect, useRef } from "react";
-import { Send, User } from "lucide-react";
+import { HistoryIcon, RefreshCw, Send, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { guid } from "@/lib/generateguid";
 import { apiClient } from "@/lib/apiClient";
 import { useRouter } from "next/dist/client/components/navigation";
 
-interface Message {
+export interface Message {
   id: string;
   text: string;
   sender: "user" | "bot";
@@ -107,7 +107,7 @@ export default function Page() {
   const loadChatFromServer = async () => {
     try {
       setShowChat(false);
-      const response = await apiClient.get<{ chatid: string; messages: { questionid: string; content: string; role: string;}[] }>(`/chats/latest`);
+      const response = await apiClient.get<{ chatid: string; messages: { questionid: string; content: string; role: string; }[] }>(`/chats/latest`);
       if (response.success) {
         const { chatid, messages } = response.data;
         setChatid(chatid);
@@ -123,6 +123,9 @@ export default function Page() {
       } else {
         console.log("No previous chat found, starting fresh.");
         setShowChat(true)
+        setChatid(null);
+        setQuestionid(guid());
+        setMessages([]);
       }
     } catch (err) {
       console.error("Error loading chat from server:", err);
@@ -193,6 +196,21 @@ export default function Page() {
       setIsTyping(false)
     }
   };
+
+  const handleChatReset = async () => {
+    try {
+      const response = await apiClient.post(`/chats/end-chat?chatid=${chatid}`, {});
+      if (response.success) {
+        await initHomepage();
+      }
+    } catch (err) {
+      console.error("Error resetting chat:", err);
+    }
+  }
+
+  const handleHistoryNavigate = () => {
+    router.push("/chat/history");
+  }
 
   return (
     <div className="w-full h-full flex flex-col overflow-hidden">
@@ -331,6 +349,7 @@ export default function Page() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: showChat ? 0 : 0.6, duration: 0.5 }}
           onSubmit={handleSendMessage}
+          onReset={handleChatReset}
           className="w-full max-w-4xl mx-auto py-4 flex gap-2"
         >
           <Input
@@ -352,6 +371,27 @@ export default function Page() {
             disabled={isTyping || !inputValue.trim() || isChatDone}
           >
             <Send className={`w-4 h-4 ${isChatDone ? "text-gray-400" : "text-white"}`} />
+          </Button>
+          <Button
+            type="reset"
+            className={`aspect-square h-12 px-6 transition-all duration-300 ${isChatDone
+              ? "bg-gray-300 cursor-not-allowed opacity-50"
+              : "bg-[#980194] hover:bg-[#7a0177]"
+              }`}
+            disabled={isTyping || isChatDone}
+          >
+            <RefreshCw className={`w-4 h-4 ${isChatDone ? "text-gray-400" : "text-white"}`} />
+          </Button>
+          <Button
+            type="button"
+            onClick={handleHistoryNavigate}
+            className={`aspect-square h-12 px-6 transition-all duration-300 ${isChatDone
+              ? "bg-gray-300 cursor-not-allowed opacity-50"
+              : "bg-[#980194] hover:bg-[#7a0177]"
+              }`}
+            disabled={isTyping || isChatDone}
+          >
+            <HistoryIcon className={`w-4 h-4 ${isChatDone ? "text-gray-400" : "text-white"}`} />
           </Button>
         </motion.form>
       </div>
