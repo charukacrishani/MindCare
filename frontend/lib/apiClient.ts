@@ -84,8 +84,13 @@ class ApiClient {
         errorData?.detail?.redirect?.value === true &&
         errorData?.detail?.redirect?.url
       ) {
-        // navigate before throwing so caller doesn't continue
-        window.location.href = errorData.detail.redirect.url;
+        // Don't redirect if we're already on an auth page to prevent redirect loops
+        const currentPath = window.location.pathname;
+        const authPaths = ['/signin', '/signup'];
+        if (!authPaths.includes(currentPath)) {
+          // navigate before throwing so caller doesn't continue
+          window.location.href = errorData.detail.redirect.url;
+        }
         // return a rejected promise so callers can still handle the error if needed
         return Promise.reject(
           new Error(errorMessage || 'Redirecting…')
