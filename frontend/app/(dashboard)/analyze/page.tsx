@@ -115,8 +115,8 @@ function QuestionCard({
             >
               <div
                 className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all duration-300 ${isSelected
-                    ? "border-[#980194] bg-[#980194]"
-                    : "border-gray-300 group-hover:border-[#980194]"
+                  ? "border-[#980194] bg-[#980194]"
+                  : "border-gray-300 group-hover:border-[#980194]"
                   }`}
               >
                 {isSelected && (
@@ -129,8 +129,8 @@ function QuestionCard({
               </div>
               <span
                 className={`text-base transition-colors duration-200 ${isSelected
-                    ? "text-[#980194] font-semibold"
-                    : "text-gray-700 group-hover:text-gray-900"
+                  ? "text-[#980194] font-semibold"
+                  : "text-gray-700 group-hover:text-gray-900"
                   }`}
               >
                 {option.ans}
@@ -148,7 +148,7 @@ export default function Page() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [isChatDone, setIsChatDone] = useState(false);
   const totalQuestions = QUESTIONS.length;
-  const [response, setResponse] = useState <{id: number, depression_score: number, anxiety_score: number, stress_score: number}>();
+  const [response, setResponse] = useState<{ id: number, depression_score: number, anxiety_score: number, stress_score: number }>();
 
   const activeQuestion = QUESTIONS[currentQuestion - 1];
   const selectedAnswer = answers[currentQuestion] ?? null;
@@ -158,17 +158,17 @@ export default function Page() {
     setAnswers((prev) => ({ ...prev, [currentQuestion]: option }));
   };
 
-  const handleNext = async() => {
+  const handleNext = async () => {
     if (currentQuestion < totalQuestions) {
       setCurrentQuestion((prev) => prev + 1);
     } else {
       setIsChatDone(true);
       console.log(answers)
       const message = await apiClient.post<{ id: number, depression_score: number, anxiety_score: number, stress_score: number }>('/questionnaire/submit', answers);
-      if (message){
+      if (message) {
         setResponse(message.data)
       }
-      
+
     }
   };
 
@@ -211,14 +211,29 @@ export default function Page() {
               />
             )}
             {isChatDone && (
-              <motion.p
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-12 text-lg text-[#980194] font-medium text-center"
+                className="mt-12 text-center"
               >
-                Thank you for completing the questionnaire!
-                {JSON.stringify(response)}
-              </motion.p>
+                <p className="text-lg text-[#980194] font-semibold mb-4">
+                  Thank you for completing the questionnaire!
+                </p>
+
+                <div className="flex justify-center gap-4 text-sm font-medium">
+                  <span className="px-4 py-2 rounded-lg bg-red-50 text-red-600">
+                    Depression: {response?.depression_score}
+                  </span>
+
+                  <span className="px-4 py-2 rounded-lg bg-yellow-50 text-yellow-600">
+                    Anxiety: {response?.anxiety_score}
+                  </span>
+
+                  <span className="px-4 py-2 rounded-lg bg-blue-50 text-blue-600">
+                    Stress: {response?.stress_score}
+                  </span>
+                </div>
+              </motion.div>
             )}
           </AnimatePresence>
 
@@ -234,8 +249,8 @@ export default function Page() {
                 onClick={handlePrev}
                 disabled={currentQuestion === 1}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-full border text-sm font-medium transition-all duration-200 ${currentQuestion === 1
-                    ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                    : "border-gray-300 text-gray-600 hover:border-[#980194] hover:text-[#980194]"
+                  ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                  : "border-gray-300 text-gray-600 hover:border-[#980194] hover:text-[#980194]"
                   }`}
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -246,8 +261,8 @@ export default function Page() {
                 onClick={handleNext}
                 disabled={selectedAnswer == null}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${selectedAnswer != null
-                    ? "bg-[#980194] text-white hover:bg-[#7a0178]"
-                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  ? "bg-[#980194] text-white hover:bg-[#7a0178]"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
                   }`}
               >
                 {currentQuestion === totalQuestions ? "Submit" : "Next"}

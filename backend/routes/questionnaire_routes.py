@@ -76,7 +76,7 @@ def get_my_responses(ctx: Context = Depends(get_context)):
     query = (
         select(QuestionnaireResponse)
         .where(QuestionnaireResponse.userid == ctx.user.user_id)
-        .order_by(QuestionnaireResponse.created_at.desc())
+        .order_by(QuestionnaireResponse.date.desc())
     )
     responses = ctx.db.exec(query).all()
     return ctx.response.success(data=ctx.serialize(responses))
