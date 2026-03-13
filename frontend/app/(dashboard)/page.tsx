@@ -1,4 +1,6 @@
 "use client"
+import DoctorDashboard from "./components/Dashboard/DoctorDashboard";
+import UserDashboard from "./components/Dashboard/UserDashboard";
 import { useUser } from "./layout";
 
 export default function Dashboard() {
@@ -10,7 +12,7 @@ export default function Dashboard() {
 
   return (
     <>
-    {user.role == "user" ? (<div>Welcome User, {user.first_name}!</div>) : (<div>Welcome Doctor, {user.first_name}!</div>)}
+    {user.role == "user" ? (<UserDashboard />) : (<DoctorDashboard />)}
     </>
   );
 }
