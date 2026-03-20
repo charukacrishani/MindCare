@@ -30,7 +30,7 @@ def get_session():
 # TABLE CREATION UTILITY
 # -------------------------
 def init_db():
-    """Call this once to create all tables in the database."""
     from models import user, chats
+    from models import password_reset  # ← add this
     SQLModel.metadata.create_all(engine)
     print("✅ All tables created successfully.")

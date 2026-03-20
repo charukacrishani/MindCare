@@ -86,7 +86,7 @@ class ApiClient {
       ) {
         // Don't redirect if we're already on an auth page to prevent redirect loops
         const currentPath = window.location.pathname;
-        const authPaths = ['/signin', '/signup'];
+        const authPaths = ['/signin', '/signup', '/forgot-password'];
         if (!authPaths.includes(currentPath)) {
           // navigate before throwing so caller doesn't continue
           window.location.href = errorData.detail.redirect.url;

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { apiClient } from "@/lib/apiClient";
 import { useRouter } from 'next/navigation'; 
+import Link from "next/link";
 
 export default function SignInForm() {
   const router = useRouter();
@@ -94,25 +95,27 @@ export default function SignInForm() {
             </div>
 
             {/* Password */}
-            <div className="space-y-1.5">
-              <Label
-                htmlFor="password"
-                className="text-sm font-medium text-gray-700"
-              >
-                Password
-              </Label>
-              <Input
-                type="password"
-                id="password"
-                name="password"
-                disabled={loading}
-                value={formData.password}
-                onChange={handleInputChange}
-                className="bg-white border-gray-200 focus-visible:ring-purple-400"
-                required
-              />
-            </div>
-
+            {/* Password */}
+<div className="space-y-1.5">
+  <div className="flex items-center justify-between">
+    <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+      Password
+    </Label>
+<a href="/forgot-password" className="text-blue-500 hover:underline">
+                Forgot password?
+              </a> 
+  </div>
+  <Input
+    type="password"
+    id="password"
+    name="password"
+    disabled={loading}
+    value={formData.password}
+    onChange={handleInputChange}
+    className="bg-white border-gray-200 focus-visible:ring-purple-400"
+    required
+  />
+</div>
             {/* Sign In Button */}
             <Button
               type="submit"
