@@ -1,13 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { apiClient } from "@/lib/apiClient";
+import { Eye, EyeOff } from "lucide-react";
 
 type Step = "request" | "verify" | "reset" | "done";
+
+const passwordRules = [
+  { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
+  { label: "At least one uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
+  { label: "At least one lowercase letter", test: (p: string) => /[a-z]/.test(p) },
+  { label: "At least one number", test: (p: string) => /[0-9]/.test(p) },
+  { label: "At least one special character", test: (p: string) => /[^A-Za-z0-9]/.test(p) },
+];
 
 export default function ForgotPasswordForm() {
   const [step, setStep] = useState<Step>("request");
@@ -16,8 +26,12 @@ export default function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [passwords, setPasswords] = useState({ password: "", confirm: "" });
+  const [showPassword, setShowPassword] = useState(false);
+const [showConfirm, setShowConfirm] = useState(false)
 
- const handleRequest = async (e: React.FormEvent) => {
+  const isPasswordValid = passwordRules.every((rule) => rule.test(passwords.password));
+
+  const handleRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -56,21 +70,21 @@ export default function ForgotPasswordForm() {
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (passwords.password !== passwords.confirm) {
-      setError("Passwords do not match.");
+    if (!isPasswordValid) {
+      setError("Please meet all password requirements.");
       return;
     }
-    if (passwords.password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    if (passwords.password !== passwords.confirm) {
+      setError("Passwords do not match.");
       return;
     }
     setLoading(true);
     try {
       const response = await apiClient.post("/forgot-password/reset", {
-  email,
-  code,
-  password: passwords.password,
-});
+        email,
+        code,
+        password: passwords.password,
+      });
       if (response.success) {
         setStep("done");
       } else {
@@ -191,42 +205,80 @@ export default function ForgotPasswordForm() {
           {step === "reset" && (
             <form onSubmit={handleReset} className="space-y-4">
               <p className="text-sm text-gray-500">Choose a strong new password.</p>
+
+              {/* New password + rules */}
               <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                  New password
-                </Label>
-                <Input
-                  type="password"
-                  id="password"
-                  value={passwords.password}
-                  onChange={(e) =>
-                    setPasswords((p) => ({ ...p, password: e.target.value }))
-                  }
-                  disabled={loading}
-                  className="bg-white border-gray-200 focus-visible:ring-purple-400"
-                  required
-                />
-              </div>
+  <div className="flex items-center gap-1">
+    <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+      New password
+    </Label>
+    <button
+      type="button"
+      onClick={() => setShowPassword((v) => !v)}
+      className="text-gray-400 hover:text-gray-600"
+    >
+      {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+    </button>
+  </div>
+  <Input
+    type={showPassword ? "text" : "password"}
+    id="password"
+    value={passwords.password}
+    onChange={(e) => setPasswords((p) => ({ ...p, password: e.target.value }))}
+    disabled={loading}
+    className="bg-white border-gray-200 focus-visible:ring-purple-400"
+    required
+  />
+  {passwords.password.length > 0 && !isPasswordValid && (
+    <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-100 space-y-1.5">
+      {passwordRules.map((rule) => {
+        const passed = rule.test(passwords.password);
+        return (
+          <div key={rule.label} className="flex items-center gap-2">
+            {passed ? (
+              <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+            ) : (
+              <X className="w-3.5 h-3.5 text-gray-300 flex-shrink-0" />
+            )}
+            <span className={`text-xs transition-colors ${passed ? "text-green-600" : "text-gray-400"}`}>
+              {rule.label}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  )}
+</div>
+
+              {/* Confirm password */}
               <div className="space-y-1.5">
-                <Label htmlFor="confirm" className="text-sm font-medium text-gray-700">
-                  Confirm password
-                </Label>
-                <Input
-                  type="password"
-                  id="confirm"
-                  value={passwords.confirm}
-                  onChange={(e) =>
-                    setPasswords((p) => ({ ...p, confirm: e.target.value }))
-                  }
-                  disabled={loading}
-                  className="bg-white border-gray-200 focus-visible:ring-purple-400"
-                  required
-                />
-              </div>
+  <div className="flex items-center gap-1">
+    <Label htmlFor="confirm" className="text-sm font-medium text-gray-700">
+      Confirm password
+    </Label>
+    <button
+      type="button"
+      onClick={() => setShowConfirm((v) => !v)}
+      className="text-gray-400 hover:text-gray-600"
+    >
+      {showConfirm ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+    </button>
+  </div>
+  <Input
+    type={showConfirm ? "text" : "password"}
+    id="confirm"
+    value={passwords.confirm}
+    onChange={(e) => setPasswords((p) => ({ ...p, confirm: e.target.value }))}
+    disabled={loading}
+    className="bg-white border-gray-200 focus-visible:ring-purple-400"
+    required
+  />
+</div>
+
               <Button
                 type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-purple-400 via-pink-400 to-pink-500 text-white hover:from-purple-500 hover:via-pink-500 hover:to-pink-600 shadow-lg"
+                disabled={loading || !isPasswordValid}
+                className="w-full bg-gradient-to-r from-purple-400 via-pink-400 to-pink-500 text-white hover:from-purple-500 hover:via-pink-500 hover:to-pink-600 shadow-lg disabled:opacity-50"
                 size="lg"
               >
                 {loading ? "Saving..." : "Reset password"}

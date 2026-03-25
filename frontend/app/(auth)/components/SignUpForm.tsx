@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { apiClient } from "@/lib/apiClient";
 import { useRouter } from "next/dist/client/components/navigation";
-
+import { Eye, EyeOff } from "lucide-react";
 
 const passwordRules = [
   { label: "At least 8 characters", test: (p: string) => p.length >= 8 },
@@ -44,6 +44,9 @@ export default function SignUpForm() {
   const handleRoleChange = (role: "User" | "counselor") => {
     setFormData((prev) => ({ ...prev, role }));
   };
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const isPasswordValid = passwordRules.every((r) => r.test(formData.password));
 
@@ -177,7 +180,7 @@ export default function SignUpForm() {
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   type="button"
-                disabled={loading}
+                  disabled={loading}
                   variant={formData.role === "User" ? "default" : "outline"}
                   onClick={() => handleRoleChange("User")}
                   className={
@@ -190,7 +193,7 @@ export default function SignUpForm() {
                 </Button>
                 <Button
                   type="button"
-                disabled={loading}
+                  disabled={loading}
 
                   variant={formData.role === "counselor" ? "default" : "outline"}
                   onClick={() => handleRoleChange("counselor")}
@@ -207,15 +210,23 @@ export default function SignUpForm() {
 
             {/* Password */}
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                Password
-              </Label>
+              <div className="flex items-center gap-1">
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                  Password
+                </Label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+              </div>
               <Input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
-                disabled={loading}
-
                 name="password"
+                disabled={loading}
                 value={formData.password}
                 onChange={handleInputChange}
                 className="bg-white border-gray-200 focus-visible:ring-purple-400"

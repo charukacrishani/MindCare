@@ -60,7 +60,7 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6, duration: 0.5 }}
-      className="w-full max-w-3xl flex flex-col gap-2 mt-8"
+      className="w-full max-w-10xl flex flex-col gap-6 mt-8"
     >
       <div className="flex justify-between text-sm text-gray-400">
         <span>progress</span>
