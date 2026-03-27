@@ -1,6 +1,22 @@
+'use client';
+import { useUser } from "@/app/(dashboard)/layout";
 import ProfileSetupForm from "../components/ProfileSetupForm";
+import { useEffect } from "react";
+import { useRouter } from 'next/navigation';
 
 export default function page() {
+  const user = useUser();
+  const router = useRouter();
+
+
+  useEffect(() => {
+    if (user) {
+      if (user.isComplete) {
+        router.push("/profile");
+      }
+    }
+  }, [user]);
+
   return (
     <div
       className="max-w-7xl w-full px-4 mx-auto flex justify-between items-center overflow-hidden relative min-h-svh h-svh
@@ -17,7 +33,7 @@ export default function page() {
           Smart questions. Meaningful support
         </p>
       </div>
-      <ProfileSetupForm role={"User"} />
+      <ProfileSetupForm role={user?.role ?? ""} />
     </div>
   );
 }

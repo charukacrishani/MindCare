@@ -11,7 +11,7 @@ from pathlib import Path
 from context import get_context_html
 from db import get_session, init_db
 from models.user import Users
-from routes import register_router, chat_router, login_router, user_router, doctor_router, user_info_router, doctor_info_router, questionnaire_router
+from routes import register_router, chat_router, login_router, user_router, doctor_router, user_info_router, doctor_info_router, questionnaire_router, profile_router
 from utils.hash import hash_password
 from models.password_reset import PasswordReset
 from routes.forgot_password_routes import router as forgot_password_router
@@ -39,4 +39,5 @@ app.include_router(chat_router)
 app.include_router(user_info_router)
 app.include_router(doctor_info_router)
 app.include_router(questionnaire_router)
+app.include_router(profile_router)
 app.include_router(forgot_password_router)  # ← moved here

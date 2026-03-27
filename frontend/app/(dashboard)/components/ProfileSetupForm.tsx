@@ -7,9 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ChevronDown, Calendar, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
+import { apiClient } from "@/lib/apiClient";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
-type Role = "User" | "counselor";
+interface OptionItem {
+  id: string;
+  label: string;
+}
 
 interface UserDetails {
   gender: string;
@@ -31,28 +35,54 @@ interface DoctorDetails {
 }
 
 // ─── Dropdown options ─────────────────────────────────────────────────────────
-const GENDER_OPTIONS = [
-  "Male", "Female", "Non-binary",
-  "Transgender male", "Transgender female",
-  "Other", "Prefer not to say",
+const GENDER_OPTIONS: OptionItem[] = [
+  { id: "male", label: "Male" },
+  { id: "female", label: "Female" },
+  { id: "non_binary", label: "Non-binary" },
+  { id: "transgender_male", label: "Transgender male" },
+  { id: "transgender_female", label: "Transgender female" },
+  { id: "other", label: "Other" },
+  { id: "prefer_not_to_say", label: "Prefer not to say" },
 ];
 
-const SEXUAL_ORIENTATION_OPTIONS = [
-  "Heterosexual (Straight)", "Homosexual", "Bisexual",
-  "Asexual", "Pansexual", "Other", "Prefer not to say",
+const SEXUAL_ORIENTATION_OPTIONS: OptionItem[] = [
+  { id: "heterosexual_straight", label: "Heterosexual (Straight)" },
+  { id: "homosexual", label: "Homosexual" },
+  { id: "bisexual", label: "Bisexual" },
+  { id: "asexual", label: "Asexual" },
+  { id: "pansexual", label: "Pansexual" },
+  { id: "other", label: "Other" },
+  { id: "prefer_not_to_say", label: "Prefer not to say" },
 ];
 
-const MARITAL_STATUS_OPTIONS = [
-  "Single", "In a relationship", "Engaged", "Married",
-  "Divorced", "Separated", "Widowed", "Prefer not to say",
+const MARITAL_STATUS_OPTIONS: OptionItem[] = [
+  { id: "single", label: "Single" },
+  { id: "in_a_relationship", label: "In a relationship" },
+  { id: "engaged", label: "Engaged" },
+  { id: "married", label: "Married" },
+  { id: "divorced", label: "Divorced" },
+  { id: "separated", label: "Separated" },
+  { id: "widowed", label: "Widowed" },
+  { id: "prefer_not_to_say", label: "Prefer not to say" },
 ];
 
-const SPECIALIZATIONS = [
-  "Anxiety", "Depression", "Trauma & PTSD", "Grief",
-  "Relationships", "Family Therapy", "Addiction",
-  "Eating Disorders", "OCD", "ADHD", "Bipolar",
-  "Stress Management", "Life Coaching", "Child Psychology",
-  "Adolescents", "Couples Therapy",
+const SPECIALIZATIONS: OptionItem[] = [
+  { id: "anxiety", label: "Anxiety" },
+  { id: "depression", label: "Depression" },
+  { id: "trauma_ptsd", label: "Trauma & PTSD" },
+  { id: "grief", label: "Grief" },
+  { id: "relationships", label: "Relationships" },
+  { id: "family_therapy", label: "Family Therapy" },
+  { id: "addiction", label: "Addiction" },
+  { id: "eating_disorders", label: "Eating Disorders" },
+  { id: "ocd", label: "OCD" },
+  { id: "adhd", label: "ADHD" },
+  { id: "bipolar", label: "Bipolar" },
+  { id: "stress_management", label: "Stress Management" },
+  { id: "life_coaching", label: "Life Coaching" },
+  { id: "child_psychology", label: "Child Psychology" },
+  { id: "adolescents", label: "Adolescents" },
+  { id: "couples_therapy", label: "Couples Therapy" },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -72,7 +102,7 @@ function Dropdown({
 }: {
   label: string;
   value: string;
-  options: string[];
+  options: OptionItem[];
   onChange: (v: string) => void;
   disabled?: boolean;
 }) {
@@ -117,6 +147,8 @@ function Dropdown({
     };
   }, [open]);
 
+  const selectedOption = options.find((opt) => opt.id === value);
+
   return (
     <div className="relative">
       <button
@@ -128,7 +160,7 @@ function Dropdown({
           ${value ? "text-gray-800" : "text-gray-400"}
           ${open ? "border-[#980194] ring-2 ring-purple-100" : "border-gray-200 hover:border-purple-300"}`}
       >
-        <span>{value || label}</span>
+        <span>{selectedOption?.label || label}</span>
         <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
@@ -141,14 +173,14 @@ function Dropdown({
           <div className="max-h-52 overflow-y-auto">
             {options.map((opt) => (
               <button
-                key={opt}
+                key={opt.id}
                 type="button"
-                onClick={() => { onChange(opt); setOpen(false); }}
+                onClick={() => { onChange(opt.id); setOpen(false); }}
                 className={`w-full text-left px-4 py-2.5 text-sm hover:bg-purple-50 transition-colors
-                  ${value === opt ? "bg-purple-50 text-[#980194] font-medium" : "text-gray-700"}`}
+                  ${value === opt.id ? "bg-purple-50 text-[#980194] font-medium" : "text-gray-700"}`}
               >
-                {value === opt && <CheckCircle2 className="w-3.5 h-3.5 inline mr-2 text-[#980194]" />}
-                {opt}
+                {value === opt.id && <CheckCircle2 className="w-3.5 h-3.5 inline mr-2 text-[#980194]" />}
+                {opt.label}
               </button>
             ))}
           </div>
@@ -359,16 +391,24 @@ function AgeBadge({ age }: { age: number | "" }) {
 }
 
 // ─── Specialization Pill Grid ─────────────────────────────────────────────────
-function SpecializationGrid({ selected, onToggle }: { selected: string[]; onToggle: (s: string) => void }) {
+function SpecializationGrid({
+  options,
+  selected,
+  onToggle,
+}: {
+  options: OptionItem[];
+  selected: string[];
+  onToggle: (s: string) => void;
+}) {
   return (
     <div className="flex flex-wrap gap-2">
-      {SPECIALIZATIONS.map((s) => {
-        const active = selected.includes(s);
+      {options.map((s) => {
+        const active = selected.includes(s.id);
         return (
           <button
-            key={s}
+            key={s.id}
             type="button"
-            onClick={() => onToggle(s)}
+            onClick={() => onToggle(s.id)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border
               ${active
                 ? "bg-gradient-to-r from-purple-400 to-pink-400 text-white border-transparent shadow-sm"
@@ -376,7 +416,7 @@ function SpecializationGrid({ selected, onToggle }: { selected: string[]; onTogg
               }`}
           >
             {active && <CheckCircle2 className="w-3 h-3 inline mr-1" />}
-            {s}
+            {s.label}
           </button>
         );
       })}
@@ -394,14 +434,12 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+interface UserDetailsFormProps {
+  role: string;
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function UserDetailsForm() {
-  const [role] = useState<Role>(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem("signup_role") as Role) || "User";
-    }
-    return "User";
-  });
+export default function UserDetailsForm({ role }: UserDetailsFormProps) {
 
   const [loading, setLoading] = useState(false);
 
@@ -416,7 +454,7 @@ export default function UserDetailsForm() {
   });
 
   useEffect(() => {
-    if (role === "User") setUserDetails((p) => ({ ...p, age: calcAge(p.dob) }));
+    if (role === "user") setUserDetails((p) => ({ ...p, age: calcAge(p.dob) }));
   }, [userDetails.dob, role]);
 
   useEffect(() => {
@@ -425,17 +463,30 @@ export default function UserDetailsForm() {
 
   const handleNext = async () => {
     setLoading(true);
-    const key = role === "User" ? "user_details" : "doctor_details";
-    const data = role === "User" ? userDetails : doctorDetails;
-    localStorage.setItem(key, JSON.stringify(data));
-    // TODO: router.push('/next-step')
-    alert(`Saved!\n${JSON.stringify(data, null, 2)}`);
-    setLoading(false);
+    const data = role === "user" ? userDetails : doctorDetails;
+    try {
+      await apiClient.post("/profile/setup", { data });
+      // TODO: router.push('/next-step')
+      alert(`Saved!\n${JSON.stringify(data, null, 2)}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isUserValid = !!userDetails.gender && !!userDetails.dob && !!userDetails.sexualOrientation && !!userDetails.maritalStatus;
   const isDoctorValid = !!doctorDetails.fullName && !!doctorDetails.gender && !!doctorDetails.dob && doctorDetails.specializations.length > 0 && !!doctorDetails.yearsOfExperience && !!doctorDetails.licenceNumber;
-  const isValid = role === "User" ? isUserValid : isDoctorValid;
+  const isValid = role === "user" ? isUserValid : isDoctorValid;
+
+  if (role !== "user" && role !== "counselor") {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-white border-none shadow-2xl text-center p-6">
+          <h2 className="text-2xl font-semibold text-gray-800">Error occurred</h2>
+          <p className="text-gray-500 mt-2">An unexpected error occurred. Please try again.</p>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex items-center p-4 w-full">
@@ -448,10 +499,10 @@ export default function UserDetailsForm() {
             <img src="/images/logo3.png" alt="Logo" className="w-10 h-10 mr-2 opacity-20" />
             <div className="text-right">
               <h1 className="text-3xl font-medium text-[#980194]">
-                {role === "User" ? "User – Details" : "Doctor – Details"}
+                {role === "user" ? "User – Details" : "Doctor – Details"}
               </h1>
               <p className="text-xs text-gray-400 mt-0.5">
-                {role === "User" ? "Tell us a little about yourself" : "Set up your professional profile"}
+                {role === "user" ? "Tell us a little about yourself" : "Set up your professional profile"}
               </p>
             </div>
           </div>
@@ -460,7 +511,7 @@ export default function UserDetailsForm() {
         {/* No overflow-hidden on the card scroll container — use overflow-visible so portals work */}
         <CardContent className="space-y-5 max-h-[calc(100vh-12rem)] overflow-y-auto px-6 pb-8">
 
-          {role === "User" && (
+          {role === "user" && (
             <div className="space-y-5">
               <Field label="Gender">
                 <Dropdown label="Select Gender" value={userDetails.gender} options={GENDER_OPTIONS}
@@ -517,7 +568,7 @@ export default function UserDetailsForm() {
               </div>
 
               <Field label="Specialization">
-                <SpecializationGrid selected={doctorDetails.specializations}
+                <SpecializationGrid options={SPECIALIZATIONS} selected={doctorDetails.specializations}
                   onToggle={(s) => setDoctorDetails((p) => ({
                     ...p,
                     specializations: p.specializations.includes(s)

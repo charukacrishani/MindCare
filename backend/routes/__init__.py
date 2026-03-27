@@ -6,3 +6,4 @@ from .user_info_routes import router as user_info_router
 from .doctor_info_routes import router as doctor_info_router
 from .doctor_routes import router as doctor_router
 from .questionnaire_routes import router as questionnaire_router
+from .profile_routes import router as profile_router

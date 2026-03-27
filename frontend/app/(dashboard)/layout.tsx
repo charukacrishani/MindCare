@@ -10,6 +10,7 @@ interface User {
   first_name: string;
   email: string;
   role: string;
+  isComplete: boolean;
 }
 
 export const UserContext = createContext<User | null>(null);
@@ -31,6 +32,9 @@ export default function AuthLayout({
         const res = await apiClient.get<User>("/user/me");
         if (res.success) {
           setUser(res.data);
+          if(!res.data.isComplete) {
+            router.push("/complete-profile");
+          }
         } else {
           router.push("/signin");
         }
