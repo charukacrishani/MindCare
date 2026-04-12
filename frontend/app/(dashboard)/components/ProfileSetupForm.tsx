@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -440,6 +441,7 @@ interface UserDetailsFormProps {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function UserDetailsForm({ role }: UserDetailsFormProps) {
+  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
 
@@ -466,8 +468,17 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
     const data = role === "user" ? userDetails : doctorDetails;
     try {
       await apiClient.post("/profile/setup", { data });
-      // TODO: router.push('/next-step')
-      alert(`Saved!\n${JSON.stringify(data, null, 2)}`);
+
+      // Dashboard route renders role-specific dashboard UI.
+      if (role === "user") {
+        router.replace("/profile");
+        return;
+      }
+
+      if (role === "counselor") {
+        router.replace("/profile");
+        return;
+      }
     } finally {
       setLoading(false);
     }
