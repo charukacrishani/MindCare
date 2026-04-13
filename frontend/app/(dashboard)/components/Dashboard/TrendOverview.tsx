@@ -1,4 +1,19 @@
+function normalizeDASS21Score(score: number): number {
+  // DASS-21 range is 0-42, normalize to 0.8-3 for chart scaling
+  const normalized = 0.8 + (score / 42) * (3 - 0.8);
+  return Number(normalized.toFixed(2));
+}
+
 function smoothPath(values: number[]): string {
+  // Handle empty or single-element arrays
+  if (!values || values.length < 1) {
+    return "";
+  }
+
+  if (values.length === 1) {
+    return `M 0,190`;
+  }
+
   const width = 520;
   const height = 190;
   const min = 0.8;
@@ -20,7 +35,47 @@ function smoothPath(values: number[]): string {
   return d;
 }
 
-export default function TrendOverview() {
+export interface TrendData {
+  anxiety_score: number;
+  depression_score: number;
+  stress_score: number;
+  date: string | Date;
+}
+
+interface TrendOverviewProps {
+  data?: TrendData[];
+}
+
+export default function TrendOverview({ data }: TrendOverviewProps) {
+  // Use passed data or fallback to demo data
+  let chartData = data || [
+    { anxiety_score: 2.25, depression_score: 1.4, stress_score: 1.8, date: "Day 1" },
+    { anxiety_score: 2.15, depression_score: 0.9, stress_score: 2.3, date: "Day 2" },
+    { anxiety_score: 2.05, depression_score: 1.7, stress_score: 1.25, date: "Day 3" },
+    { anxiety_score: 1.9, depression_score: 2.5, stress_score: 1.95, date: "Day 4" },
+    { anxiety_score: 1.2, depression_score: 2.1, stress_score: 1.85, date: "Day 5" },
+  ];
+
+  // Normalize DASS-21 scores if they're in the 0-42 range
+  chartData = chartData.map((d) => ({
+    ...d,
+    anxiety_score: d.anxiety_score > 3 ? normalizeDASS21Score(d.anxiety_score) : d.anxiety_score,
+    depression_score: d.depression_score > 3 ? normalizeDASS21Score(d.depression_score) : d.depression_score,
+    stress_score: d.stress_score > 3 ? normalizeDASS21Score(d.stress_score) : d.stress_score,
+  }));
+
+  const anxietyScores = chartData.map((d) => d.anxiety_score);
+  const depressionScores = chartData.map((d) => d.depression_score);
+  const stressScores = chartData.map((d) => d.stress_score);
+
+  const formatDate = (date: string | Date): string => {
+    if (typeof date === "string") return date;
+    const d = new Date(date);
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
+  const dateLabels = chartData.map((d) => formatDate(d.date));
+
   return (
     <section className="col-span-2 w-full rounded-2xl border border-[#e0e0e6] bg-white overflow-hidden flex flex-col">
       <div className="px-4 py-3 border-b border-[#ebebef] flex items-center justify-between flex-shrink-0">
@@ -60,12 +115,12 @@ export default function TrendOverview() {
           <text x="6" y="255" fontSize="13" fill="#9c9ca4">Level 01</text>
 
           <g transform="translate(55,20)">
-            <path d={smoothPath([2.25, 2.15, 2.05, 1.9, 1.2])} fill="none" stroke="#f4b3b0" strokeWidth="2.5" strokeLinecap="round" />
-            <path d={smoothPath([1.4, 0.9, 1.7, 2.5, 2.1])} fill="none" stroke="#a9e9a8" strokeWidth="2.5" strokeLinecap="round" />
-            <path d={smoothPath([1.8, 2.3, 1.25, 1.95, 1.85])} fill="none" stroke="#f0bf8d" strokeWidth="2.5" strokeLinecap="round" />
+            <path d={smoothPath(anxietyScores)} fill="none" stroke="#f4b3b0" strokeWidth="2.5" strokeLinecap="round" />
+            <path d={smoothPath(depressionScores)} fill="none" stroke="#a9e9a8" strokeWidth="2.5" strokeLinecap="round" />
+            <path d={smoothPath(stressScores)} fill="none" stroke="#f0bf8d" strokeWidth="2.5" strokeLinecap="round" />
           </g>
 
-          {["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"].map((d, i) => (
+          {dateLabels.map((d, i) => (
             <text key={d} x={62 + i * 130} y="282" fontSize="13" fill="#9c9ca4">{d}</text>
           ))}
         </svg>
