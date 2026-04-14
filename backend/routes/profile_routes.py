@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+import base64
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
@@ -26,6 +27,7 @@ class CounselorProfileData(BaseModel):
     specializations: list[str]
     yearsOfExperience: str
     licenceNumber: str
+    avatar: str | None = None  # Base64 encoded avatar image
 
 
 class ProfileSetupRequest(BaseModel):
@@ -74,6 +76,13 @@ def serialize_counselor_profile(ctx: Context, profile: DoctorInformation, userid
     serialized.setdefault("licence_number", None)
     serialized.setdefault("years_of_experience", None)
     serialized["specializations"] = parse_specializations(serialized.get("specializations"))
+    
+    # Convert avatar bytes to base64 string
+    if profile.avatar:
+        serialized["avatar"] = base64.b64encode(profile.avatar).decode("utf-8")
+    else:
+        serialized["avatar"] = None
+    
     return serialized
 
 
@@ -204,6 +213,14 @@ def update_my_profile(body: ProfileUpdateRequest, ctx: Context = Depends(get_con
                 serialized_specs = json.dumps(specs)
                 profile.specializations = serialized_specs
                 profile.specialization = serialized_specs
+            
+            # Handle avatar if provided (base64 encoded)
+            if "avatar" in payload and payload.get("avatar"):
+                try:
+                    avatar_bytes = base64.b64decode(payload.get("avatar"))
+                    profile.avatar = avatar_bytes
+                except Exception as e:
+                    return ctx.response.error(message=f"Invalid avatar data: {str(e)}")
 
             profile.age = max(0, datetime.utcnow().year - profile.dob.year) if profile.dob else None
             ctx.db.add(profile)
@@ -275,6 +292,14 @@ def save_profile_setup(body: ProfileSetupRequest, ctx: Context = Depends(get_con
             serialized_specs = json.dumps(payload.specializations)
             row.specializations = serialized_specs
             row.specialization = serialized_specs
+            
+            # Handle avatar if provided (base64 encoded)
+            if payload.avatar:
+                try:
+                    avatar_bytes = base64.b64decode(payload.avatar)
+                    row.avatar = avatar_bytes
+                except Exception as e:
+                    return ctx.response.error(message=f"Invalid avatar data: {str(e)}")
 
             ctx.db.add(row)
         else:

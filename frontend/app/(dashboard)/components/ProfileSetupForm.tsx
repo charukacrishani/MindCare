@@ -33,6 +33,7 @@ interface DoctorDetails {
   specializations: string[];
   yearsOfExperience: string;
   licenceNumber: string;
+  avatar: string | null;  // Base64 encoded avatar
 }
 
 // ─── Dropdown options ─────────────────────────────────────────────────────────
@@ -95,6 +96,96 @@ function calcAge(dob: string): number | "" {
   const m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
   return age >= 0 ? age : "";
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result.split(",")[1]); // Remove the data:image/* prefix
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ─── Avatar Upload Component ──────────────────────────────────────────────────
+function AvatarUpload({
+  avatar, onChange, disabled,
+}: {
+  avatar: string | null;
+  onChange: (base64: string) => void;
+  disabled?: boolean;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(file.type)) {
+      alert("Please select a valid image file (JPEG, PNG, GIF, or WebP)");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size must be less than 5MB");
+      return;
+    }
+
+    try {
+      const base64 = await fileToBase64(file);
+      onChange(base64);
+      setPreviewUrl(URL.createObjectURL(file));
+    } catch (error) {
+      alert("Error processing image");
+    }
+  };
+
+  const displayUrl = previewUrl || (avatar ? `data:image/png;base64,${avatar}` : null);
+
+  return (
+    <div className="space-y-3">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        disabled={disabled}
+        className="hidden"
+      />
+      
+      <div className="flex items-center gap-4">
+        <div className="relative">
+          {displayUrl ? (
+            <img
+              src={displayUrl}
+              alt="Avatar preview"
+              className="w-24 h-24 rounded-lg object-cover border-2 border-purple-200"
+            />
+          ) : (
+            <div className="w-24 h-24 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+              <span className="text-xs text-gray-400">No image</span>
+            </div>
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={disabled}
+          className="px-4 py-2.5 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Upload Avatar
+        </button>
+      </div>
+      <p className="text-xs text-gray-400">Max 5MB • PNG, JPEG, GIF, WebP</p>
+    </div>
+  );
 }
 
 // ─── Portal Dropdown ──────────────────────────────────────────────────────────
@@ -452,7 +543,7 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
 
   const [doctorDetails, setDoctorDetails] = useState<DoctorDetails>({
     fullName: "", gender: "", dob: "", age: "",
-    specializations: [], yearsOfExperience: "", licenceNumber: "",
+    specializations: [], yearsOfExperience: "", licenceNumber: "", avatar: null,
   });
 
   useEffect(() => {
@@ -559,6 +650,14 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
 
           {role === "counselor" && (
             <div className="space-y-5">
+              <Field label="Avatar">
+                <AvatarUpload
+                  avatar={doctorDetails.avatar}
+                  onChange={(base64) => setDoctorDetails((p) => ({ ...p, avatar: base64 }))}
+                  disabled={loading}
+                />
+              </Field>
+
               <Field label="Full Name">
                 <Input type="text" placeholder="Dr. Jane Smith" value={doctorDetails.fullName}
                   disabled={loading} onChange={(e) => setDoctorDetails((p) => ({ ...p, fullName: e.target.value }))}

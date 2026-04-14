@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useUser } from "@/app/(dashboard)/layout";
 import { apiClient } from "@/lib/apiClient";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -39,6 +39,7 @@ type CounselorProfile = {
 	licence_number: string | null;
 	years_of_experience: number | null;
 	specializations: string[] | string | null;
+	avatar: string | null;
 };
 
 type UserProfileForm = {
@@ -56,6 +57,7 @@ type CounselorProfileForm = {
 	licenceNumber: string;
 	yearsOfExperience: string;
 	specializations: string;
+	avatar: string | null;
 };
 
 function formatDate(value: string | null | undefined) {
@@ -127,6 +129,7 @@ function toCounselorForm(profile: CounselorProfile): CounselorProfileForm {
 		licenceNumber: profile.licence_number ?? "",
 		yearsOfExperience: profile.years_of_experience != null ? String(profile.years_of_experience) : "",
 		specializations: parseSpecializations(profile.specializations).join(", "),
+		avatar: profile.avatar ?? null,
 	};
 }
 
@@ -135,6 +138,116 @@ function ProfileField({ label, value }: { label: string; value: string | number 
 		<div className="space-y-1 rounded-lg border border-gray-100 bg-white p-3">
 			<p className="text-xs uppercase tracking-wide text-gray-500">{label}</p>
 			<p className="text-sm font-medium text-gray-800">{value ?? "-"}</p>
+		</div>
+	);
+}
+
+function fileToBase64(file: File): Promise<string> {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onload = () => {
+			const result = reader.result as string;
+			resolve(result.split(",")[1]); // Remove the data:image/* prefix
+		};
+		reader.onerror = reject;
+		reader.readAsDataURL(file);
+	});
+}
+
+function AvatarDisplay({ avatar }: { avatar: string | null }) {
+	if (!avatar) {
+		return (
+			<div className="w-24 h-24 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+				<span className="text-xs text-gray-400">No avatar</span>
+			</div>
+		);
+	}
+	return (
+		<img
+			src={`data:image/png;base64,${avatar}`}
+			alt="Avatar"
+			className="w-24 h-24 rounded-lg object-cover border-2 border-purple-200"
+		/>
+	);
+}
+
+function AvatarUploadField({
+	avatar,
+	onAvatarChange,
+	disabled,
+}: {
+	avatar: string | null;
+	onAvatarChange: (base64: string) => void;
+	disabled?: boolean;
+}) {
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		// Validate file type
+		if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(file.type)) {
+			alert("Please select a valid image file (JPEG, PNG, GIF, or WebP)");
+			return;
+		}
+
+		// Validate file size (max 5MB)
+		if (file.size > 5 * 1024 * 1024) {
+			alert("File size must be less than 5MB");
+			return;
+		}
+
+		try {
+			const base64 = await fileToBase64(file);
+			onAvatarChange(base64);
+			setPreviewUrl(URL.createObjectURL(file));
+		} catch (error) {
+			alert("Error processing image");
+		}
+	};
+
+	const displayUrl = previewUrl || (avatar ? `data:image/png;base64,${avatar}` : null);
+
+	return (
+		<div className="space-y-2">
+			<p className="text-xs uppercase tracking-wide text-gray-500">Avatar</p>
+			<div className="flex items-center gap-4">
+				<div className="relative">
+					{displayUrl ? (
+						<img
+							src={displayUrl}
+							alt="Avatar preview"
+							className="w-24 h-24 rounded-lg object-cover border-2 border-purple-200"
+						/>
+					) : (
+						<div className="w-24 h-24 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+							<span className="text-xs text-gray-400">No image</span>
+						</div>
+					)}
+				</div>
+
+				<div className="space-y-2">
+					<button
+						type="button"
+						onClick={() => fileInputRef.current?.click()}
+						disabled={disabled}
+						className="px-3 py-2 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						Change Avatar
+					</button>
+					<p className="text-xs text-gray-400">Max 5MB • PNG, JPEG, GIF</p>
+				</div>
+			</div>
+			<input
+				ref={fileInputRef}
+				type="file"
+				accept="image/*"
+				onChange={handleFileChange}
+				disabled={disabled}
+				className="hidden"
+			/>
 		</div>
 	);
 }
@@ -230,7 +343,7 @@ export default function ProfilePage() {
 					.map((value) => value.trim())
 					.filter(Boolean);
 
-				const payload = {
+				const payload: any = {
 					fullName: counselorForm.fullName,
 					gender: counselorForm.gender,
 					dob: counselorForm.dob,
@@ -238,6 +351,12 @@ export default function ProfilePage() {
 					yearsOfExperience: counselorForm.yearsOfExperience,
 					specializations: specs,
 				};
+
+				// Include avatar if it was changed
+				if (counselorForm.avatar) {
+					payload.avatar = counselorForm.avatar;
+				}
+
 				const res = await apiClient.patch<ProfileMeResponse>("/profile/me", { data: payload });
 				const updated = res.data.profile as CounselorProfile;
 				setCounselorProfile(updated);
@@ -334,8 +453,10 @@ export default function ProfilePage() {
 
 					{role !== "user" && counselorProfile && !isEditing && (
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-							<ProfileField label="Full Name" value={counselorProfile.full_name ?? "-"} />
-							<ProfileField label="Date of Birth" value={formatDate(counselorProfile.dob)} />
+						<div className="space-y-2">
+							<p className="text-xs uppercase tracking-wide text-gray-500">Avatar</p>
+							<AvatarDisplay avatar={counselorProfile.avatar} />
+						</div>
 							<ProfileField label="Age" value={counselorProfile.age ?? "-"} />
 							<ProfileField label="Gender" value={counselorProfile.gender ?? "-"} />
 							<ProfileField label="Licence Number" value={counselorProfile.licence_number ?? "-"} />
@@ -409,6 +530,15 @@ export default function ProfilePage() {
 
 					{role !== "user" && isEditing && counselorForm && (
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<div className="sm:col-span-2 lg:col-span-3">
+								<AvatarUploadField
+									avatar={counselorForm.avatar}
+									onAvatarChange={(base64) =>
+										setCounselorForm((prev) => (prev ? { ...prev, avatar: base64 } : prev))
+									}
+									disabled={saving}
+								/>
+							</div>
 							<div className="space-y-1">
 								<p className="text-xs uppercase tracking-wide text-gray-500">Full Name</p>
 								<Input

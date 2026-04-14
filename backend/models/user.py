@@ -1,6 +1,7 @@
 from sqlmodel import SQLModel, Field
 from datetime import datetime
 from typing import Optional
+import base64
 
 
 class Users(SQLModel, table=True):
@@ -45,3 +46,4 @@ class DoctorInformation(SQLModel, table=True):
     location: Optional[str] = None
     specialization: Optional[str] = None
     hospital: Optional[str] = None
+    avatar: Optional[bytes] = Field(default=None)  # Store image as blob
