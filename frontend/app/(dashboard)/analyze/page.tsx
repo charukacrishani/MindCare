@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { guid } from "@/lib/generateguid";
 import { apiClient } from "@/lib/apiClient";
+import { useRouter } from 'next/navigation';
 
 interface Message {
   id: string;
@@ -144,6 +145,7 @@ function QuestionCard({
 }
 
 export default function Page() {
+  const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [isChatDone, setIsChatDone] = useState(false);
@@ -220,7 +222,7 @@ export default function Page() {
                   Thank you for completing the questionnaire!
                 </p>
 
-                <div className="flex justify-center gap-4 text-sm font-medium">
+                {/* <div className="flex justify-center gap-4 text-sm font-medium">
                   <span className="px-4 py-2 rounded-lg bg-red-50 text-red-600">
                     Depression: {response?.depression_score}
                   </span>
@@ -232,6 +234,17 @@ export default function Page() {
                   <span className="px-4 py-2 rounded-lg bg-blue-50 text-blue-600">
                     Stress: {response?.stress_score}
                   </span>
+                </div> */}
+                <div className="mt-8 flex justify-center gap-6">
+                  <button
+                    onClick={() => router.replace("/")}
+                    className={`flex items-center gap-2 px-6 py-2.5 rounded-full border text-sm font-medium transition-all duration-200 ${currentQuestion === 1
+                      ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                      : "border-gray-300 text-gray-600 hover:border-[#980194] hover:text-[#980194]"
+                      }`}
+                  >
+                    Proceed
+                  </button>
                 </div>
               </motion.div>
             )}

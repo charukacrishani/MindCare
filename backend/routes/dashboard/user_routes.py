@@ -18,8 +18,40 @@ def get_current_stats_dashboard(ctx: Context = Depends(get_context)):
         .order_by(QuestionnaireResponse.date.desc()).limit(1)
     )
     responses = ctx.db.exec(query).all()
-    return ctx.response.success(data=ctx.serialize(responses))
+    if not responses:
+        return ctx.response.success(data={
+            "anxiety_score": 0,
+            "depression_score": 0,
+            "stress_score": 0,
+            "date": None
+        })
+    
+    response = responses[0]
+    a_level = get_dass21_level(response.anxiety_score)
+    d_level = get_dass21_level(response.depression_score)
+    s_level = get_dass21_level(response.stress_score)
+    res = {
+        "anxiety_score": a_level,
+        "depression_score": d_level,
+        "stress_score": s_level,
+        "date": response.date.isoformat() if response.date else None
+    }
+    
+    
+    return ctx.response.success(data=ctx.serialize(res))
 
+
+def get_dass21_level(score):
+    max_score = 42
+    step = max_score / 3
+
+    if score <= step:
+        return "1"
+    elif score <= 2 * step:
+        return "2"
+    else:
+        return "3"
+    
 
 @router.get("/trend")
 def get_trend_data(ctx: Context = Depends(get_context)):

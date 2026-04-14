@@ -19,12 +19,12 @@ export default function UserDashboard() {
 
     const loadSummaryCards = async () => {
         try {
-            const response = await apiClient.get<[{
+            const response = await apiClient.get<{
                 anxiety_score: number,
                 depression_score: number,
                 stress_score: number
-            }]>("/dashboard/users/current");
-            const { anxiety_score, depression_score, stress_score } = response.data[0];
+            }>("/dashboard/users/current");
+            const { anxiety_score, depression_score, stress_score } = response.data;
             setSummaryCards([
                 { title: "Anxiety Score", value: anxiety_score.toString() },
                 { title: "Depression Score", value: depression_score.toString()},
