@@ -148,23 +148,3 @@ def get_all_messages_of_session(ctx: Context, chatid: str, new_answer: Optional[
         messages_parsed.append(MessageParsed(role='user', content=new_answer, questionid=new_answer_id))
 
     return messages_parsed
-
-# @router.get("/")
-# def get_chats(ctx: Context = Depends(get_context)):
-#     query = select(Chats).where(Chats.userid == ctx.user.user_id)
-#     chats = ctx.db.exec(query).all()
-    
-#     return ctx.response.success(data=ctx.serialize(chats))
-
-# @router.post("/end-chat")
-# def end_chat(chatid: str, ctx: Context = Depends(get_context)):
-#     query = select(Chats).where(Chats.userid == ctx.user.user_id, Chats.chatid == chatid, Chats.active == True)
-#     chat = ctx.db.exec(query).first()
-    
-#     if chat is None:
-#         return ctx.response.error(message='chat is inactive or not found')
-    
-#     chat.active = False
-#     ctx.db.add(chat)
-#     ctx.db.commit()
-#     return ctx.response.success(message='updated')

@@ -11,11 +11,10 @@ from pathlib import Path
 from context import get_context_html
 from db import get_session, init_db
 from models.user import Users
-from routes import register_router, chat_router, login_router, user_router, doctor_router, user_info_router, doctor_info_router, questionnaire_router, profile_router, dashboard_user_router
-from routes.avatar_routes import router as avatar_router
+from routes import register_router, chat_router, login_router, user_router, doctor_router, user_info_router, doctor_info_router, questionnaire_router, profile_router, dashboard_user_router, forgot_password_router
+from routes.avatar import avatar_router
 from utils.hash import hash_password
 from models.password_reset import PasswordReset
-from routes.forgot_password_routes import router as forgot_password_router
 
 app = FastAPI()
 
