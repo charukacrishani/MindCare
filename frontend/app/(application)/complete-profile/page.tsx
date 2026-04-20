@@ -1,5 +1,5 @@
 'use client';
-import { useUser } from "@/app/(dashboard)/layout";
+import { useUser } from "@/app/(application)/layout";
 import ProfileSetupForm from "../components/ProfileSetupForm";
 import { useEffect } from "react";
 import { useRouter } from 'next/navigation';

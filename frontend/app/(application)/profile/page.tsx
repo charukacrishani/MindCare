@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useUser } from "@/app/(dashboard)/layout";
+import { useUser } from "@/app/(application)/layout";
 import { apiClient } from "@/lib/apiClient";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
