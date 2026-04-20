@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -13,63 +13,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, History } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { apiClient } from "@/lib/apiClient";
 
 interface Patient {
   id: string;
   name: string;
   description: string;
   age: number;
-  time: string;
 }
-
-const patients: Patient[] = [
-  {
-    id: "1",
-    name: "Chandler Bing",
-    description: "Can't sleep at night",
-    age: 27,
-    time: "3:00 PM",
-  },
-  {
-    id: "2",
-    name: "Monica Geller",
-    description: "Anxiety and stress",
-    age: 31,
-    time: "3:00 PM",
-  },
-  {
-    id: "3",
-    name: "Ross Geller",
-    description: "Depression symptoms",
-    age: 33,
-    time: "3:00 PM",
-  },
-  {
-    id: "4",
-    name: "Rachel Green",
-    description: "Panic attacks",
-    age: 30,
-    time: "3:00 PM",
-  },
-  {
-    id: "5",
-    name: "Joey Tribbiani",
-    description: "Low self-esteem",
-    age: 29,
-    time: "3:00 PM",
-  },
-  {
-    id: "6",
-    name: "Phoebe Buffay",
-    description: "Mood swings",
-    age: 31,
-    time: "3:00 PM",
-  },
-];
 
 export function PatientsTable() {
   const [search, setSearch] = useState("");
   const router = useRouter();
+  const [patients, setPatients] = useState<Patient[]>([]);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const response = await apiClient.get<Patient[]>("/dashboard/doctor/patients");
+      setPatients(response.data);
+    } catch (error) {
+      setPatients([]);
+      console.error("Error fetching patients:", error);
+    }
+  }
 
   const filtered = patients.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()),
@@ -124,9 +94,6 @@ export function PatientsTable() {
                 </TableCell>
                 <TableCell className="text-sm text-gray-600">
                   {patient.age}
-                </TableCell>
-                <TableCell className="text-sm text-gray-600">
-                  {patient.time}
                 </TableCell>
                 <TableCell>
                   <Button
