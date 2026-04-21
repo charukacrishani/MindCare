@@ -35,8 +35,7 @@ class ApiClient {
     // Ensure path does not start with '/', so we don't get double slashes
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
 
-    const backend = (process.env.NEXT_PUBLIC_BACKEND || window.location.origin) as string;
-    const url = new URL(base + cleanPath, backend);
+    const url = new URL(base + cleanPath, window.location.origin);
 
     // Append query params
     if (params) {
