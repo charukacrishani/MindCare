@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 
 from context import Context, get_context
 from models.questionnaire import QuestionnaireResponse
+from utils.dass21_level import get_dass21_level
 
 
 router = APIRouter(prefix="/api/dashboard/users", tags=["Users Dashboard"])
@@ -40,17 +41,6 @@ def get_current_stats_dashboard(ctx: Context = Depends(get_context)):
     
     return ctx.response.success(data=ctx.serialize(res))
 
-
-def get_dass21_level(score):
-    max_score = 42
-    step = max_score / 3
-
-    if score <= step:
-        return "1"
-    elif score <= 2 * step:
-        return "2"
-    else:
-        return "3"
     
 
 @router.get("/trend")

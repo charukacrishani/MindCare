@@ -1,17 +1,19 @@
+'use client';
 import { PatientChatHistory } from "@/components/PatientChatHistory";
 import { PreviousAppointments } from "@/components/PreviousAppointments";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { PatientProfileCard } from "@/components/PatientProfileCard";
+import { useEffect, useState } from "react";
+import { apiClient } from "@/lib/apiClient";
+import { useParams } from "next/navigation";
 
-// Mock data — replace with real fetch by `id`
-const patient = {
-  name: "Chandler Bing",
-  age: 27,
-  imageSrc: "/patients/chandler.jpg",
-  description:
-    "Lying awake at night with a racing mind, constant thoughts, or quiet worries that make it hard to relax. Even when the body feels tired, the mind stays active, causing restlessness, frustration, and broken sleep.",
-};
+type Patient = {
+  name: string;
+  age: number;
+  imageSrc: string;
+  description: string;
+}
 
 const statistics = [
   {
@@ -114,6 +116,24 @@ const appointments = Array.from({ length: 7 }, (_, i) => ({
 }));
 
 export default function PatientDetailPage() {
+  const params = useParams();
+  const id = params.id;
+  const [patient, setPatient] = useState<Patient>({ name: "", age: 0, imageSrc: "", description: "" });
+
+  useEffect(() => {
+    loadData();
+  }, [id]);
+
+  const loadData = async () => {
+    try {
+      const response = await apiClient.get<Patient>(`/patients/${id}`);
+      setPatient(response.data);
+    } catch (error) {
+      setPatient({ name: "Unknown Patient", age: 0, imageSrc: "", description: "" });
+      console.error("Failed to load patient data:", error);
+    }
+  }
+
   return (
     <div className="flex min-h-screen bg-gray-50/80">
       <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-400 via-pink-300 to-purple-200 z-50" />
@@ -128,7 +148,7 @@ export default function PatientDetailPage() {
             Patients
           </Link>
           <ChevronRight size={14} className="text-gray-400" />
-          <span className="text-gray-800 font-medium">{patient.name}</span>
+          <span className="text-gray-800 font-medium">{patient?.name}</span>
         </div>
 
         {/* Top section */}

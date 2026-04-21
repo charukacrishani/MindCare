@@ -96,3 +96,16 @@ def get_response(response_id: int, ctx: Context = Depends(get_context)):
         return ctx.response.error(message="Response not found")
 
     return ctx.response.success(data=ctx.serialize(record))
+
+@router.get("/patient")
+def get_response(patient: int, ctx: Context = Depends(get_context)):
+    query = select(QuestionnaireResponse).where(
+        QuestionnaireResponse.userid == patient,
+    )
+    record = ctx.db.exec(query).mappings().all()
+
+    if record is None:
+        return ctx.response.error(message="Response not found")
+    
+
+    return ctx.response.success(data=ctx.serialize(record))

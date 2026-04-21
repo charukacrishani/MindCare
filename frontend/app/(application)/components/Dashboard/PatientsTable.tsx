@@ -17,6 +17,7 @@ import { apiClient } from "@/lib/apiClient";
 
 interface Patient {
   id: string;
+  patient_id: string;
   name: string;
   description: string;
   age: number;
@@ -83,7 +84,7 @@ export function PatientsTable() {
             {filtered.map((patient) => (
               <TableRow
                 key={patient.id}
-                onClick={() => router.push(`/patient/${patient.id}`)}
+                onClick={() => router.push(`/patient/${patient.patient_id}`)}
                 className="border-b border-gray-50 hover:bg-gray-50/60 transition-colors cursor-pointer"
               >
                 <TableCell className="py-4 font-medium text-gray-800 text-sm">
