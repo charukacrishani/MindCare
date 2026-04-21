@@ -170,23 +170,24 @@ def create_user(body: RegisterRequest, session: Session = Depends(get_session)):
             email=body.email,
             role=role,
             password=hash_password(body.password),
+            isVerified=True,
         )
 
         session.add(new_user)
         session.commit()
         session.refresh(new_user)
 
-        # Send verification email (non-fatal if it fails)
-        err = send_verification_email(
-            userid=new_user.userid,
-            email=new_user.email,
-            username=new_user.username,
-        )
-        if isinstance(err, Exception):
-            return ResponseHelper.error(
-                message="User registered but verification email could not be sent.",
-                errors=str(err),
-            )
+        # # Send verification email (non-fatal if it fails)
+        # err = send_verification_email(
+        #     userid=new_user.userid,
+        #     email=new_user.email,
+        #     username=new_user.username,
+        # )
+        # if isinstance(err, Exception):
+        #     return ResponseHelper.error(
+        #         message="User registered but verification email could not be sent.",
+        #         errors=str(err),
+        #     )
             
         token = create_access_token({ "user_id": new_user.userid })    
         response = JSONResponse(content={"success": True})
