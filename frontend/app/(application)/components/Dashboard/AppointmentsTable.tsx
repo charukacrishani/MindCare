@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -14,124 +14,90 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Check, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { apiClient } from "@/lib/apiClient";
+import { useRouter } from "next/navigation";
 
-type AppointmentStatus = "confirmed" | "pending" | "cancelled";
-type AppointmentAction = "confirm" | "reschedule";
+type AppointmentStatus = "pending" | "scheduled" | "completed" | "cancelled" | "no_show";
+// type AppointmentAction = "startappointment" | "endappointment" | "viewpatient";
 
 interface Appointment {
   id: string;
   name: string;
   status: AppointmentStatus;
-  date: string;
-  time: string;
-  action: AppointmentAction;
+  start_time: string;
 }
-
-const appointments: Appointment[] = [
-  {
-    id: "1",
-    name: "Chandler Bing",
-    status: "confirmed",
-    date: "12-10-2026",
-    time: "3:00 PM",
-    action: "confirm",
-  },
-  {
-    id: "2",
-    name: "Monica Geller",
-    status: "confirmed",
-    date: "12-10-2026",
-    time: "3:00 PM",
-    action: "confirm",
-  },
-  {
-    id: "3",
-    name: "Ross Geller",
-    status: "confirmed",
-    date: "12-10-2026",
-    time: "3:00 PM",
-    action: "confirm",
-  },
-  {
-    id: "4",
-    name: "Rachel Green",
-    status: "confirmed",
-    date: "12-10-2026",
-    time: "3:00 PM",
-    action: "reschedule",
-  },
-  {
-    id: "5",
-    name: "Joey Tribbiani",
-    status: "confirmed",
-    date: "12-10-2026",
-    time: "3:00 PM",
-    action: "reschedule",
-  },
-  {
-    id: "6",
-    name: "Phoebe Buffay",
-    status: "confirmed",
-    date: "12-10-2026",
-    time: "3:00 PM",
-    action: "confirm",
-  },
-  {
-    id: "7",
-    name: "Emily Waltham",
-    status: "confirmed",
-    date: "12-10-2026",
-    time: "3:00 PM",
-    action: "reschedule",
-  },
-  {
-    id: "8",
-    name: "Janice Hosenstein",
-    status: "confirmed",
-    date: "12-10-2026",
-    time: "3:00 PM",
-    action: "reschedule",
-  },
-];
 
 const statusConfig: Record<
   AppointmentStatus,
   { label: string; className: string }
 > = {
-  confirmed: {
-    label: "Confirmed",
-    className: "text-green-600 bg-green-50 border-green-100",
-  },
   pending: {
     label: "Pending",
     className: "text-yellow-600 bg-yellow-50 border-yellow-100",
+  },
+  scheduled: {
+    label: "Scheduled",
+    className: "text-blue-600 bg-blue-50 border-blue-100",
+  },
+  completed: {
+    label: "Completed",
+    className: "text-green-600 bg-green-50 border-green-100",
   },
   cancelled: {
     label: "Cancelled",
     className: "text-red-500 bg-red-50 border-red-100",
   },
+  no_show: {
+    label: "No Show",
+    className: "text-gray-600 bg-gray-50 border-gray-100",
+  },
 };
 
-const actionConfig: Record<
-  AppointmentAction,
-  { label: string; className: string }
-> = {
-  confirm: {
-    label: "Confirm",
-    className: "bg-green-400 hover:bg-green-500 text-white border-0",
-  },
-  reschedule: {
-    label: "Reschedule",
-    className: "bg-yellow-200 hover:bg-yellow-300 text-yellow-800 border-0",
-  },
-};
+// const actionConfig: Record<
+//   AppointmentAction,
+//   { label: string; className: string }
+// > = {
+//   startappointment: {
+//     label: "Start",
+//     className: "bg-green-600 text-white hover:bg-green-700",
+//   },
+//   endappointment: {
+//     label: "End",
+//     className: "bg-red-600 text-white hover:bg-red-700",
+//   },
+//   viewpatient: {
+//     label: "View Patient",
+//     className: "bg-blue-600 text-white hover:bg-blue-700",
+//   },
+// };
 
 export function AppointmentsTable() {
   const [search, setSearch] = useState("");
+  const router = useRouter();
+  const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]); // Default to today's date
+
+  useEffect(() => {
+    loadData();
+  }, [selectedDate])
+
+  const loadData = async () => {
+    try {
+      const response = await apiClient.get<Appointment[]>("/dashboard/doctor/appointments?date=" + selectedDate);
+      setAppointments(response.data);
+    } catch (error) {
+      setAppointments([]);
+      console.error("Error fetching appointments:", error);
+    }
+  }
 
   const filtered = appointments.filter((a) =>
     a.name.toLowerCase().includes(search.toLowerCase()),
   );
+
+  const handleViewPatient = (id: string) => {
+
+  }
 
   return (
     <div className="flex-1 p-8">
@@ -140,19 +106,30 @@ export function AppointmentsTable() {
         <h1 className="text-xl font-semibold text-gray-900">
           Appointments with Patients
         </h1>
-        <div className="relative w-72">
-          <Search
-            size={15}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <Input
-            placeholder="Search appointments..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-white border-gray-200 text-sm rounded-xl shadow-none"
-          />
+        <div className="flex flex-col gap-2">
+          <div className="relative w-72">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+            <Input
+              placeholder="Search appointments..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 bg-white border-gray-200 text-sm rounded-xl shadow-none"
+            />
+          </div>
+          <div className="relative w-72 ">
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="mb-2 w-full bg-white border-gray-200 text-sm rounded-xl shadow-none p-2"
+            />
+          </div>
         </div>
       </div>
+
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -172,11 +149,12 @@ export function AppointmentsTable() {
           <TableBody>
             {filtered.map((appt) => {
               const status = statusConfig[appt.status];
-              const action = actionConfig[appt.action];
+              const id = appt.id;
               return (
                 <TableRow
                   key={appt.id}
                   className="border-b border-gray-50 hover:bg-gray-50/60 transition-colors"
+                  onClick={() => router.push(`/appointment/${id}`)}
                 >
                   <TableCell className="py-4 font-medium text-gray-800 text-sm">
                     {appt.name}
@@ -193,20 +171,14 @@ export function AppointmentsTable() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm text-gray-600">
-                    {appt.date}
+                    {appt.start_time.split("T")[0]}
                   </TableCell>
                   <TableCell className="text-sm text-gray-600">
-                    {appt.time}
+                    {appt.start_time.split("T")[1].slice(0, 5)}
                   </TableCell>
                   <TableCell>
-                    <Button
-                      size="sm"
-                      className={cn(
-                        "rounded-full text-xs px-4 h-8 font-medium",
-                        action.className,
-                      )}
-                    >
-                      {action.label} <Check size={12} className="ml-1" />
+                    <Button size="sm">
+                      View Patient
                     </Button>
                   </TableCell>
                 </TableRow>

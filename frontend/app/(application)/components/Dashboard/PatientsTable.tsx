@@ -69,7 +69,7 @@ export function PatientsTable() {
         <Table>
           <TableHeader>
             <TableRow className="border-b border-gray-100 hover:bg-transparent">
-              {["Name", "Description", "Age", "Time", "Actions"].map((col) => (
+              {["Name", "Description", "Age", "Actions"].map((col) => (
                 <TableHead
                   key={col}
                   className="text-xs font-medium text-gray-400 uppercase tracking-wide py-4"
