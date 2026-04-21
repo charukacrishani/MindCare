@@ -29,24 +29,32 @@ class ApiClient {
   }
 
   private buildUrl(path: string, params?: Record<string, any>): string {
-    // Ensure baseUrl always ends with '/'
-    const base = this.baseUrl.endsWith('/') ? this.baseUrl : this.baseUrl + '/';
+    const cleanBase = this.baseUrl.endsWith("/")
+      ? this.baseUrl.slice(0, -1)
+      : this.baseUrl;
 
-    // Ensure path does not start with '/', so we don't get double slashes
-    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    const cleanPath = path.startsWith("/")
+      ? path
+      : `/${path}`;
 
-    const url = new URL(base + cleanPath, window.location.origin);
+    let url = `${cleanBase}${cleanPath}`;
 
-    // Append query params
     if (params) {
+      const query = new URLSearchParams();
+
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          url.searchParams.append(key, String(value));
+          query.append(key, String(value));
         }
       });
+
+      const queryString = query.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
     }
 
-    return url.toString();
+    return url;
   }
 
   private async request<T>(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<ServerResponse<T>> {
