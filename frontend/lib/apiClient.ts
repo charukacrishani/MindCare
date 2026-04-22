@@ -29,15 +29,10 @@ class ApiClient {
   }
 
   private buildUrl(path: string, params?: Record<string, any>): string {
-    const cleanBase = this.baseUrl.endsWith("/")
-      ? this.baseUrl.slice(0, -1)
-      : this.baseUrl;
-
-    const cleanPath = path.startsWith("/")
-      ? path
-      : `/${path}`;
-
-    let url = `${cleanBase}${cleanPath}`;
+    if (!path.startsWith('/')) {
+      path = `/${path}`;
+    }
+    let url = `${this.baseUrl}${path}`;
 
     if (params) {
       const query = new URLSearchParams();
