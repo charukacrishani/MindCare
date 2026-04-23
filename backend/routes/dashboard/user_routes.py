@@ -1,15 +1,20 @@
+import json
+
 from fastapi import APIRouter
 from fastapi.params import Depends
 from sqlmodel import select
 from sqlalchemy import func
 from datetime import datetime, timedelta
 
+from chatbot.chatbot_gemini import MentalHealthChatbot_GEMINI
 from context import Context, get_context
 from models.questionnaire import QuestionnaireResponse
+from models.user import UserInformation, Users
 from utils.dass21_level import get_dass21_level
 
 
 router = APIRouter(prefix="/api/dashboard/users", tags=["Users Dashboard"])
+chatbot = MentalHealthChatbot_GEMINI()
 
 @router.get("/current")
 def get_current_stats_dashboard(ctx: Context = Depends(get_context)):
@@ -109,42 +114,44 @@ def get_tips_dashboard(ctx: Context = Depends(get_context)):
         tips = get_tips_for_level("none")
         return ctx.response.success(data=tips)
     
+    queryTips = (
+        select(UserInformation)
+        .where(UserInformation.userid == ctx.user.user_id)
+    )
+    
+    user = ctx.db.exec(queryTips).first()
+    if user and user.tips:
+        if user.tips_id and user.tips_id == responses[0].id:
+            user_tips = json.loads(user.tips)
+            return ctx.response.success(data=user_tips)
+    
     response = responses[0]
     a_score = response.anxiety_score
     d_score = response.depression_score
     s_score = response.stress_score
     
-    levels = set()
-    if a_score >= 15:
-        levels.add("anxiety")
-    if d_score >= 15:
-        levels.add("depression")
-    if s_score >= 26:
-        levels.add("stress")
+    levels = {
+        "anxiety": a_score,
+        "depression": d_score,
+        "stress": s_score
+    }
     
-    tips = []
-    for level in levels:
-        tips.extend(get_tips_for_level(level))
+    chatbot_tips = chatbot.get_tips(list(levels.values()))
     
-    return ctx.response.success(data=tips)
+    # Save tips to user information
+    if user:
+        user.tips = json.dumps(chatbot_tips)
+        user.tips_id = response.id
+        ctx.db.add(user)
+        ctx.db.commit()
+    
+    return ctx.response.success(data=chatbot_tips)
 
 
 def get_tips_for_level(level: str):
     # Tips are tailored based on stress levels
     tips = []
-    if level == "anxiety":
-        tips.append({"bold": "Practice deep breathing exercises", "light": "help calm your mind and reduce anxiety"})
-        tips.append({"bold": "Engage in regular physical activity", "light": "reduces anxiety levels and improves mood"})
-        tips.append({"bold": "Try mindfulness meditation", "light": "stay present and reduce anxious thoughts"})
-    elif level == "depression":
-        tips.append({"bold": "Reach out to friends or family", "light": "get support and maintain social connections"})
-        tips.append({"bold": "Engage in activities you enjoy", "light": "boost your mood and find moments of joy"})
-        tips.append({"bold": "Consider professional help", "light": "if feelings of depression persist"})
-    elif level == "stress":
-        tips.append({"bold": "Take breaks throughout the day", "light": "relax and recharge your energy"})
-        tips.append({"bold": "Practice time management", "light": "reduce stress and improve productivity"})
-        tips.append({"bold": "Engage in hobbies", "light": "spend time on activities that bring you joy"})
-    elif level == "none":
+    if level == "none":
         tips.append({"bold": "Maintain a healthy lifestyle", "light": "continue practicing good habits to keep stress levels low"})
         tips.append({"bold": "Stay connected with loved ones", "light": "maintain strong social connections for emotional support"})
         tips.append({"bold": "Practice gratitude", "light": "focus on positive aspects of life to boost mood"})

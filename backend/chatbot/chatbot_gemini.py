@@ -121,3 +121,48 @@ Ask about 12-15 questions total. Start with general daily life questions, then m
         if level in ["High", "Moderate"]:
             return "Please consider speaking with a professional counsellor."
         return "Continue with self-care practices like mindfulness and rest."
+    
+
+    def get_tips(self, levels: List[str]):
+        tips_prompt = f"""
+        Based on the following levels of stress, anxiety, and depression: {', '.join(map(str, levels))},
+        provide exactly 5 practical self-care tips.
+
+        Return ONLY a JSON array in this format:
+        [
+        {{"bold": "short title", "light": "detailed explanation"}},
+        {{"bold": "short title", "light": "detailed explanation"}}
+        ]
+        """
+
+        try:
+            contents = [
+                types.Content(
+                    role="user",
+                    parts=[types.Part.from_text(text=tips_prompt)],
+                )
+            ]
+
+            response = self.client.models.generate_content(
+                model=self.model,
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    temperature=0.7
+                ),
+            )
+
+            # Parse JSON safely
+            tips = json.loads(response.text.strip())
+
+            return tips
+
+        except Exception as e:
+            print(f"Error generating tips: {e}")
+            return [
+                {"bold": "Stay active", "light": "Engage in light exercise daily"},
+                {"bold": "Talk to someone", "light": "Share your feelings with a trusted person"},
+                {"bold": "Sleep well", "light": "Maintain a consistent sleep schedule"},
+                {"bold": "Eat balanced meals", "light": "Support your mental health with proper nutrition"},
+                {"bold": "Take breaks", "light": "Avoid burnout by resting regularly"},
+            ]
+        

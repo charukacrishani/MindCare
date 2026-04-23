@@ -29,6 +29,8 @@ class UserInformation(SQLModel, table=True):
     gender: Optional[str] = None
     sexual_orientation: Optional[str] = None
     marital_status: Optional[str] = None
+    tips: Optional[str] = None
+    tips_id: Optional[str] = None
     # avatar: Optional[bytes] = Field(default=None)  # Store image as blob
 
 
