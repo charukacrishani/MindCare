@@ -6,6 +6,7 @@ from .patient import patient_router
 from .questionnaire import questionnaire_router
 from .dashboard.user_routes import router as dashboard_user_router
 from .dashboard.doctor_routes import router as dashboard_doctor_router
+from .appointments import router as appointments_router
 
 __all__ = [
     "register_router",
@@ -21,4 +22,5 @@ __all__ = [
     "questionnaire_router",
     "dashboard_user_router",
     "dashboard_doctor_router",
+    "appointments_router",
 ]

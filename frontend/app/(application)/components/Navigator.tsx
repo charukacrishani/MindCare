@@ -15,10 +15,15 @@ export const NAV_CONFIG = [
     roles: ["admin", "user"],
   },
   {
+    label: "Availability",
+    path: "/availability",
+    roles: ["admin", "counselor"],
+  },
+  {
     label: "Chat",
     path: "/chat",
     roles: ["admin", "user"],
-    children: [ 
+    children: [
       {
         label: "Chat History",
         path: "/chat/history",
