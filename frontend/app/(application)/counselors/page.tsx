@@ -42,6 +42,8 @@ export default function CounselorList() {
       setLoading(false)
     }
   }
+
+
   return (
     <div className="space-y-4">
       {error && (
@@ -71,12 +73,29 @@ export default function CounselorList() {
             .join("")
             .toUpperCase() || "DR"
 
+          const parsedSpecialty = (() => {
+            try {
+              return Array.isArray(JSON.parse(specialty))
+                ? JSON.parse(specialty)
+                : [specialty];
+            } catch {
+              return [specialty];
+            }
+          })();
+
           return (
             <Card key={doctor.userid} className="p-4">
               <CardContent className="flex flex-col gap-4">
                 <div className="flex items-center gap-4">
                   <Avatar>
-                    <AvatarImage src={doctor.avatar || undefined} alt={doctor.full_name} />
+                    <AvatarImage
+                      src={
+                        doctor.avatar
+                          ? `data:image/png;base64,${doctor.avatar}`
+                          : undefined
+                      }
+                      alt={doctor.full_name}
+                    />
                     <AvatarFallback>{initials}</AvatarFallback>
                   </Avatar>
 
@@ -84,9 +103,13 @@ export default function CounselorList() {
                     <h3 className="text-lg font-semibold truncate">
                       {doctor.full_name}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {specialty}
-                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {parsedSpecialty.map((item: string, index: number) => (
+                        <Badge key={index} variant="secondary">
+                          {item}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
