@@ -16,6 +16,7 @@ def get_doctors_list(ctx: Context = Depends(get_context)):
             select(DoctorInformation, Avatar)
             .join(Avatar, Avatar.userid == DoctorInformation.userid, isouter=True)
             .where(DoctorInformation.licence_number != None)
+            .where(DoctorInformation.available == True)
         )
 
         results = ctx.db.exec(query).all()

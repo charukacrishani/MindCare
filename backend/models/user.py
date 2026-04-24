@@ -48,6 +48,7 @@ class DoctorInformation(SQLModel, table=True):
     location: Optional[str] = None
     specialization: Optional[str] = None
     hospital: Optional[str] = None
+    available: bool = Field(default=True)
     
 class Avatar(SQLModel, table=True):
     __tablename__ = "avatars"

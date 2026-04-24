@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { apiClient } from "@/lib/apiClient"
+import { useRouter } from "next/navigation"
 
 type Doctor = {
   userid: string
@@ -24,6 +25,7 @@ export default function CounselorList() {
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     fetchData()
@@ -133,7 +135,10 @@ export default function CounselorList() {
 
                 <Badge className="w-fit bg-green-500">Available</Badge>
 
-                <Button className="w-full">
+                <Button className="w-full" onClick={()=> router.push(`/counselors/${doctor.userid}/view`)}>
+                  View
+                </Button>
+                <Button className="w-full" onClick={()=> router.push(`/counselors/${doctor.userid}/book`)}>
                   Book Appointment
                 </Button>
               </CardContent>

@@ -11,13 +11,13 @@ export default function DoctorDashboard() {
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50/80">
+        <div className="flex h-full w-full bg-gray-50/80 overflow-hidden">
             {/* Top accent gradient */}
             <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-400 via-pink-300 to-purple-200 z-50" />
 
             <Sidebar activeTab={activeTab} onTabChange={handleOnTabChange} />
 
-            <main className="flex-1">
+            <main className="flex-1 overflow-y-auto">
                 { activeTab === "appointments" && <AppointmentsTable /> }
                 { activeTab === "patients" && <PatientsTable /> }
             </main>

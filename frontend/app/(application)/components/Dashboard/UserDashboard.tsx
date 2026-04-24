@@ -78,21 +78,21 @@ export default function UserDashboard() {
 
     return (
         <div
-            className="w-full min-h-screen p-4 sm:p-6 overflow-x-hidden"
+            className="w-full h-full flex flex-col p-4 sm:p-6 overflow-hidden"
             style={{
     background: "transparent",
 }}
         >
-            <div className="w-full max-w-[1100px] mx-auto">
+            <div className="w-full max-w-[1100px] mx-auto flex flex-col h-full">
                 <h1 className="text-2xl font-semibold text-[#151515] mb-4 tracking-tight bg-transparent">
                     Mental Health Dashboard
                 </h1>
 
-                <div className="w-full rounded-2xl border border-[#e0dada] bg-white/80 backdrop-blur-sm p-4 shadow-sm">
+                <div className="w-full flex-1 rounded-2xl border border-[#e0dada] bg-white/80 backdrop-blur-sm p-4 shadow-sm overflow-y-auto">
 
                     <SummaryCards summaryCards={summaryCards} />
 
-                    <div className="grid grid-cols-3 gap-4 mb-4 items-stretch">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 items-stretch">
                         <TrendOverview data={trendData} />
                         <AppointmentsPanel appointments={appointments} />
                     </div>

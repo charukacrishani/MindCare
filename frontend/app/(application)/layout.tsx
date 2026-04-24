@@ -66,7 +66,7 @@ export default function AuthLayout({
     };
 
     loadUser();
-  }, [router]);
+  }, [router, pathname]);
 
   useEffect(() => {
     if (!user || !authReady) return;
@@ -96,9 +96,9 @@ export default function AuthLayout({
 
   return (
     <UserContext.Provider value={user}>
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <div className="h-screen flex flex-col p-4">
         <div className="w-full"><NavBar /></div>
-        <div className="w-full flex-1">{children}</div>
+        <div className="w-full flex-1 min-h-0">{children}</div>
         <div className="w-full"><Footer /></div>
       </div>
     </UserContext.Provider>
