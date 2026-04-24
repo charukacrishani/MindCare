@@ -1,7 +1,9 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlmodel import select
 from context import Context, get_context
-from models.user import DoctorInformation, Users
+from models.user import Avatar, Users
 
 router = APIRouter(prefix="/api/avatar", tags=["Avatar"])
 
@@ -14,13 +16,8 @@ async def upload_avatar(file: UploadFile = File(...), ctx: Context = Depends(get
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
         
-        if user.role != "counselor":
-            raise HTTPException(status_code=403, detail="Only counselors can upload avatars")
-        
-        # Read file content as bytes
         content = await file.read()
         
-        # Validate file size (max 5MB)
         max_size = 5 * 1024 * 1024
         if len(content) > max_size:
             raise HTTPException(status_code=400, detail="File too large (max 5MB)")
@@ -29,18 +26,8 @@ async def upload_avatar(file: UploadFile = File(...), ctx: Context = Depends(get
         allowed_types = {"image/jpeg", "image/png", "image/gif", "image/webp"}
         if file.content_type not in allowed_types:
             raise HTTPException(status_code=400, detail=f"Invalid file type. Allowed: {allowed_types}")
-        
-        # Get or create doctor information
-        doctor_info = ctx.db.exec(
-            select(DoctorInformation).where(DoctorInformation.userid == user.userid)
-        ).first()
-        
-        if doctor_info is None:
-            doctor_info = DoctorInformation(userid=user.userid)
-        
-        doctor_info.avatar = content
-        ctx.db.add(doctor_info)
-        ctx.db.commit()
+
+        set_avatar(user.userid, content, ctx)
         
         return ctx.response.success(message="Avatar uploaded successfully")
     
@@ -55,15 +42,7 @@ async def upload_avatar(file: UploadFile = File(...), ctx: Context = Depends(get
 async def download_avatar(userid: str, ctx: Context = Depends(get_context)):
     """Download avatar for a counselor"""
     try:
-        doctor_info = ctx.db.exec(
-            select(DoctorInformation).where(DoctorInformation.userid == userid)
-        ).first()
-        
-        if doctor_info is None or doctor_info.avatar is None:
-            raise HTTPException(status_code=404, detail="Avatar not found")
-        
-        import base64
-        avatar_base64 = base64.b64encode(doctor_info.avatar).decode("utf-8")
+        avatar_base64 = get_avatar(userid, ctx)
         
         return ctx.response.success(
             message="Avatar retrieved",
@@ -74,3 +53,28 @@ async def download_avatar(userid: str, ctx: Context = Depends(get_context)):
         raise
     except Exception as e:
         return ctx.response.error(message=str(e))
+
+
+def get_avatar(userid: str, ctx: Context) -> Optional[str]:
+    """Helper function to get avatar as base64 string"""
+    avatar = ctx.db.exec(
+        select(Avatar).where(Avatar.userid == userid)
+    ).first()
+    
+    if avatar and avatar.image_data:
+        return avatar.get_image_base64()
+    
+    return None
+
+def set_avatar(userid: str, image_bytes: bytes, ctx: Context):
+    """Helper function to set avatar from bytes"""
+    avatar = ctx.db.exec(
+        select(Avatar).where(Avatar.userid == userid)
+    ).first()
+    
+    if avatar is None:
+        avatar = Avatar(userid=userid)
+    
+    avatar.set_image(image_bytes)
+    ctx.db.add(avatar)
+    ctx.db.commit()

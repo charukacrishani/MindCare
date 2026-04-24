@@ -20,6 +20,7 @@ type UserProfile = {
 	sexual_orientation: string | null;
 	marital_status: string | null;
 	occupation: string | null;
+	avatar: string | null;
 };
 
 type CounselorProfile = {
@@ -40,6 +41,7 @@ type UserProfileForm = {
 	sexualOrientation: string;
 	maritalStatus: string;
 	occupation: string;
+	avatar: string | null;
 };
 
 type CounselorProfileForm = {
@@ -110,6 +112,7 @@ function toUserForm(profile: UserProfile): UserProfileForm {
 		sexualOrientation: profile.sexual_orientation ?? "",
 		maritalStatus: profile.marital_status ?? "",
 		occupation: profile.occupation ?? "",
+		avatar: profile.avatar ?? null,
 	};
 }
 
@@ -335,7 +338,9 @@ export default function ProfilePage() {
 					sexualOrientation: userForm.sexualOrientation,
 					maritalStatus: userForm.maritalStatus,
 					occupation: userForm.occupation,
+					avatar: userForm.avatar,
 				};
+				
 				const res = await apiClient.patch<ProfileMeResponse>("/profile/me", { data: payload });
 				const updated = res.data.profile as UserProfile;
 				setUserProfile(updated);
@@ -450,6 +455,10 @@ export default function ProfilePage() {
 				<CardContent>
 					{role === "user" && userProfile && !isEditing && (
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<div className="space-y-2">
+								<p className="text-xs uppercase tracking-wide text-gray-500">Avatar</p>
+								<AvatarDisplay avatar={userProfile.avatar} />
+							</div>
 							<ProfileField label="Date of Birth" value={formatDate(userProfile.dob)} />
 							<ProfileField label="Age" value={userProfile.age ?? "-"} />
 							<ProfileField label="Gender" value={userProfile.gender ?? "-"} />
@@ -491,6 +500,15 @@ export default function ProfilePage() {
 
 					{role === "user" && isEditing && userForm && (
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							<div className="sm:col-span-2 lg:col-span-3">
+								<AvatarUploadField
+									avatar={userForm.avatar}
+									onAvatarChange={(base64) =>
+										setUserForm((prev) => (prev ? { ...prev, avatar: base64 } : prev))
+									}
+									disabled={saving}
+								/>
+							</div>
 							<div className="space-y-1">
 								<p className="text-xs uppercase tracking-wide text-gray-500">Gender</p>
 								<Input

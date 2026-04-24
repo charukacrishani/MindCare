@@ -23,6 +23,7 @@ interface UserDetails {
   sexualOrientation: string;
   maritalStatus: string;
   occupation: string;
+  avatar: string | null;  // Base64 encoded avatar
 }
 
 interface DoctorDetails {
@@ -158,7 +159,7 @@ function AvatarUpload({
         disabled={disabled}
         className="hidden"
       />
-      
+
       <div className="flex items-center gap-4">
         <div className="relative">
           {displayUrl ? (
@@ -340,7 +341,7 @@ function CalendarPicker({
   const maxYear = today.getFullYear() - 10;
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const firstDay = new Date(viewYear, viewMonth, 1).getDay();
-  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   const handleDayClick = (day: number) => {
     const mm = String(viewMonth + 1).padStart(2, "0");
@@ -404,7 +405,7 @@ function CalendarPicker({
               </div>
 
               <div className="grid grid-cols-7 px-3 pt-2">
-                {["Su","Mo","Tu","We","Th","Fr","Sa"].map((d) => (
+                {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
                   <div key={d} className="text-center text-xs text-gray-400 font-medium py-1">{d}</div>
                 ))}
               </div>
@@ -538,7 +539,7 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
 
   const [userDetails, setUserDetails] = useState<UserDetails>({
     gender: "", dob: "", age: "",
-    sexualOrientation: "", maritalStatus: "", occupation: "",
+    sexualOrientation: "", maritalStatus: "", occupation: "", avatar: null,
   });
 
   const [doctorDetails, setDoctorDetails] = useState<DoctorDetails>({
@@ -615,6 +616,13 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
 
           {role === "user" && (
             <div className="space-y-5">
+              <Field label="Avatar">
+                <AvatarUpload
+                  avatar={userDetails.avatar}
+                  onChange={(base64) => setUserDetails((p) => ({ ...p, avatar: base64 }))}
+                  disabled={loading}
+                />
+              </Field>
               <Field label="Gender">
                 <Dropdown label="Select Gender" value={userDetails.gender} options={GENDER_OPTIONS}
                   onChange={(v) => setUserDetails((p) => ({ ...p, gender: v }))} disabled={loading} />

@@ -31,6 +31,11 @@ export default function NavBar() {
               Dashboard
             </a>
           </li>
+          <li>
+            <a href="/counselors" className="text-gray-700 hover:text-gray-900" onClick={handleNavigate}>
+              Counselors
+            </a>
+          </li>
 
           {/* Chat dropdown */}
           <li className="relative group">

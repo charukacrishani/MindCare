@@ -7,7 +7,9 @@ from pydantic import BaseModel
 from sqlmodel import select
 
 from context import Context, get_context
-from models.user import DoctorInformation, UserInformation, Users
+from models.user import Avatar, DoctorInformation, UserInformation, Users
+from routes.avatar.avatar_routes import get_avatar, set_avatar
+from routes.user import user
 
 router = APIRouter(prefix="/api/profile", tags=["Profile"])
 
@@ -18,6 +20,7 @@ class UserProfileData(BaseModel):
     sexualOrientation: str
     maritalStatus: str
     occupation: str = ""
+    avatar: str | None = None  # Base64 encoded avatar image
 
 
 class CounselorProfileData(BaseModel):
@@ -54,7 +57,7 @@ def parse_specializations(value: str | None) -> list[str]:
     return [part.strip() for part in value.split(",") if part.strip()]
 
 
-def serialize_user_profile(ctx: Context, profile: UserInformation, userid: str) -> dict:
+def serialize_user_profile(ctx: Context, profile: UserInformation, userid: str, avatar_base64: str | None = None) -> dict:
     serialized = ctx.serialize(profile)
     serialized.setdefault("userid", userid)
     serialized.setdefault("dob", None)
@@ -63,10 +66,15 @@ def serialize_user_profile(ctx: Context, profile: UserInformation, userid: str) 
     serialized.setdefault("sexual_orientation", None)
     serialized.setdefault("marital_status", None)
     serialized.setdefault("occupation", None)
+    if avatar_base64:
+        serialized["avatar"] = avatar_base64
+    else:
+        serialized["avatar"] = None
+        
     return serialized
 
 
-def serialize_counselor_profile(ctx: Context, profile: DoctorInformation, userid: str) -> dict:
+def serialize_counselor_profile(ctx: Context, profile: DoctorInformation, userid: str, avatar_base64: str | None = None) -> dict:
     serialized = ctx.serialize(profile)
     serialized.setdefault("userid", userid)
     serialized.setdefault("full_name", None)
@@ -76,10 +84,8 @@ def serialize_counselor_profile(ctx: Context, profile: DoctorInformation, userid
     serialized.setdefault("licence_number", None)
     serialized.setdefault("years_of_experience", None)
     serialized["specializations"] = parse_specializations(serialized.get("specializations"))
-    
-    # Convert avatar bytes to base64 string
-    if profile.avatar:
-        serialized["avatar"] = base64.b64encode(profile.avatar).decode("utf-8")
+    if avatar_base64:
+        serialized["avatar"] = avatar_base64
     else:
         serialized["avatar"] = None
     
@@ -99,12 +105,14 @@ def get_my_profile(ctx: Context = Depends(get_context)):
             ).first()
             if profile is None:
                 profile = UserInformation(userid=user.userid)
-
+            
+            avatar_base64 = get_avatar(user.userid, ctx)
+            
             return ctx.response.success(
                 message="Profile retrieved",
                 data={
                     "role": "user",
-                    "profile": serialize_user_profile(ctx, profile, user.userid),
+                    "profile": serialize_user_profile(ctx, profile, user.userid, avatar_base64),
                 },
             )
 
@@ -114,12 +122,14 @@ def get_my_profile(ctx: Context = Depends(get_context)):
             ).first()
             if profile is None:
                 profile = DoctorInformation(userid=user.userid)
+            
+            avatar_base64 = get_avatar(user.userid, ctx)
 
             return ctx.response.success(
                 message="Profile retrieved",
                 data={
                     "role": "counselor",
-                    "profile": serialize_counselor_profile(ctx, profile, user.userid),
+                    "profile": serialize_counselor_profile(ctx, profile, user.userid, avatar_base64),
                 },
             )
 
@@ -159,6 +169,9 @@ def update_my_profile(body: ProfileUpdateRequest, ctx: Context = Depends(get_con
 
             if "occupation" in payload:
                 profile.occupation = str(payload.get("occupation") or "").strip() or None
+                
+            if "avatar" in payload and payload.get("avatar"):
+                set_avatar(user.userid, base64.b64decode(str(payload.get("avatar"))), ctx)
 
             profile.age = max(0, datetime.utcnow().year - profile.dob.year) if profile.dob else None
             ctx.db.add(profile)
@@ -172,7 +185,7 @@ def update_my_profile(body: ProfileUpdateRequest, ctx: Context = Depends(get_con
                 message="Profile updated",
                 data={
                     "role": "user",
-                    "profile": serialize_user_profile(ctx, profile, user.userid),
+                    "profile": serialize_user_profile(ctx, profile, user.userid, get_avatar(user.userid, ctx)),
                 },
             )
 
@@ -214,13 +227,8 @@ def update_my_profile(body: ProfileUpdateRequest, ctx: Context = Depends(get_con
                 profile.specializations = serialized_specs
                 profile.specialization = serialized_specs
             
-            # Handle avatar if provided (base64 encoded)
             if "avatar" in payload and payload.get("avatar"):
-                try:
-                    avatar_bytes = base64.b64decode(payload.get("avatar"))
-                    profile.avatar = avatar_bytes
-                except Exception as e:
-                    return ctx.response.error(message=f"Invalid avatar data: {str(e)}")
+                set_avatar(user.userid, base64.b64decode(str(payload.get("avatar"))), ctx)
 
             profile.age = max(0, datetime.utcnow().year - profile.dob.year) if profile.dob else None
             ctx.db.add(profile)
@@ -234,7 +242,7 @@ def update_my_profile(body: ProfileUpdateRequest, ctx: Context = Depends(get_con
                 message="Profile updated",
                 data={
                     "role": "counselor",
-                    "profile": serialize_counselor_profile(ctx, profile, user.userid),
+                    "profile": serialize_counselor_profile(ctx, profile, user.userid, get_avatar(user.userid, ctx)),
                 },
             )
 
@@ -269,6 +277,9 @@ def save_profile_setup(body: ProfileSetupRequest, ctx: Context = Depends(get_con
             row.marital_status = payload.maritalStatus
             row.occupation = payload.occupation.strip() or None
             row.age = max(0, datetime.utcnow().year - row.dob.year) if row.dob else None
+            # Handle avatar if provided (base64 encoded)
+            if payload.avatar:
+                set_avatar(user.userid, base64.b64decode(payload.avatar), ctx)
 
             ctx.db.add(row)
 
@@ -295,11 +306,7 @@ def save_profile_setup(body: ProfileSetupRequest, ctx: Context = Depends(get_con
             
             # Handle avatar if provided (base64 encoded)
             if payload.avatar:
-                try:
-                    avatar_bytes = base64.b64decode(payload.avatar)
-                    row.avatar = avatar_bytes
-                except Exception as e:
-                    return ctx.response.error(message=f"Invalid avatar data: {str(e)}")
+                set_avatar(user.userid, base64.b64decode(payload.avatar), ctx)
 
             ctx.db.add(row)
         else:

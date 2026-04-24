@@ -31,7 +31,6 @@ class UserInformation(SQLModel, table=True):
     marital_status: Optional[str] = None
     tips: Optional[str] = None
     tips_id: Optional[str] = None
-    # avatar: Optional[bytes] = Field(default=None)  # Store image as blob
 
 
 class DoctorInformation(SQLModel, table=True):
@@ -49,4 +48,17 @@ class DoctorInformation(SQLModel, table=True):
     location: Optional[str] = None
     specialization: Optional[str] = None
     hospital: Optional[str] = None
-    avatar: Optional[bytes] = Field(default=None)  # Store image as blob
+    
+class Avatar(SQLModel, table=True):
+    __tablename__ = "avatars"
+
+    userid: str = Field(primary_key=True, foreign_key="users.userid")
+    image_data: Optional[bytes] = Field(default=None)  # Store image as blob
+
+    def set_image(self, image_bytes: bytes):
+        self.image_data = image_bytes
+
+    def get_image_base64(self) -> Optional[str]:
+        if self.image_data:
+            return base64.b64encode(self.image_data).decode('utf-8')
+        return None
