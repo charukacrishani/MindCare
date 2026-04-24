@@ -77,12 +77,12 @@ export default function AuthLayout({
       pathname.startsWith(route)
     );
 
-    if (matchedRoute) {
-      const allowed = ROLE_ACCESS[matchedRoute];
+    if (!matchedRoute) return;
 
-      if (!allowed.includes(user.role)) {
-        router.replace("/unauthorized");
-      }
+    const allowed = ROLE_ACCESS[matchedRoute];
+
+    if (!allowed.includes(user.role)) {
+      router.replace("/unauthorized");
     }
   }, [pathname, user, authReady]);
 
