@@ -50,13 +50,13 @@ export default function AuthLayout({
         }
 
         setUser(res.data);
+        setAuthReady(true);
 
         if (!res.data.isComplete) {
           router.replace("/complete-profile");
           return;
         }
 
-        setAuthReady(true);
       } catch (error) {
         console.error("Auth failed:", error);
         router.replace("/signin");
