@@ -5,8 +5,9 @@ import { apiClient } from '@/lib/apiClient';
 import { useRouter } from 'next/navigation';
 import Footer from './components/Footer';
 
-interface User {
-  id: string;
+export interface User {
+  userid: string;
+  username: string;
   first_name: string;
   email: string;
   role: string;

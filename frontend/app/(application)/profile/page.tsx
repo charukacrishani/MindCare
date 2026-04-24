@@ -1,19 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useUser } from "@/app/(application)/layout";
+import { User, useUser } from "@/app/(application)/layout";
 import { apiClient } from "@/lib/apiClient";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-type BaseUser = {
-	id?: string;
-	userid?: string;
-	first_name?: string;
-	email?: string;
-	role?: string;
-};
 
 type ProfileMeResponse = {
 	role: string;
@@ -253,7 +245,7 @@ function AvatarUploadField({
 }
 
 export default function ProfilePage() {
-	const user = useUser() as BaseUser | null;
+	const user = useUser() as User | null;
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
@@ -318,6 +310,19 @@ export default function ProfilePage() {
 		}
 		setIsEditing(false);
 	};
+
+	const handleLogout = async () => {
+		try {
+			const response = await apiClient.post("/login/revoke-session");
+			if (response.success) {
+				window.location.href = "/signin";
+			} else {
+				console.error("Logout failed:", response.message || "Unknown error");
+			}
+		} catch (error) {
+			console.error("Logout failed:", error);
+		}
+	}
 
 	const handleSave = async () => {
 		setSaving(true);
@@ -414,11 +419,9 @@ export default function ProfilePage() {
 			<Card className="border-gray-100 shadow-xl">
 				<CardHeader className="space-y-3">
 					<div>
-						<p className="text-xs font-semibold uppercase tracking-widest text-[#980194]">My Profile</p>
-						<h1 className="text-2xl font-semibold text-gray-900">
-							{role === "user" ? "User Details" : "Counselor Details"}
-						</h1>
-						<p className="text-sm text-gray-500">Email: {user?.email ?? "-"}</p>
+						<p className="text-xs font-semibold uppercase tracking-widest text-[#980194]">My Profile - {role === "user" ? "User" : "Counselor"}</p>
+						<p className="text-gray-500 pt-2">Username: {user?.username ?? "-"}</p>
+						<p className="text-gray-500">Email: {user?.email ?? "-"}</p>
 					</div>
 
 					<div className="flex items-center gap-2">
@@ -432,9 +435,14 @@ export default function ProfilePage() {
 								</Button>
 							</>
 						) : (
-							<Button type="button" onClick={() => setIsEditing(true)}>
-								Edit Profile
-							</Button>
+							<>
+								<Button type="button" onClick={() => setIsEditing(true)}>
+									Edit Profile
+								</Button>
+								<Button type="button" onClick={handleLogout}>
+									Logout
+								</Button>
+							</>
 						)}
 					</div>
 				</CardHeader>
@@ -453,10 +461,10 @@ export default function ProfilePage() {
 
 					{role !== "user" && counselorProfile && !isEditing && (
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-						<div className="space-y-2">
-							<p className="text-xs uppercase tracking-wide text-gray-500">Avatar</p>
-							<AvatarDisplay avatar={counselorProfile.avatar} />
-						</div>
+							<div className="space-y-2">
+								<p className="text-xs uppercase tracking-wide text-gray-500">Avatar</p>
+								<AvatarDisplay avatar={counselorProfile.avatar} />
+							</div>
 							<ProfileField label="Age" value={counselorProfile.age ?? "-"} />
 							<ProfileField label="Gender" value={counselorProfile.gender ?? "-"} />
 							<ProfileField label="Licence Number" value={counselorProfile.licence_number ?? "-"} />

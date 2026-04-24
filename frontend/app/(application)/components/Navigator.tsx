@@ -1,20 +1,18 @@
 import { apiClient } from "@/lib/apiClient";
 import Image from "next/image";
-
+import { User, useUser } from "../layout";
+import { useRouter } from 'next/navigation';
 
 export default function NavBar() {
-  const handleLogout = async () => {
-    try {
-      const response = await apiClient.post("/login/revoke-session");
-      if (response.success) {
-        window.location.href = "/signin";
-      } else {
-        console.error("Logout failed:", response.message || "Unknown error");
-      }
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
+  const user = useUser() as User | null;
+  const router = useRouter();
+
+  const handleNavigate = (e:any) => {
+    e.preventDefault();
+    const path = e.currentTarget.getAttribute("href");
+    router.push(path);
   }
+
   return (
     <nav className="w-full px-8 py-4 flex items-center justify-between">
 
@@ -29,18 +27,20 @@ export default function NavBar() {
         <ul className="flex space-x-4">
 
           <li>
-            <a href="/" className="text-gray-700 hover:text-gray-900">Dashboard</a>
+            <a href="/" className="text-gray-700 hover:text-gray-900" onClick={handleNavigate}>
+              Dashboard
+            </a>
           </li>
 
           {/* Chat dropdown */}
           <li className="relative group">
-            <a href="/chat" className="text-gray-700 hover:text-gray-900">
+            <a href="/chat" className="text-gray-700 hover:text-gray-900" onClick={handleNavigate}>
               Chat
             </a>
 
             <ul className="absolute left-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
               <li>
-                <a href="/chat/history" className="block px-4 py-2 text-sm hover:bg-gray-100">
+                <a href="/chat/history" className="block px-4 py-2 text-sm hover:bg-gray-100" onClick={handleNavigate}>
                   Chat History
                 </a>
               </li>
@@ -49,13 +49,13 @@ export default function NavBar() {
 
           {/* Analyze dropdown */}
           <li className="relative group">
-            <a href="/analyze" className="text-gray-700 hover:text-gray-900">
+            <a href="/analyze" className="text-gray-700 hover:text-gray-900" onClick={handleNavigate}>
               Analyze
             </a>
 
             <ul className="absolute left-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
               <li>
-                <a href="/analyze/history" className="block px-4 py-2 text-sm hover:bg-gray-100">
+                <a href="/analyze/history" className="block px-4 py-2 text-sm hover:bg-gray-100" onClick={handleNavigate}>
                   Analysis History
                 </a>
               </li>
@@ -63,24 +63,24 @@ export default function NavBar() {
           </li>
 
           <li>
-            <a href="/profile" className="text-gray-700 hover:text-gray-900">
+            <a href="/profile" className="text-gray-700 hover:text-gray-900" onClick={handleNavigate}>
               Profile
             </a>
           </li>
 
         </ul>
-      </div>
+      </div >
 
       <div>
         <button
-          onClick={handleLogout}
+          onClick={() => router.push("/profile")}
           className="bg-[#FF96FC] hover:bg-[#f07dec] text-white text-sm font-medium px-5 py-2 rounded-full transition-colors duration-200"
         >
-          Logout
+          {user?.first_name}
         </button>
       </div>
 
-    </nav>
+    </nav >
   );
 }
 
