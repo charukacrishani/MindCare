@@ -23,7 +23,6 @@ const ROLE_ACCESS: Record<string, string[]> = {
   "/chat": ["admin", "user"],
   "/analyze": ["admin", "user"],
   "/profile": ["admin", "user", "counselor"],
-  "/complete-profile": ["admin", "user", "counselor"],
   "/patient": ["admin", "counselor"],
 };
 
@@ -69,19 +68,20 @@ export default function AuthLayout({
     loadUser();
   }, [router]);
 
-  // 2. Role check (only after authReady)
   useEffect(() => {
     if (!user || !authReady) return;
 
-    const matchedRoute = Object.keys(ROLE_ACCESS).find((route) =>
+    const protectedRoutes = Object.keys(ROLE_ACCESS);
+
+    const matchedRoute = protectedRoutes.find((route) =>
       pathname.startsWith(route)
     );
 
     if (!matchedRoute) return;
 
-    const allowed = ROLE_ACCESS[matchedRoute];
+    const allowedRoles = ROLE_ACCESS[matchedRoute];
 
-    if (!allowed.includes(user.role)) {
+    if (!allowedRoles.includes(user.role)) {
       router.replace("/unauthorized");
     }
   }, [pathname, user, authReady]);
