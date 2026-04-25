@@ -1,49 +1,35 @@
 import os
 import requests
-import base64
 
 def send_email(to_email: str, subject: str, html_body: str) -> str | Exception:
-    api_key = os.getenv("MAILJET_API_KEY")
-    api_secret = os.getenv("MAILJET_SECRET_KEY")
-    sender_email = os.getenv("MAILJET_FROM_EMAIL")
-
-    if not api_key or not api_secret or not sender_email:
-        return "Error: MAILJET credentials not configured"
-
+    api_key = os.getenv('BREVO_API_KEY')
+    sender_email = os.getenv('BREVO_FROM_EMAIL')
+    
+    if not api_key or not sender_email:
+        return "Error: BREVO_API_KEY or BREVO_FROM_EMAIL not configured"
+    
     try:
-        url = "https://api.mailjet.com/v3.1/send"
-
-        auth = base64.b64encode(f"{api_key}:{api_secret}".encode()).decode()
-
+        url = "https://api.brevo.com/v3/smtp/email"
+        
         headers = {
-            "Authorization": f"Basic {auth}",
-            "Content-Type": "application/json"
+            "accept": "application/json",
+            "api-key": api_key,
+            "content-type": "application/json"
         }
-
+        
         payload = {
-            "Messages": [
-                {
-                    "From": {
-                        "Email": sender_email,
-                        "Name": "My App"
-                    },
-                    "To": [
-                        {
-                            "Email": to_email
-                        }
-                    ],
-                    "Subject": subject,
-                    "HTMLPart": html_body
-                }
-            ]
+            "to": [{"email": to_email, "name": to_email.split('@')[0]}],
+            "sender": {"email": sender_email, "name": "MindCare Support"},
+            "subject": subject,
+            "htmlContent": html_body
         }
-
+        
         response = requests.post(url, json=payload, headers=headers, timeout=30)
-
+        
         if response.status_code in [200, 201]:
-            return "success"
+            return 'success'
         else:
-            return f"Mailjet error: {response.status_code} - {response.text}"
-
+            return f"Brevo error: {response.status_code} - {response.text}"
+    
     except Exception as e:
         return f"Error sending email: {str(e)}"

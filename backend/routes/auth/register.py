@@ -170,7 +170,7 @@ def create_user(body: RegisterRequest, session: Session = Depends(get_session)):
             email=body.email,
             role=role,
             password=hash_password(body.password),
-            isVerified=True,
+            isVerified=False,
         )
 
         session.add(new_user)
