@@ -44,6 +44,7 @@ export default function BookAppointmentPage() {
     const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
     const [reason, setReason] = useState('');
     const [notes, setNotes] = useState('');
+    const [allowChatAccess, setAllowChatAccess] = useState(false);
 
     // UI State
     const [loading, setLoading] = useState(true);
@@ -149,6 +150,7 @@ export default function BookAppointmentPage() {
                 end_time: selectedSlot.end_time,
                 reason: reason || undefined,
                 notes: notes || undefined,
+                allowChatAccess: allowChatAccess,
             };
 
             const response = await apiClient.post<ServerResponse>(
@@ -428,6 +430,18 @@ export default function BookAppointmentPage() {
                                             onChange={(e) => setNotes(e.target.value)}
                                             className="mt-2 w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             rows={4}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="chatAccess" className="text-gray-700 font-medium flex items-center gap-2">
+                                            Allow counselor to access chat history (Optional)
+                                        </Label>
+                                        <input
+                                            type="checkbox"
+                                            id="chatAccess"
+                                            checked={allowChatAccess}
+                                            onChange={(e) => setAllowChatAccess(e.target.checked)}
+                                            className="form-checkbox h-4 w-4 text-blue-600"
                                         />
                                     </div>
                                 </div>

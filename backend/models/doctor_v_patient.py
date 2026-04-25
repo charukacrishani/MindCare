@@ -9,6 +9,7 @@ class DoctorVPatient(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     patient_id: str = Field(primary_key=True, foreign_key="users.userid")
     doctor_id: str = Field(primary_key=True, foreign_key="users.userid")
+    allowChatAccess: bool = Field(default=False)
     description: str = Field(default="")    
 
 

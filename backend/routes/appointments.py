@@ -7,6 +7,7 @@ from models.doctor_v_patient import (
     DoctorTimeOff,
     Appointment,
     AppointmentPayment,
+    DoctorVPatient,
 )
 from models.user import Users
 
@@ -155,6 +156,7 @@ def create_appointment(
         end_time_str = appointment_data.get("end_time")
         reason = appointment_data.get("reason")
         notes = appointment_data.get("notes")
+        allowChatAccess = appointment_data.get("allowChatAccess", False)
         
         if not all([doctor_id, start_time_str, end_time_str]):
             return ctx.response.error(message="Missing required fields")
@@ -191,6 +193,24 @@ def create_appointment(
             notes=notes,
         )
         
+        doctor_patient_query = select(DoctorVPatient).where(
+            DoctorVPatient.doctor_id == doctor_id,
+            DoctorVPatient.patient_id == ctx.user.user_id
+        )
+        
+        if not ctx.db.exec(doctor_patient_query).first():
+            doctor_patient = DoctorVPatient(
+                doctor_id=doctor_id,
+                patient_id=ctx.user.user_id,
+                description="",
+                allowChatAccess=allowChatAccess
+            )
+            ctx.db.add(doctor_patient)
+        elif allowChatAccess:
+            doctor_patient = ctx.db.exec(doctor_patient_query).first()
+            doctor_patient.allowChatAccess = True
+            ctx.db.add(doctor_patient)
+                
         ctx.db.add(appointment)
         ctx.db.commit()
         ctx.db.refresh(appointment)
