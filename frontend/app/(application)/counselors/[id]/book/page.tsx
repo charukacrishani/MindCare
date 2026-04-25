@@ -45,6 +45,7 @@ export default function BookAppointmentPage() {
     const [reason, setReason] = useState('');
     const [notes, setNotes] = useState('');
     const [allowChatAccess, setAllowChatAccess] = useState(false);
+    const [allowDetailAccess, setAllowDetailAccess] = useState(false);
 
     // UI State
     const [loading, setLoading] = useState(true);
@@ -151,6 +152,7 @@ export default function BookAppointmentPage() {
                 reason: reason || undefined,
                 notes: notes || undefined,
                 allowChatAccess: allowChatAccess,
+                allowDetailAccess: allowDetailAccess,
             };
 
             const response = await apiClient.post<ServerResponse>(
@@ -434,15 +436,27 @@ export default function BookAppointmentPage() {
                                     </div>
                                     <div>
                                         <Label htmlFor="chatAccess" className="text-gray-700 font-medium flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                id="chatAccess"
+                                                checked={allowChatAccess}
+                                                onChange={(e) => setAllowChatAccess(e.target.checked)}
+                                                className="form-checkbox h-4 w-4 text-blue-600"
+                                            />
                                             Allow counselor to access chat history (Optional)
                                         </Label>
-                                        <input
-                                            type="checkbox"
-                                            id="chatAccess"
-                                            checked={allowChatAccess}
-                                            onChange={(e) => setAllowChatAccess(e.target.checked)}
-                                            className="form-checkbox h-4 w-4 text-blue-600"
-                                        />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="detailAccess" className="text-gray-700 font-medium flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                id="detailAccess"
+                                                checked={allowDetailAccess}
+                                                onChange={(e) => setAllowDetailAccess(e.target.checked)}
+                                                className="form-checkbox h-4 w-4 text-blue-600"
+                                            />
+                                            Allow counselor to access your information (Optional)
+                                        </Label>
                                     </div>
                                 </div>
                                 {/* Book Button */}

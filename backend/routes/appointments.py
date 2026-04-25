@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from datetime import datetime, timedelta
@@ -156,10 +158,8 @@ def create_appointment(
         end_time_str = appointment_data.get("end_time")
         reason = appointment_data.get("reason")
         notes = appointment_data.get("notes")
-        allowChatAccess = appointment_data.get("allowChatAccess", False)
-        
-        if not all([doctor_id, start_time_str, end_time_str]):
-            return ctx.response.error(message="Missing required fields")
+        allowChatAccess = bool(appointment_data.get("allowChatAccess", False))
+        allowDetailAccess = bool(appointment_data.get("allowDetailAccess", False))
         
         start_time = datetime.fromisoformat(start_time_str)
         end_time = datetime.fromisoformat(end_time_str)
@@ -200,15 +200,20 @@ def create_appointment(
         
         if not ctx.db.exec(doctor_patient_query).first():
             doctor_patient = DoctorVPatient(
+                id=str(uuid.uuid4()),
                 doctor_id=doctor_id,
                 patient_id=ctx.user.user_id,
                 description="",
-                allowChatAccess=allowChatAccess
+                allowChatAccess=allowChatAccess,
+                allowDetailAccess=allowDetailAccess,
             )
             ctx.db.add(doctor_patient)
-        elif allowChatAccess:
+        elif allowChatAccess or allowDetailAccess:
             doctor_patient = ctx.db.exec(doctor_patient_query).first()
-            doctor_patient.allowChatAccess = True
+            if allowChatAccess:
+                doctor_patient.allowChatAccess = True
+            if allowDetailAccess:
+                doctor_patient.allowDetailAccess = True
             ctx.db.add(doctor_patient)
                 
         ctx.db.add(appointment)
