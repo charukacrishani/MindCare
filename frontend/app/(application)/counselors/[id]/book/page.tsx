@@ -9,12 +9,16 @@ import { Label } from '@/components/ui/label';
 import { apiClient, ServerResponse } from '@/lib/apiClient';
 import { ArrowLeft, Calendar, Clock, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import Link from 'next/link';
+import CardPaymentMockup from '@/app/(application)/components/PaymentForm';
+import SpecializationChips from '@/components/SpecializationChips';
+import { SpecializationGrid } from '@/app/(application)/components/SpecializationGrid';
+import { OptionItem, SPECIALIZATIONS } from '@/app/(application)/components/ProfileSetupForm';
 
 interface DoctorInfo {
     userid: string;
-    first_name: string;
-    last_name: string;
+    full_name: string;
     avatar?: string;
+    specializations?: string;
 }
 
 interface Availability {
@@ -54,6 +58,7 @@ export default function BookAppointmentPage() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+    const [showPayment, setShowPayment] = useState(false);
 
 
     // Fetch doctor info and availability
@@ -256,233 +261,240 @@ export default function BookAppointmentPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4 md:p-8">
-            <div className="mx-auto">
-                {/* Header */}
-                <div className="flex items-center gap-4 mb-8">
-                    <Link href="/counselors">
-                        <Button variant="outline" size="icon">
-                            <ArrowLeft className="w-4 h-4" />
-                        </Button>
-                    </Link>
-                    <h1 className="text-3xl font-bold text-gray-900">Book Appointment</h1>
-                </div>
+        <>
+            <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4 md:p-8">
+                <div className="mx-auto">
+                    {/* Header */}
+                    <div className="flex items-center gap-4 mb-8">
+                        <Link href="/counselors">
+                            <Button variant="outline" size="icon">
+                                <ArrowLeft className="w-4 h-4" />
+                            </Button>
+                        </Link>
+                        <h1 className="text-3xl font-bold text-gray-900">Book Appointment</h1>
+                    </div>
 
-                {/* Success Message */}
-                {success && (
-                    <Card className="mb-6 p-4 bg-green-50 border-green-200">
-                        <div className="flex items-start gap-3">
-                            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                                <h3 className="font-semibold text-green-900">Success!</h3>
-                                <p className="text-green-800 text-sm">{successMessage}</p>
-                            </div>
-                        </div>
-                    </Card>
-                )}
-
-                {/* Error Message */}
-                {error && (
-                    <Card className="mb-6 p-4 bg-red-50 border-red-200">
-                        <div className="flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                                <h3 className="font-semibold text-red-900">Error</h3>
-                                <p className="text-red-800 text-sm">{error}</p>
-                            </div>
-                        </div>
-                    </Card>
-                )}
-
-                {/* Doctor Card */}
-                {doctor && (
-                    <Card className="mb-4 p-6 bg-white shadow-sm border-0">
-                        <div className="flex items-start gap-4">
-                            {doctor.avatar ? (
-                                <img
-                                    src={`data:image/png;base64,${doctor.avatar}`}
-                                    alt={doctor.first_name}
-                                    className="w-16 h-16 rounded-full object-cover"
-                                />
-                            ) : (
-                                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-                                    <span className="text-xl font-semibold text-blue-600">
-                                        {doctor.first_name?.[0]}{doctor.last_name?.[0]}
-                                    </span>
+                    {/* Success Message */}
+                    {success && (
+                        <Card className="mb-6 p-4 bg-green-50 border-green-200">
+                            <div className="flex items-start gap-3">
+                                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <h3 className="font-semibold text-green-900">Success!</h3>
+                                    <p className="text-green-800 text-sm">{successMessage}</p>
                                 </div>
-                            )}
-                            <div className="flex-1">
-                                <h2 className="text-2xl font-bold text-gray-900">
-                                    Dr. {doctor.first_name} {doctor.last_name}
-                                </h2>
-                                <p className="text-gray-600">Professional Counselor</p>
                             </div>
-                        </div>
-                    </Card>
-                )}
+                        </Card>
+                    )}
 
-                {!success && (
-                    <div className="justify-between flex flex-row gap-3">
-                        <div className="w-full md:w-1/2">
-                            {/* Date Selection */}
-                            <Card className="mb-8 p-6 bg-white shadow-sm border-0 w-full">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                                    <Calendar className="w-5 h-5 text-blue-600" />
-                                    Select Date
-                                </h3>
-
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                                    {getDaysAvailableInNextMonth().map((date) => (
-                                        <button
-                                            key={date}
-                                            onClick={() => setSelectedDate(date)}
-                                            className={`p-3 rounded-lg font-medium transition-all ${selectedDate === date
-                                                ? 'bg-blue-600 text-white shadow-md'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                }`}
-                                        >
-                                            <div className="text-xs text-center text-gray-500">
-                                                {new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
-                                                    month: 'short',
-                                                })} - {new Date(date + 'T00:00:00').getDate()}
-                                            </div>
-                                            <div className="text-xs text-center">{getDayName(date)}</div>
-                                        </button>
-                                    ))}
+                    {/* Error Message */}
+                    {error && (
+                        <Card className="mb-6 p-4 bg-red-50 border-red-200">
+                            <div className="flex items-start gap-3">
+                                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <h3 className="font-semibold text-red-900">Error</h3>
+                                    <p className="text-red-800 text-sm">{error}</p>
                                 </div>
+                            </div>
+                        </Card>
+                    )}
 
-                                {selectedDate && (
-                                    <p className="mt-4 text-sm text-gray-600">
-                                        Selected: {formatDate(selectedDate)}
-                                    </p>
+                    {/* Doctor Card */}
+                    {doctor && (
+                        <Card className="mb-4 p-6 bg-white shadow-sm border-0">
+                            <div className="flex items-start gap-4">
+                                {doctor.avatar ? (
+                                    <img
+                                        src={`data:image/png;base64,${doctor.avatar}`}
+                                        alt={doctor.full_name}
+                                        className="w-16 h-16 rounded-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+                                        <span className="text-xl font-semibold text-blue-600">
+                                            {doctor.full_name?.split(' ').map(n => n[0]).join('')}
+                                        </span>
+                                    </div>
                                 )}
-                            </Card>
-                        </div>
-                        <div className="w-full md:w-1/2">
-                            {/* Time Slot Selection */}
-                            {selectedDate && (
-                                <Card className="mb-8 p-6 bg-white shadow-sm border-0">
+                                <div className="flex-1 gap-2 flex flex-col">
+                                    <h2 className="text-2xl font-bold text-gray-900">
+                                        {doctor.full_name}
+                                    </h2>
+                                    <SpecializationGrid value={doctor.specializations} options={SPECIALIZATIONS} onChange={() => {}} viewMode />
+                                </div>
+                            </div>
+                        </Card>
+                    )}
+
+                    {!success && (
+                        <div className="justify-between flex flex-row gap-3">
+                            <div className="w-full md:w-1/2">
+                                {/* Date Selection */}
+                                <Card className="mb-8 p-6 bg-white shadow-sm border-0 w-full">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                                        <Clock className="w-5 h-5 text-blue-600" />
-                                        Select Time
+                                        <Calendar className="w-5 h-5 text-blue-600" />
+                                        Select Date
                                     </h3>
 
-                                    {loadingSlots ? (
-                                        <div className="flex justify-center py-8">
-                                            <Loader className="w-8 h-8 animate-spin text-blue-500" />
-                                        </div>
-                                    ) : availableSlots.length > 0 ? (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                            {availableSlots.map((slot, idx) => (
-                                                <button
-                                                    key={idx}
-                                                    onClick={() => setSelectedSlot(slot)}
-                                                    className={`p-3 rounded-lg font-medium transition-all ${selectedSlot?.start_time === slot.start_time
-                                                        ? 'bg-blue-600 text-white shadow-md'
-                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                        }`}
-                                                >
-                                                    {formatTime(slot.start_time)}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <p className="text-gray-600">No available slots for this date</p>
-                                    )}
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                        {getDaysAvailableInNextMonth().map((date) => (
+                                            <button
+                                                key={date}
+                                                onClick={() => setSelectedDate(date)}
+                                                className={`p-3 rounded-lg font-medium transition-all ${selectedDate === date
+                                                    ? 'bg-blue-600 text-white shadow-md'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                    }`}
+                                            >
+                                                <div className="text-xs text-center text-gray-500">
+                                                    {new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
+                                                        month: 'short',
+                                                    })} - {new Date(date + 'T00:00:00').getDate()}
+                                                </div>
+                                                <div className="text-xs text-center">{getDayName(date)}</div>
+                                            </button>
+                                        ))}
+                                    </div>
 
-                                    {selectedSlot && (
+                                    {selectedDate && (
                                         <p className="mt-4 text-sm text-gray-600">
-                                            Selected: {formatTime(selectedSlot.start_time)} -{' '}
-                                            {formatTime(selectedSlot.end_time)}
+                                            Selected: {formatDate(selectedDate)}
                                         </p>
                                     )}
                                 </Card>
-                            )}
-                        </div>
+                            </div>
+                            <div className="w-full md:w-1/2">
+                                {/* Time Slot Selection */}
+                                {selectedDate && (
+                                    <Card className="mb-8 p-6 bg-white shadow-sm border-0">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                            <Clock className="w-5 h-5 text-blue-600" />
+                                            Select Time
+                                        </h3>
 
-                        <div className="w-full md:w-1/2">
-                            {/* Additional Details */}
-                            <Card className="mb-8 p-6 bg-white shadow-sm border-0">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                                    Additional Details
-                                </h3>
+                                        {loadingSlots ? (
+                                            <div className="flex justify-center py-8">
+                                                <Loader className="w-8 h-8 animate-spin text-blue-500" />
+                                            </div>
+                                        ) : availableSlots.length > 0 ? (
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                                {availableSlots.map((slot, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        onClick={() => setSelectedSlot(slot)}
+                                                        className={`p-3 rounded-lg font-medium transition-all ${selectedSlot?.start_time === slot.start_time
+                                                            ? 'bg-blue-600 text-white shadow-md'
+                                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                            }`}
+                                                    >
+                                                        {formatTime(slot.start_time)}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-gray-600">No available slots for this date</p>
+                                        )}
 
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label htmlFor="reason" className="text-gray-700 font-medium">
-                                            Reason for Visit (Optional)
-                                        </Label>
-                                        <Input
-                                            id="reason"
-                                            placeholder="e.g., Anxiety management, Career counseling"
-                                            value={reason}
-                                            onChange={(e) => setReason(e.target.value)}
-                                            className="mt-2"
-                                        />
-                                    </div>
+                                        {selectedSlot && (
+                                            <p className="mt-4 text-sm text-gray-600">
+                                                Selected: {formatTime(selectedSlot.start_time)} -{' '}
+                                                {formatTime(selectedSlot.end_time)}
+                                            </p>
+                                        )}
+                                    </Card>
+                                )}
+                            </div>
 
-                                    <div>
-                                        <Label htmlFor="notes" className="text-gray-700 font-medium">
-                                            Additional Notes (Optional)
-                                        </Label>
-                                        <textarea
-                                            id="notes"
-                                            placeholder="Any additional information you'd like to share..."
-                                            value={notes}
-                                            onChange={(e) => setNotes(e.target.value)}
-                                            className="mt-2 w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            rows={4}
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="chatAccess" className="text-gray-700 font-medium flex items-center gap-2">
-                                            <input
-                                                type="checkbox"
-                                                id="chatAccess"
-                                                checked={allowChatAccess}
-                                                onChange={(e) => setAllowChatAccess(e.target.checked)}
-                                                className="form-checkbox h-4 w-4 text-blue-600"
+                            <div className="w-full md:w-1/2">
+                                {/* Additional Details */}
+                                <Card className="mb-8 p-6 bg-white shadow-sm border-0">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                                        Additional Details
+                                    </h3>
+
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label htmlFor="reason" className="text-gray-700 font-medium">
+                                                Reason for Visit (Optional)
+                                            </Label>
+                                            <Input
+                                                id="reason"
+                                                placeholder="e.g., Anxiety management, Career counseling"
+                                                value={reason}
+                                                onChange={(e) => setReason(e.target.value)}
+                                                className="mt-2"
                                             />
-                                            Allow counselor to access chat history (Optional)
-                                        </Label>
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="detailAccess" className="text-gray-700 font-medium flex items-center gap-2">
-                                            <input
-                                                type="checkbox"
-                                                id="detailAccess"
-                                                checked={allowDetailAccess}
-                                                onChange={(e) => setAllowDetailAccess(e.target.checked)}
-                                                className="form-checkbox h-4 w-4 text-blue-600"
+                                        </div>
+
+                                        <div>
+                                            <Label htmlFor="notes" className="text-gray-700 font-medium">
+                                                Additional Notes (Optional)
+                                            </Label>
+                                            <textarea
+                                                id="notes"
+                                                placeholder="Any additional information you'd like to share..."
+                                                value={notes}
+                                                onChange={(e) => setNotes(e.target.value)}
+                                                className="mt-2 w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                rows={4}
                                             />
-                                            Allow counselor to access your information (Optional)
-                                        </Label>
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="chatAccess" className="text-gray-700 font-medium flex items-center gap-2">
+                                                <input
+                                                    type="checkbox"
+                                                    id="chatAccess"
+                                                    checked={allowChatAccess}
+                                                    onChange={(e) => setAllowChatAccess(e.target.checked)}
+                                                    className="form-checkbox h-4 w-4 text-blue-600"
+                                                />
+                                                Allow counselor to access chat history (Optional)
+                                            </Label>
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="detailAccess" className="text-gray-700 font-medium flex items-center gap-2">
+                                                <input
+                                                    type="checkbox"
+                                                    id="detailAccess"
+                                                    checked={allowDetailAccess}
+                                                    onChange={(e) => setAllowDetailAccess(e.target.checked)}
+                                                    className="form-checkbox h-4 w-4 text-blue-600"
+                                                />
+                                                Allow counselor to access your information (Optional)
+                                            </Label>
+                                        </div>
                                     </div>
-                                </div>
-                                {/* Book Button */}
-                                <Button
-                                    onClick={handleBookAppointment}
-                                    disabled={!selectedSlot || submitting}
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold"
-                                >
-                                    {submitting ? (
-                                        <>
-                                            <Loader className="w-4 h-4 animate-spin mr-2" />
-                                            Booking...
-                                        </>
-                                    ) : (
-                                        'Confirm Booking'
-                                    )}
-                                </Button>
-                            </Card>
-
-
-
-
+                                    {/* Book Button */}
+                                    <Button
+                                        onClick={() => {
+                                            setShowPayment(true);
+                                        }}
+                                        disabled={!selectedSlot || submitting}
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold"
+                                    >
+                                        {submitting ? (
+                                            <>
+                                                <Loader className="w-4 h-4 animate-spin mr-2" />
+                                                Booking...
+                                            </>
+                                        ) : (
+                                            'Confirm Booking'
+                                        )}
+                                    </Button>
+                                </Card>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
-        </div>
+            {showPayment && (
+                <CardPaymentMockup handleBookAppointment={() => {
+                    setShowPayment(false)
+                    handleBookAppointment()
+                }
+                } isOpen={showPayment} onClose={() => setShowPayment(false)} amount={"GBP 25"} />
+            )}
+        </>
     );
 }

@@ -27,7 +27,7 @@ class CounselorProfileData(BaseModel):
     fullName: str
     gender: str
     dob: str
-    specializations: list[str]
+    specializations: str
     yearsOfExperience: str
     licenceNumber: str
     avatar: str | None = None  # Base64 encoded avatar image
@@ -43,18 +43,6 @@ class ProfileUpdateRequest(BaseModel):
 
 def parse_dob(value: str) -> datetime:
     return datetime.fromisoformat(value)
-
-
-def parse_specializations(value: str | None) -> list[str]:
-    if not value:
-        return []
-    try:
-        parsed = json.loads(value)
-        if isinstance(parsed, list):
-            return [str(item) for item in parsed]
-    except json.JSONDecodeError:
-        pass
-    return [part.strip() for part in value.split(",") if part.strip()]
 
 
 def serialize_user_profile(ctx: Context, profile: UserInformation, userid: str, avatar_base64: str | None = None) -> dict:
@@ -83,7 +71,7 @@ def serialize_counselor_profile(ctx: Context, profile: DoctorInformation, userid
     serialized.setdefault("gender", None)
     serialized.setdefault("licence_number", None)
     serialized.setdefault("years_of_experience", None)
-    serialized["specializations"] = parse_specializations(serialized.get("specializations"))
+    serialized.setdefault("specializations", None)
     if avatar_base64:
         serialized["avatar"] = avatar_base64
     else:
@@ -217,16 +205,8 @@ def update_my_profile(body: ProfileUpdateRequest, ctx: Context = Depends(get_con
 
             if "specializations" in payload:
                 incoming = payload.get("specializations")
-                if isinstance(incoming, list):
-                    specs = [str(item).strip() for item in incoming if str(item).strip()]
-                elif isinstance(incoming, str):
-                    specs = parse_specializations(incoming)
-                else:
-                    specs = []
-                serialized_specs = json.dumps(specs)
-                profile.specializations = serialized_specs
-                profile.specialization = serialized_specs
-            
+                profile.specializations = incoming
+
             if "avatar" in payload and payload.get("avatar"):
                 set_avatar(user.userid, base64.b64decode(str(payload.get("avatar"))), ctx)
 
@@ -300,9 +280,7 @@ def save_profile_setup(body: ProfileSetupRequest, ctx: Context = Depends(get_con
             years = payload.yearsOfExperience.strip()
             row.years_of_experience = int(years) if years else None
 
-            serialized_specs = json.dumps(payload.specializations)
-            row.specializations = serialized_specs
-            row.specialization = serialized_specs
+            row.specializations = payload.specializations
             
             # Handle avatar if provided (base64 encoded)
             if payload.avatar:

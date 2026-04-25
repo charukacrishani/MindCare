@@ -46,7 +46,6 @@ class DoctorInformation(SQLModel, table=True):
     years_of_experience: Optional[int] = None
     specializations: Optional[str] = None
     location: Optional[str] = None
-    specialization: Optional[str] = None
     hospital: Optional[str] = None
     available: bool = Field(default=True)
     

@@ -6,6 +6,9 @@ import { apiClient } from "@/lib/apiClient";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import SpecializationChips from "@/components/SpecializationChips";
+import { SpecializationGrid } from "../components/SpecializationGrid";
+import { OptionItem, SPECIALIZATIONS } from "../components/ProfileSetupForm";
 
 type ProfileMeResponse = {
 	role: string;
@@ -31,7 +34,7 @@ type CounselorProfile = {
 	gender: string | null;
 	licence_number: string | null;
 	years_of_experience: number | null;
-	specializations: string[] | string | null;
+	specializations: string;
 	avatar: string | null;
 };
 
@@ -63,26 +66,6 @@ function formatDate(value: string | null | undefined) {
 		month: "short",
 		year: "numeric",
 	});
-}
-
-function parseSpecializations(value: unknown): string[] {
-	if (!value) return [];
-	if (Array.isArray(value)) {
-		return value.map((v) => String(v).trim()).filter(Boolean);
-	}
-	if (typeof value !== "string") {
-		return [];
-	}
-	try {
-		const parsed = JSON.parse(value);
-		if (Array.isArray(parsed)) return parsed.map((v) => String(v));
-	} catch {
-		// Fallback supports legacy comma-separated values.
-	}
-	return value
-		.split(",")
-		.map((v) => v.trim())
-		.filter(Boolean);
 }
 
 function toDateInputValue(value: string | null | undefined): string {
@@ -123,7 +106,7 @@ function toCounselorForm(profile: CounselorProfile): CounselorProfileForm {
 		dob: toDateInputValue(profile.dob),
 		licenceNumber: profile.licence_number ?? "",
 		yearsOfExperience: profile.years_of_experience != null ? String(profile.years_of_experience) : "",
-		specializations: parseSpecializations(profile.specializations).join(", "),
+		specializations: profile.specializations ?? "",
 		avatar: profile.avatar ?? null,
 	};
 }
@@ -259,10 +242,6 @@ export default function ProfilePage() {
 	const [counselorForm, setCounselorForm] = useState<CounselorProfileForm | null>(null);
 
 	const role = useMemo(() => (user?.role ?? "").toLowerCase(), [user]);
-	const counselorSpecializations = useMemo(
-		() => parseSpecializations(counselorProfile?.specializations),
-		[counselorProfile?.specializations],
-	);
 
 	useEffect(() => {
 		if (!role) {
@@ -348,10 +327,6 @@ export default function ProfilePage() {
 			}
 
 			if (role !== "user" && counselorForm) {
-				const specs = counselorForm.specializations
-					.split(",")
-					.map((value) => value.trim())
-					.filter(Boolean);
 
 				const payload: any = {
 					fullName: counselorForm.fullName,
@@ -359,7 +334,7 @@ export default function ProfilePage() {
 					dob: counselorForm.dob,
 					licenceNumber: counselorForm.licenceNumber,
 					yearsOfExperience: counselorForm.yearsOfExperience,
-					specializations: specs,
+					specializations: counselorForm.specializations,
 				};
 
 				// Include avatar if it was changed
@@ -480,20 +455,7 @@ export default function ProfilePage() {
 							<ProfileField label="Years of Experience" value={counselorProfile.years_of_experience ?? "-"} />
 							<div className="space-y-2 rounded-lg border border-gray-100 bg-white p-3 sm:col-span-2 lg:col-span-3">
 								<p className="text-xs uppercase tracking-wide text-gray-500">Specializations</p>
-								<div className="flex flex-wrap gap-2">
-									{counselorSpecializations.length > 0 ? (
-										counselorSpecializations.map((sp) => (
-											<span
-												key={sp}
-												className="rounded-full border border-[#f0c3ee] bg-[#fff5ff] px-3 py-1 text-xs font-medium text-[#980194]"
-											>
-												{sp}
-											</span>
-										))
-									) : (
-										<p className="text-sm text-gray-500">-</p>
-									)}
-								</div>
+								<SpecializationGrid value={counselorProfile.specializations} options={SPECIALIZATIONS} onChange={() => {}} viewMode />
 							</div>
 						</div>
 					)}
@@ -614,14 +576,8 @@ export default function ProfilePage() {
 								/>
 							</div>
 							<div className="space-y-1 sm:col-span-2 lg:col-span-3">
-								<p className="text-xs uppercase tracking-wide text-gray-500">Specializations (comma separated)</p>
-								<textarea
-									value={counselorForm.specializations}
-									onChange={(e) =>
-										setCounselorForm((prev) => (prev ? { ...prev, specializations: e.target.value } : prev))
-									}
-									className="min-h-24 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-								/>
+								<p className="text-xs uppercase tracking-wide text-gray-500">Specializations</p>
+								<SpecializationGrid value={counselorForm.specializations} options={SPECIALIZATIONS} onChange={(val) => setCounselorForm((prev) => (prev ? { ...prev, specializations: val } : prev))} />
 							</div>
 						</div>
 					)}

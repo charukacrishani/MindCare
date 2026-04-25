@@ -9,9 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ChevronDown, Calendar, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { apiClient } from "@/lib/apiClient";
+import { SpecializationGrid } from "./SpecializationGrid";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
-interface OptionItem {
+export interface OptionItem {
   id: string;
   label: string;
 }
@@ -31,7 +32,7 @@ interface DoctorDetails {
   gender: string;
   dob: string;
   age: number | "";
-  specializations: string[];
+  specializations: string;
   yearsOfExperience: string;
   licenceNumber: string;
   avatar: string | null;  // Base64 encoded avatar
@@ -69,7 +70,7 @@ const MARITAL_STATUS_OPTIONS: OptionItem[] = [
   { id: "prefer_not_to_say", label: "Prefer not to say" },
 ];
 
-const SPECIALIZATIONS: OptionItem[] = [
+export const SPECIALIZATIONS: OptionItem[] = [
   { id: "anxiety", label: "Anxiety" },
   { id: "depression", label: "Depression" },
   { id: "trauma_ptsd", label: "Trauma & PTSD" },
@@ -483,40 +484,6 @@ function AgeBadge({ age }: { age: number | "" }) {
   );
 }
 
-// ─── Specialization Pill Grid ─────────────────────────────────────────────────
-function SpecializationGrid({
-  options,
-  selected,
-  onToggle,
-}: {
-  options: OptionItem[];
-  selected: string[];
-  onToggle: (s: string) => void;
-}) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {options.map((s) => {
-        const active = selected.includes(s.id);
-        return (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => onToggle(s.id)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border
-              ${active
-                ? "bg-gradient-to-r from-purple-400 to-pink-400 text-white border-transparent shadow-sm"
-                : "bg-white border-gray-200 text-gray-600 hover:border-purple-300 hover:text-purple-600"
-              }`}
-          >
-            {active && <CheckCircle2 className="w-3 h-3 inline mr-1" />}
-            {s.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 // ─── Field wrapper ────────────────────────────────────────────────────────────
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -544,7 +511,7 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
 
   const [doctorDetails, setDoctorDetails] = useState<DoctorDetails>({
     fullName: "", gender: "", dob: "", age: "",
-    specializations: [], yearsOfExperience: "", licenceNumber: "", avatar: null,
+    specializations: "", yearsOfExperience: "", licenceNumber: "", avatar: null,
   });
 
   useEffect(() => {
@@ -686,13 +653,10 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
               </div>
 
               <Field label="Specialization">
-                <SpecializationGrid options={SPECIALIZATIONS} selected={doctorDetails.specializations}
-                  onToggle={(s) => setDoctorDetails((p) => ({
-                    ...p,
-                    specializations: p.specializations.includes(s)
-                      ? p.specializations.filter((x) => x !== s)
-                      : [...p.specializations, s],
-                  }))} />
+                <SpecializationGrid options={SPECIALIZATIONS} value={doctorDetails.specializations} onChange={(val)=>
+                  setDoctorDetails((p) => { return { ...p, specializations: val };
+                  })
+                }/>
                 {doctorDetails.specializations.length === 0 && (
                   <p className="text-xs text-gray-400 mt-1">Select at least one specialization</p>
                 )}
