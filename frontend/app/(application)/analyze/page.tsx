@@ -149,27 +149,52 @@ export default function Page() {
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [isChatDone, setIsChatDone] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const totalQuestions = QUESTIONS.length;
   const [response, setResponse] = useState<{ id: number, depression_score: number, anxiety_score: number, stress_score: number }>();
 
   const activeQuestion = QUESTIONS[currentQuestion - 1];
-  const selectedAnswer = answers[currentQuestion] ?? null;
+  const selectedAnswer = answers[currentQuestion] !== undefined ? answers[currentQuestion] : null;
   console.log(selectedAnswer)
 
+  const submitQuestionnaire = async (finalAnswers: Record<number, number>) => {
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setIsChatDone(true);
+    const message = await apiClient.post<{ id: number, depression_score: number, anxiety_score: number, stress_score: number }>(
+      '/questionnaire/submit',
+      finalAnswers
+    );
+    if (message) {
+      setResponse(message.data);
+    }
+    setIsSubmitting(false);
+  };
+
   const handleSelect = (option: number) => {
-    setAnswers((prev) => ({ ...prev, [currentQuestion]: option }));
+    const updatedAnswers = {
+      ...answers,
+      [currentQuestion]: option,
+    };
+
+    setAnswers(updatedAnswers);
+
+    if (currentQuestion < totalQuestions) {
+      setCurrentQuestion((prev) => prev + 1);
+    } else {
+      void submitQuestionnaire(updatedAnswers);
+    }
   };
 
   const handleNext = async () => {
     if (currentQuestion < totalQuestions) {
       setCurrentQuestion((prev) => prev + 1);
     } else {
-      setIsChatDone(true);
       console.log(answers)
-      const message = await apiClient.post<{ id: number, depression_score: number, anxiety_score: number, stress_score: number }>('/questionnaire/submit', answers);
-      if (message) {
-        setResponse(message.data)
-      }
+      await submitQuestionnaire(answers);
 
     }
   };
