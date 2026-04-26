@@ -3,10 +3,11 @@ import { PatientChatHistory } from "@/components/PatientChatHistory";
 import { PreviousAppointments } from "@/components/PreviousAppointments";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { PatientProfileCard } from "@/components/PatientProfileCard";
+import { PatientProfileCard, PatientStatistics } from "@/components/PatientProfileCard";
 import { useEffect, useState } from "react";
 import { apiClient } from "@/lib/apiClient";
 import { useParams } from "next/navigation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type Patient = {
   name: string;
@@ -15,130 +16,97 @@ type Patient = {
   description: string;
 }
 
-const statistics = [
-  {
-    dateRange: "01/12/2026 – 12/12/2026",
-    anxiety: 1,
-    depression: 2,
-    stress: 2,
-  },
-  {
-    dateRange: "25/11/2026 – 31/11/2026",
-    anxiety: 1,
-    depression: 3,
-    stress: 3,
-  },
-];
+type StatisticEntry = {
+  dateRange: string;
+  anxiety: number;
+  depression: number;
+  stress: number;
+}
 
-const messages = [
-  {
-    id: "1",
-    sender: "patient",
-    text: "Hi... I don't really feel okay lately.",
-  },
-  {
-    id: "2",
-    sender: "counselor",
-    text: "Thank you for sharing that. You don't have to explain everything at once. Let's take this step by step. Can you tell me what you've been feeling most often recently?",
-  },
-  {
-    id: "3",
-    sender: "patient",
-    text: "I feel tired all the time and I don't feel motivated.",
-  },
-  {
-    id: "4",
-    sender: "counselor",
-    text: "Have you been getting enough rest or sleep lately?",
-  },
-  { id: "5", sender: "patient", text: "Not really. My sleep is messed up." },
-  {
-    id: "6",
-    sender: "counselor",
-    text: "Sleep plays a big role in how we feel mentally and emotionally.",
-  },
-  {
-    id: "7",
-    sender: "patient",
-    text: "I know, but even when I try to sleep early I just stare at the ceiling.",
-  },
-  {
-    id: "8",
-    sender: "counselor",
-    text: "That sounds really frustrating. Have you noticed any particular thoughts that come up when you can't sleep?",
-  },
-  {
-    id: "9",
-    sender: "patient",
-    text: "Yeah, I keep thinking about work and whether I'm doing enough.",
-  },
-  {
-    id: "10",
-    sender: "counselor",
-    text: "It sounds like you might be putting a lot of pressure on yourself. How long has this been going on?",
-  },
-  {
-    id: "11",
-    sender: "patient",
-    text: "Maybe 3 or 4 months now. It started after I got a new manager.",
-  },
-  {
-    id: "12",
-    sender: "counselor",
-    text: "That's a significant change. Has your relationship with your new manager been stressful for you?",
-  },
-  {
-    id: "13",
-    sender: "patient",
-    text: "Kind of. I feel like nothing I do is ever good enough for them.",
-  },
-  {
-    id: "14",
-    sender: "counselor",
-    text: "Feeling unappreciated at work can really take a toll on your mental health. Do you have people around you that you can talk to about this?",
-  },
-  {
-    id: "15",
-    sender: "patient",
-    text: "Not really. I don't want to burden my friends with my problems.",
-  },
-  {
-    id: "16",
-    sender: "counselor",
-    text: "You're not a burden. Reaching out is actually a sign of strength. I'm glad you're here today.",
-  },
-];
+type ChatMessage = {
+  id: string;
+  sender: string;
+  text: string;
+}
 
-const appointments = Array.from({ length: 7 }, (_, i) => ({
-  id: String(i + 1),
-  date: "12-12-2026",
-  time: "2:00 PM",
-}));
+type AppointmentItem = {
+  id: string;
+  date: string;
+  time: string;
+}
+
+type PatientOverviewResponse = {
+  patient: Patient;
+  statistics: StatisticEntry[];
+  appointments: AppointmentItem[];
+  chat: {
+    date: string;
+    messages: ChatMessage[];
+  };
+}
 
 export default function PatientDetailPage() {
   const params = useParams();
-  const id = params.id;
+  const id = typeof params.id === "string" ? params.id : "";
   const [patient, setPatient] = useState<Patient>({ name: "", age: 0, imageSrc: "", description: "" });
+  const [statistics, setStatistics] = useState<StatisticEntry[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [chatDate, setChatDate] = useState<string>("");
+  const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!id) {
+      return;
+    }
+
     loadData();
   }, [id]);
 
   const loadData = async () => {
     try {
-      const response = await apiClient.get<Patient>(`/patients/${id}`);
-      setPatient(response.data);
+      setLoading(true);
+      setError(null);
+
+      const response = await apiClient.get<PatientOverviewResponse>(`/patients/${id}/overview`);
+      const overview = response.data;
+
+      setPatient(overview.patient);
+      setStatistics(overview.statistics ?? []);
+      setAppointments(overview.appointments ?? []);
+      setMessages(overview.chat?.messages ?? []);
+      setChatDate(overview.chat?.date ? new Date(overview.chat.date).toLocaleDateString() : "No chat data");
     } catch (error) {
       setPatient({ name: "Unknown Patient", age: 0, imageSrc: "", description: "" });
+      setStatistics([]);
+      setAppointments([]);
+      setMessages([]);
+      setChatDate("No chat data");
+      setError("Failed to load patient data.");
       console.error("Failed to load patient data:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <div className="flex min-h-screen bg-gray-50/80">
-      <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-400 via-pink-300 to-purple-200 z-50" />
+      <div className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-purple-400 via-pink-300 to-purple-200 z-50" />
 
       <main className="flex-1 p-8 pb-16">
+        {loading && (
+          <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-500">
+            Loading patient details...
+          </div>
+        )}
+
+        {!loading && error && (
+          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
           <Link
@@ -151,15 +119,30 @@ export default function PatientDetailPage() {
           <span className="text-gray-800 font-medium">{patient?.name}</span>
         </div>
 
-        {/* Top section */}
-        <div className="mb-4">
-          <PatientProfileCard {...patient} stats={statistics} />
-        </div>
+        <Tabs defaultValue="Profile" className="w-full">
+          <TabsList>
+            <TabsTrigger value="Profile">Profile</TabsTrigger>
+            <TabsTrigger value="Statistics">Statistics</TabsTrigger>
+            <TabsTrigger value="Appointments">Appointments</TabsTrigger>
+            <TabsTrigger value="ChatHistory">Chat History</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="Profile">
+            <PatientProfileCard {...patient} />
+          </TabsContent>
+          <TabsContent value="Statistics">
+            <PatientStatistics stats={statistics} />
+          </TabsContent>
+          <TabsContent value="Appointments">
+            <PreviousAppointments appointments={appointments} />
+          </TabsContent>
+          <TabsContent value="ChatHistory">
+            <PatientChatHistory date={chatDate} messages={messages} />
+          </TabsContent>
+        </Tabs>
 
         {/* Bottom section */}
         <div className="grid grid-cols-2 gap-4">
-          <PatientChatHistory date="12-12-2026" messages={messages} />
-          <PreviousAppointments appointments={appointments} />
         </div>
       </main>
     </div>

@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 from sqlmodel import select
 from sqlalchemy import func
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from chatbot.chatbot_chatgpt import MentalHealthChatbot_GPT
 from context import Context, get_context
@@ -52,53 +52,35 @@ def get_current_stats_dashboard(ctx: Context = Depends(get_context)):
 
 @router.get("/trend")
 def get_trend_data(ctx: Context = Depends(get_context)):
-    # Get data from last 5 days, with averages for multiple entries per day
-    five_days_ago = datetime.utcnow() - timedelta(days=5)
-    
+   
     query = (
-        select(
-            func.date(QuestionnaireResponse.date).label("date"),
-            func.avg(QuestionnaireResponse.anxiety_score).label("anxiety_score"),
-            func.avg(QuestionnaireResponse.depression_score).label("depression_score"),
-            func.avg(QuestionnaireResponse.stress_score).label("stress_score")
-        )
+        select(QuestionnaireResponse)
         .where(
-            (QuestionnaireResponse.userid == ctx.user.user_id) &
-            (QuestionnaireResponse.date >= five_days_ago)
+            (QuestionnaireResponse.userid == ctx.user.user_id)
         )
-        .group_by(func.date(QuestionnaireResponse.date))
-        .order_by(func.date(QuestionnaireResponse.date).asc())
+        .order_by(func.date(QuestionnaireResponse.date).desc())
+        .limit(5)
     )
     
     responses = ctx.db.exec(query).all()
     
-    # Create a dictionary to map dates to scores
-    data_dict = {
-        (response.date if isinstance(response.date, str) else response.date.isoformat()): {
-            "anxiety_score": float(response.anxiety_score) if response.anxiety_score else 0,
-            "depression_score": float(response.depression_score) if response.depression_score else 0,
-            "stress_score": float(response.stress_score) if response.stress_score else 0,
-        }
-        for response in responses
-    }
-    
     # Generate all dates for last 5 days including today
     trend_data = []
     for i in range(5):
-        date = (datetime.utcnow() - timedelta(days=4-i)).date()
-        date_str = date.isoformat()
-        
-        if date_str in data_dict:
+        if responses and i < len(responses):
+            response = responses[i]
             trend_data.append({
-                **data_dict[date_str],
-                "date": date.strftime("%a")
+                "anxiety_score": response.anxiety_score,
+                "depression_score": response.depression_score,
+                "stress_score": response.stress_score,
+                "date": response.date
             })
         else:
             trend_data.append({
                 "anxiety_score": 0,
                 "depression_score": 0,
                 "stress_score": 0,
-                "date": date.strftime("%a")
+                "date": ""
             })
     
     return ctx.response.success(data=trend_data)

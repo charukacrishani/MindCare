@@ -227,6 +227,7 @@ export default function AppointmentDetail() {
                             </span>
                         </div>
 
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                             <div className="rounded-xl border border-[#edf0f3] p-4">
                                 <p className="text-xs text-[#6b7280] mb-2">Counselor</p>
@@ -292,6 +293,15 @@ export default function AppointmentDetail() {
                                 </p>
                             </div>
                         </div>
+                        <button
+                            type="button"
+                            onClick={() => { 
+                                window.open(`/patient/${appointment.patient_id}`, "_blank"); 
+                            }}
+                            className="inline-flex w-full items-center justify-center rounded-lg bg-[#111827] px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            View Patient
+                        </button>
                     </section>
 
                     <aside className="rounded-2xl border border-[#e5e7eb] bg-white p-5 sm:p-6 h-fit">
