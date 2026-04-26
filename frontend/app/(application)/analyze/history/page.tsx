@@ -1,6 +1,7 @@
 "use client";
 import { apiClient } from "@/lib/apiClient";
 import { useEffect, useState } from "react";
+import { Loader, BarChart2 } from "lucide-react";
 
 export interface QuestionnaireResponse {
     id: string;
@@ -28,57 +29,87 @@ export default function AnalyzeHistoryPage() {
             } finally {
                 setLoading(false);
             }
-        }
+        };
         fetchData();
     }, []);
 
     return (
-        <div className="w-full flex flex-col items-center py-10 px-4">
+        <div className="w-full p-4 md:p-6">
+            <div className="max-w-3xl mx-auto">
 
-            <h1 className="text-2xl font-bold mb-8">Analyze History</h1>
+                {/* Page header */}
+                <div className="mb-6">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-[#980194]">Analyze</p>
+                    <h1 className="text-2xl font-semibold text-gray-900 mt-1">Assessment History</h1>
+                    <p className="text-sm text-gray-500 mt-1">Your past DASS-21 results, most recent first.</p>
+                </div>
 
-            <div className="w-full max-w-3xl">
                 {loading ? (
-                    <p className="text-center text-gray-500">Loading...</p>
+                    <div className="flex flex-col items-center justify-center py-20 gap-3">
+                        <Loader className="w-8 h-8 animate-spin text-[#980194]" />
+                        <p className="text-sm text-gray-500">Loading results...</p>
+                    </div>
+                ) : responses.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 gap-2 text-center">
+                        <BarChart2 className="w-10 h-10 text-gray-200" />
+                        <p className="text-gray-500">No assessments completed yet.</p>
+                        <p className="text-sm text-gray-400">Complete the DASS-21 questionnaire to see your results here.</p>
+                    </div>
                 ) : (
-                    <ul className="space-y-4">
-                        {responses.map((response) => (
+                    <ul className="space-y-3">
+                        {responses.map((response, idx) => (
                             <li
                                 key={response.id}
-                                className="p-5 border border-gray-200 rounded-xl shadow-sm bg-white hover:shadow-md transition-shadow"
+                                className="p-5 border border-gray-100 rounded-xl shadow-sm bg-white hover:shadow-md transition-shadow"
                             >
-                                <div className="grid grid-cols-3 gap-4 text-sm mb-3">
-                                    <div className="p-3 bg-red-50 rounded-lg">
-                                        <p className="text-gray-500">Depression</p>
-                                        <p className="text-lg font-semibold text-red-600">
+                                {/* Card header */}
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <p className="text-xs font-semibold uppercase tracking-widest text-[#980194]">
+                                            Session {responses.length - idx}
+                                        </p>
+                                        <p className="text-sm font-medium text-gray-700 mt-0.5">
+                                            {new Date(response.date).toLocaleDateString("en-GB", {
+                                                day: "numeric",
+                                                month: "long",
+                                                year: "numeric",
+                                            })}
+                                        </p>
+                                    </div>
+                                    <p className="text-xs text-gray-400">
+                                        {new Date(response.date).toLocaleTimeString("en-US", {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })}
+                                    </p>
+                                </div>
+
+                                {/* Score grid */}
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="p-3 bg-red-50 border border-red-100 rounded-xl">
+                                        <p className="text-xs text-gray-500 mb-1">Depression</p>
+                                        <p className="text-2xl font-semibold text-red-600 leading-none">
                                             {response.depression_score}
                                         </p>
                                     </div>
-
-                                    <div className="p-3 bg-yellow-50 rounded-lg">
-                                        <p className="text-gray-500">Anxiety</p>
-                                        <p className="text-lg font-semibold text-yellow-600">
+                                    <div className="p-3 bg-yellow-50 border border-yellow-100 rounded-xl">
+                                        <p className="text-xs text-gray-500 mb-1">Anxiety</p>
+                                        <p className="text-2xl font-semibold text-yellow-600 leading-none">
                                             {response.anxiety_score}
                                         </p>
                                     </div>
-
-                                    <div className="p-3 bg-blue-50 rounded-lg">
-                                        <p className="text-gray-500">Stress</p>
-                                        <p className="text-lg font-semibold text-blue-600">
+                                    <div className="p-3 bg-purple-50 border border-purple-100 rounded-xl">
+                                        <p className="text-xs text-gray-500 mb-1">Stress</p>
+                                        <p className="text-2xl font-semibold text-[#980194] leading-none">
                                             {response.stress_score}
                                         </p>
                                     </div>
                                 </div>
-
-                                <p className="text-xs text-gray-400">
-                                    {new Date(response.date).toLocaleString()}
-                                </p>
                             </li>
                         ))}
                     </ul>
                 )}
             </div>
-
         </div>
-    )
+    );
 }

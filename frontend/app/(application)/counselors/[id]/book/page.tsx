@@ -10,9 +10,8 @@ import { apiClient, ServerResponse } from '@/lib/apiClient';
 import { ArrowLeft, Calendar, Clock, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import Link from 'next/link';
 import CardPaymentMockup from '@/app/(application)/components/PaymentForm';
-import SpecializationChips from '@/components/SpecializationChips';
 import { SpecializationGrid } from '@/app/(application)/components/SpecializationGrid';
-import { OptionItem, SPECIALIZATIONS } from '@/app/(application)/components/ProfileSetupForm';
+import { SPECIALIZATIONS } from '@/app/(application)/components/ProfileSetupForm';
 
 interface DoctorInfo {
     userid: string;
@@ -262,238 +261,239 @@ export default function BookAppointmentPage() {
 
     return (
         <>
-            <div className="w-full p-4 md:p-8">
-                <div className="mx-auto">
-                    {/* Header */}
-                    <div className="flex items-center gap-4 mb-8">
+            <div className="w-full p-4 md:p-6">
+                <div className="max-w-5xl mx-auto space-y-4">
+
+                    {/* Page header */}
+                    <div className="flex items-center gap-3">
                         <Link href="/counselors">
-                            <Button variant="outline" size="icon">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="border-gray-200 hover:border-[#980194] hover:text-[#980194]"
+                            >
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>
                         </Link>
-                        <h1 className="text-3xl font-bold text-gray-900">Book Appointment</h1>
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-widest text-[#980194]">Counselors</p>
+                            <h1 className="text-2xl font-semibold text-gray-900">Book Appointment</h1>
+                        </div>
                     </div>
 
-                    {/* Success Message */}
+                    {/* Alerts */}
                     {success && (
-                        <Card className="mb-6 p-4 bg-green-50 border-green-200">
-                            <div className="flex items-start gap-3">
-                                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                                <div>
-                                    <h3 className="font-semibold text-green-900">Success!</h3>
-                                    <p className="text-green-800 text-sm">{successMessage}</p>
-                                </div>
+                        <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-xl text-sm">
+                            <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-semibold text-green-900">Booked!</p>
+                                <p className="text-green-800">{successMessage}</p>
                             </div>
-                        </Card>
+                        </div>
                     )}
 
-                    {/* Error Message */}
                     {error && (
-                        <Card className="mb-6 p-4 bg-red-50 border-red-200">
-                            <div className="flex items-start gap-3">
-                                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                                <div>
-                                    <h3 className="font-semibold text-red-900">Error</h3>
-                                    <p className="text-red-800 text-sm">{error}</p>
-                                </div>
+                        <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-sm">
+                            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-semibold text-red-900">Error</p>
+                                <p className="text-red-800">{error}</p>
                             </div>
-                        </Card>
+                        </div>
                     )}
 
-                    {/* Doctor Card */}
+                    {/* Doctor card */}
                     {doctor && (
-                        <Card className="mb-4 p-6 bg-white shadow-sm border-0">
-                            <div className="flex items-start gap-4">
+                        <Card className="p-5 border-gray-100 shadow-sm">
+                            <div className="flex items-center gap-4">
                                 {doctor.avatar ? (
                                     <img
                                         src={`data:image/png;base64,${doctor.avatar}`}
                                         alt={doctor.full_name}
-                                        className="w-16 h-16 rounded-full object-cover"
+                                        className="w-14 h-14 rounded-full object-cover"
                                     />
                                 ) : (
-                                    <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
-                                        <span className="text-xl font-semibold text-[#980194]">
+                                    <div className="w-14 h-14 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
+                                        <span className="text-lg font-semibold text-[#980194]">
                                             {doctor.full_name?.split(' ').map(n => n[0]).join('')}
                                         </span>
                                     </div>
                                 )}
-                                <div className="flex-1 gap-2 flex flex-col">
-                                    <h2 className="text-2xl font-bold text-gray-900">
-                                        {doctor.full_name}
-                                    </h2>
-                                    <SpecializationGrid value={doctor.specializations} options={SPECIALIZATIONS} onChange={() => {}} viewMode />
+                                <div className="flex-1 min-w-0">
+                                    <h2 className="text-lg font-semibold text-gray-900">{doctor.full_name}</h2>
+                                    <div className="mt-1">
+                                        <SpecializationGrid value={doctor.specializations} options={SPECIALIZATIONS} onChange={() => {}} viewMode />
+                                    </div>
                                 </div>
                             </div>
                         </Card>
                     )}
 
                     {!success && (
-                        <div className="justify-between flex flex-row gap-3">
-                            <div className="w-full md:w-1/2">
-                                {/* Date Selection */}
-                                <Card className="mb-8 p-6 bg-white shadow-sm border-0 w-full">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                                        <Calendar className="w-5 h-5 text-[#980194]" />
-                                        Select Date
-                                    </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                                        {getDaysAvailableInNextMonth().map((date) => (
+                            {/* Date selection */}
+                            <Card className="p-5 border-gray-100 shadow-sm">
+                                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-[#980194]" />
+                                    Select Date
+                                </h3>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {getDaysAvailableInNextMonth().map((date) => {
+                                        const active = selectedDate === date;
+                                        return (
                                             <button
                                                 key={date}
                                                 onClick={() => setSelectedDate(date)}
-                                                className={`p-3 rounded-lg font-medium transition-all ${selectedDate === date
-                                                    ? 'bg-[#980194] text-white shadow-md'
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                className={`p-2 rounded-lg text-xs font-medium transition-all text-center leading-snug
+                                                    ${active
+                                                        ? 'bg-[#980194] text-white shadow-sm'
+                                                        : 'bg-gray-50 text-gray-700 border border-gray-200 hover:border-[#980194] hover:text-[#980194]'
                                                     }`}
                                             >
-                                                <div className="text-xs text-center text-gray-500">
-                                                    {new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
-                                                        month: 'short',
-                                                    })} - {new Date(date + 'T00:00:00').getDate()}
+                                                <div className={active ? 'text-white/80' : 'text-gray-400'}>
+                                                    {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short' })}
                                                 </div>
-                                                <div className="text-xs text-center">{getDayName(date)}</div>
+                                                <div className="font-semibold">{new Date(date + 'T00:00:00').getDate()}</div>
+                                                <div className={active ? 'text-white/80' : 'text-gray-400'}>{getDayName(date)}</div>
                                             </button>
-                                        ))}
-                                    </div>
-
-                                    {selectedDate && (
-                                        <p className="mt-4 text-sm text-gray-600">
-                                            Selected: {formatDate(selectedDate)}
-                                        </p>
-                                    )}
-                                </Card>
-                            </div>
-                            <div className="w-full md:w-1/2">
-                                {/* Time Slot Selection */}
+                                        );
+                                    })}
+                                </div>
                                 {selectedDate && (
-                                    <Card className="mb-8 p-6 bg-white shadow-sm border-0">
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                                            <Clock className="w-5 h-5 text-[#980194]" />
-                                            Select Time
-                                        </h3>
+                                    <p className="mt-3 text-xs text-gray-500 border-t border-gray-100 pt-3">
+                                        {formatDate(selectedDate)}
+                                    </p>
+                                )}
+                            </Card>
 
-                                        {loadingSlots ? (
-                                            <div className="flex justify-center py-8">
-                                                <Loader className="w-8 h-8 animate-spin text-[#980194]" />
-                                            </div>
-                                        ) : availableSlots.length > 0 ? (
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                                {availableSlots.map((slot, idx) => (
+                            {/* Time slot selection */}
+                            <Card className="p-5 border-gray-100 shadow-sm">
+                                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                    <Clock className="w-4 h-4 text-[#980194]" />
+                                    Select Time
+                                </h3>
+                                {!selectedDate ? (
+                                    <p className="text-sm text-gray-400 italic">Pick a date first.</p>
+                                ) : loadingSlots ? (
+                                    <div className="flex justify-center py-8">
+                                        <Loader className="w-6 h-6 animate-spin text-[#980194]" />
+                                    </div>
+                                ) : availableSlots.length > 0 ? (
+                                    <>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {availableSlots.map((slot, idx) => {
+                                                const active = selectedSlot?.start_time === slot.start_time;
+                                                return (
                                                     <button
                                                         key={idx}
                                                         onClick={() => setSelectedSlot(slot)}
-                                                        className={`p-3 rounded-lg font-medium transition-all ${selectedSlot?.start_time === slot.start_time
-                                                            ? 'bg-[#980194] text-white shadow-md'
-                                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                        className={`p-2 rounded-lg text-xs font-medium transition-all
+                                                            ${active
+                                                                ? 'bg-[#980194] text-white shadow-sm'
+                                                                : 'bg-gray-50 border border-gray-200 text-gray-700 hover:border-[#980194] hover:text-[#980194]'
                                                             }`}
                                                     >
                                                         {formatTime(slot.start_time)}
                                                     </button>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <p className="text-gray-600">No available slots for this date</p>
-                                        )}
-
+                                                );
+                                            })}
+                                        </div>
                                         {selectedSlot && (
-                                            <p className="mt-4 text-sm text-gray-600">
-                                                Selected: {formatTime(selectedSlot.start_time)} -{' '}
-                                                {formatTime(selectedSlot.end_time)}
+                                            <p className="mt-3 text-xs text-gray-500 border-t border-gray-100 pt-3">
+                                                {formatTime(selectedSlot.start_time)} – {formatTime(selectedSlot.end_time)}
                                             </p>
                                         )}
-                                    </Card>
+                                    </>
+                                ) : (
+                                    <p className="text-sm text-gray-400 italic">No slots available for this date.</p>
                                 )}
-                            </div>
+                            </Card>
 
-                            <div className="w-full md:w-1/2">
-                                {/* Additional Details */}
-                                <Card className="mb-8 p-6 bg-white shadow-sm border-0">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                                        Additional Details
-                                    </h3>
+                            {/* Details + confirm */}
+                            <Card className="p-5 border-gray-100 shadow-sm flex flex-col gap-4">
+                                <h3 className="text-sm font-semibold text-gray-900">Additional Details</h3>
 
-                                    <div className="space-y-4">
-                                        <div>
-                                            <Label htmlFor="reason" className="text-gray-700 font-medium">
-                                                Reason for Visit (Optional)
-                                            </Label>
-                                            <Input
-                                                id="reason"
-                                                placeholder="e.g., Anxiety management, Career counseling"
-                                                value={reason}
-                                                onChange={(e) => setReason(e.target.value)}
-                                                className="mt-2"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <Label htmlFor="notes" className="text-gray-700 font-medium">
-                                                Additional Notes (Optional)
-                                            </Label>
-                                            <textarea
-                                                id="notes"
-                                                placeholder="Any additional information you'd like to share..."
-                                                value={notes}
-                                                onChange={(e) => setNotes(e.target.value)}
-                                                className="mt-2 w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                                rows={4}
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="chatAccess" className="text-gray-700 font-medium flex items-center gap-2">
-                                                <input
-                                                    type="checkbox"
-                                                    id="chatAccess"
-                                                    checked={allowChatAccess}
-                                                    onChange={(e) => setAllowChatAccess(e.target.checked)}
-                                                    className="form-checkbox h-4 w-4 text-[#980194]"
-                                                />
-                                                Allow counselor to access chat history (Optional)
-                                            </Label>
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="detailAccess" className="text-gray-700 font-medium flex items-center gap-2">
-                                                <input
-                                                    type="checkbox"
-                                                    id="detailAccess"
-                                                    checked={allowDetailAccess}
-                                                    onChange={(e) => setAllowDetailAccess(e.target.checked)}
-                                                    className="form-checkbox h-4 w-4 text-[#980194]"
-                                                />
-                                                Allow counselor to access your information (Optional)
-                                            </Label>
-                                        </div>
+                                <div className="space-y-3 flex-1">
+                                    <div>
+                                        <Label htmlFor="reason" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                            Reason for Visit
+                                        </Label>
+                                        <Input
+                                            id="reason"
+                                            placeholder="e.g., Anxiety management"
+                                            value={reason}
+                                            onChange={(e) => setReason(e.target.value)}
+                                            className="mt-1.5 border-gray-200 focus-visible:ring-purple-400 text-sm"
+                                        />
                                     </div>
-                                    {/* Book Button */}
-                                    <Button
-                                        onClick={() => {
-                                            setShowPayment(true);
-                                        }}
-                                        disabled={!selectedSlot || submitting}
-                                        className="w-full bg-[#980194] hover:bg-[#7a0177] text-white py-3 text-lg font-semibold"
-                                    >
-                                        {submitting ? (
-                                            <>
-                                                <Loader className="w-4 h-4 animate-spin mr-2" />
-                                                Booking...
-                                            </>
-                                        ) : (
-                                            'Confirm Booking'
-                                        )}
-                                    </Button>
-                                </Card>
-                            </div>
+
+                                    <div>
+                                        <Label htmlFor="notes" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                            Notes
+                                        </Label>
+                                        <textarea
+                                            id="notes"
+                                            placeholder="Anything else you'd like to share..."
+                                            value={notes}
+                                            onChange={(e) => setNotes(e.target.value)}
+                                            className="mt-1.5 w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+                                            rows={3}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2 pt-1">
+                                        <label className="flex items-center gap-2.5 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={allowChatAccess}
+                                                onChange={(e) => setAllowChatAccess(e.target.checked)}
+                                                className="h-4 w-4 rounded border-gray-300 accent-[#980194]"
+                                            />
+                                            <span className="text-xs text-gray-600">Allow counselor to view chat history</span>
+                                        </label>
+                                        <label className="flex items-center gap-2.5 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={allowDetailAccess}
+                                                onChange={(e) => setAllowDetailAccess(e.target.checked)}
+                                                className="h-4 w-4 rounded border-gray-300 accent-[#980194]"
+                                            />
+                                            <span className="text-xs text-gray-600">Allow counselor to view your profile</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <Button
+                                    onClick={() => setShowPayment(true)}
+                                    disabled={!selectedSlot || submitting}
+                                    className="w-full bg-[#980194] hover:bg-[#7a0177] text-white font-semibold disabled:opacity-50"
+                                >
+                                    {submitting ? (
+                                        <>
+                                            <Loader className="w-4 h-4 animate-spin mr-2" />
+                                            Booking...
+                                        </>
+                                    ) : (
+                                        'Confirm Booking'
+                                    )}
+                                </Button>
+                            </Card>
                         </div>
                     )}
                 </div>
             </div>
+
             {showPayment && (
-                <CardPaymentMockup handleBookAppointment={() => {
-                    setShowPayment(false)
-                    handleBookAppointment()
-                }
-                } isOpen={showPayment} onClose={() => setShowPayment(false)} amount={"GBP 25"} />
+                <CardPaymentMockup
+                    handleBookAppointment={() => {
+                        setShowPayment(false);
+                        handleBookAppointment();
+                    }}
+                    isOpen={showPayment}
+                    onClose={() => setShowPayment(false)}
+                    amount={"GBP 25"}
+                />
             )}
         </>
     );

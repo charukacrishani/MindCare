@@ -1,21 +1,18 @@
 import { useEffect, useState } from "react";
 import { OptionItem } from "./ProfileSetupForm";
-import { CheckCircle2 } from "lucide-react";
+import { Check } from "lucide-react";
 
 function parseValue(value: string): OptionItem[] {
   if (!value) return [];
 
   try {
-    // Convert Python-style dict strings → JSON-like
     const cleaned = value
-      .replace(/'/g, '"') // convert single quotes to double quotes
-      .replace(/"\s*:\s*"/g, '":"'); // safety normalize
+      .replace(/'/g, '"')
+      .replace(/"\s*:\s*"/g, '":"');
 
     const arr = JSON.parse(cleaned);
 
-    // remove duplicates by id
     const uniqueMap = new Map<string, OptionItem>();
-
     arr.forEach((item: any) => {
       if (item?.id && !uniqueMap.has(item.id)) {
         uniqueMap.set(item.id, item);
@@ -42,53 +39,60 @@ export function SpecializationGrid({
 }) {
   const [selected, setSelected] = useState<OptionItem[]>([]);
 
-  // sync from string → objects
   useEffect(() => {
     setSelected(parseValue(value));
   }, [value]);
 
-  const isSelected = (id: string) =>
-    selected.some((s) => s.id === id);
+  const isSelected = (id: string) => selected.some((s) => s.id === id);
 
   const toggle = (item: OptionItem) => {
     if (viewMode) return;
 
     const exists = selected.some((s) => s.id === item.id);
-
     const updated = exists
       ? selected.filter((s) => s.id !== item.id)
       : [...selected, item];
 
     setSelected(updated);
-
-    // send BACK as string (same format as input)
     onChange(JSON.stringify(updated));
   };
 
-  const displayItems = viewMode ? selected : options;
+  // View mode: compact read-only pills
+  if (viewMode) {
+    if (selected.length === 0) {
+      return <p className="text-xs text-gray-400 italic">No specializations listed</p>;
+    }
+    return (
+      <div className="flex flex-wrap gap-1">
+        {selected.map((s) => (
+          <span
+            key={s.id}
+            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-[#980194]"
+          >
+            {s.label}
+          </span>
+        ))}
+      </div>
+    );
+  }
 
+  // Edit mode: selectable grid of all options
   return (
-    <div className="flex flex-wrap gap-1 max-h-14 overflow-y-auto pr-1">
-      {displayItems.map((s) => {
+    <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto pr-1">
+      {options.map((s) => {
         const active = isSelected(s.id);
-
         return (
           <button
             key={s.id}
             type="button"
             onClick={() => toggle(s)}
-            disabled={viewMode}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border
-              ${
-                active
-                  ? "bg-gradient-to-r from-purple-400 to-pink-400 text-white border-transparent shadow-sm"
-                  : "bg-white border-gray-200 text-gray-600 hover:border-purple-300 hover:text-purple-600"
-              }
-              ${viewMode ? "cursor-default opacity-90" : ""}`}
+            className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150
+              ${active
+                ? "bg-[#980194] text-white border-transparent"
+                : "bg-white border-gray-200 text-gray-600 hover:border-[#980194] hover:text-[#980194]"
+              }`}
           >
-            {active && (
-              <CheckCircle2 className="w-3 h-3 inline mr-1" />
-            )}
+            {active && <Check className="w-3 h-3" />}
             {s.label}
           </button>
         );

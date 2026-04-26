@@ -12,8 +12,7 @@ import {
     AlertCircle,
     CheckCircle,
     Loader,
-    Clock,
-    Calendar,
+    CalendarOff,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -255,49 +254,43 @@ export default function AvailabilityManagePage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center p-4 py-20">
-                <div className="text-center">
-                    <Loader className="w-12 h-12 animate-spin text-[#980194] mx-auto mb-4" />
-                    <p className="text-gray-600">Loading your availability...</p>
-                </div>
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
+                <Loader className="w-8 h-8 animate-spin text-[#980194]" />
+                <p className="text-sm text-gray-500">Loading your availability...</p>
             </div>
         );
     }
 
     return (
-        <div className="w-full p-4 md:p-8">
-            <div className="max-w-6xl mx-auto">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">Manage Availability</h1>
-                    <p className="text-gray-600">
-                        Set your working hours and manage time off periods
-                    </p>
+        <div className="w-full p-4 md:p-6">
+            <div className="max-w-5xl mx-auto space-y-4">
+
+                {/* Page header */}
+                <div>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-[#980194]">Schedule</p>
+                    <h1 className="text-2xl font-semibold text-gray-900 mt-1">Manage Availability</h1>
+                    <p className="text-sm text-gray-500 mt-1">Set your working hours and manage time off periods.</p>
                 </div>
 
-                {/* Messages */}
+                {/* Alerts */}
                 {error && (
-                    <Card className="mb-6 p-4 bg-red-50 border-red-200">
-                        <div className="flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                                <h3 className="font-semibold text-red-900">Error</h3>
-                                <p className="text-red-800 text-sm">{error}</p>
-                            </div>
+                    <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-sm">
+                        <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                        <div>
+                            <p className="font-semibold text-red-900">Error</p>
+                            <p className="text-red-800">{error}</p>
                         </div>
-                    </Card>
+                    </div>
                 )}
 
                 {success && (
-                    <Card className="mb-6 p-4 bg-green-50 border-green-200">
-                        <div className="flex items-start gap-3">
-                            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                                <h3 className="font-semibold text-green-900">Success</h3>
-                                <p className="text-green-800 text-sm">{success}</p>
-                            </div>
+                    <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-xl text-sm">
+                        <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+                        <div>
+                            <p className="font-semibold text-green-900">Done</p>
+                            <p className="text-green-800">{success}</p>
                         </div>
-                    </Card>
+                    </div>
                 )}
 
                 <Tabs defaultValue="Schedule">
@@ -305,59 +298,58 @@ export default function AvailabilityManagePage() {
                         <TabsTrigger value="Schedule">Schedule</TabsTrigger>
                         <TabsTrigger value="TimeOff">Time Off</TabsTrigger>
                     </TabsList>
+
+                    {/* ── Schedule tab ── */}
                     <TabsContent value="Schedule">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">
+
+                            {/* Day list */}
                             <div className="lg:col-span-2">
-                                <Card className="p-6 bg-white shadow-sm border-0">
-                                    <div className="space-y-4">
+                                <Card className="p-5 border-gray-100 shadow-sm">
+                                    <div className="space-y-2">
                                         {DAYS_OF_WEEK.map((day, dayIndex) => {
                                             const dayAvailabilities = getAvailabilityByDay(dayIndex);
+                                            const hasSlots = dayAvailabilities.length > 0;
                                             return (
                                                 <div
                                                     key={dayIndex}
-                                                    className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition"
+                                                    className="flex items-start gap-4 p-3 rounded-xl border border-gray-100 hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <div className="flex items-center justify-between mb-3">
-                                                        <h3 className="text-lg font-semibold text-gray-900 min-w-32">
-                                                            {day}
-                                                        </h3>
-                                                        {dayAvailabilities.length > 0 && (
-                                                            <span className="text-sm bg-purple-100 text-[#980194] px-3 py-1 rounded-full">
-                                                                {dayAvailabilities.length} slot
-                                                                {dayAvailabilities.length !== 1 ? 's' : ''}
+                                                    <div className="w-28 shrink-0 pt-0.5">
+                                                        <p className="text-sm font-semibold text-gray-800">{day}</p>
+                                                        {hasSlots && (
+                                                            <span className="text-xs bg-purple-100 text-[#980194] px-2 py-0.5 rounded-full font-medium mt-1 inline-block">
+                                                                {dayAvailabilities.length} slot{dayAvailabilities.length !== 1 ? 's' : ''}
                                                             </span>
                                                         )}
                                                     </div>
 
-                                                    {dayAvailabilities.length > 0 ? (
-                                                        <div className="space-y-2">
-                                                            {dayAvailabilities.map((avail) => (
-                                                                <div
-                                                                    key={avail.id}
-                                                                    className="flex items-center justify-between bg-purple-50 p-3 rounded-lg"
-                                                                >
-                                                                    <div className="flex-1">
-                                                                        <p className="font-medium text-gray-900">
-                                                                            {formatTime(avail.start_time)} -{' '}
-                                                                            {formatTime(avail.end_time)}
-                                                                        </p>
-                                                                        <p className="text-sm text-gray-600">
-                                                                            {avail.slot_duration_minutes}-min slots
-                                                                        </p>
-                                                                    </div>
-                                                                    <button
-                                                                        onClick={() => handleDeleteAvailability(avail.id)}
-                                                                        className="p-2 hover:bg-red-100 rounded-lg text-red-600 transition"
-                                                                        title="Delete"
-                                                                    >
-                                                                        <Trash2 className="w-5 h-5" />
-                                                                    </button>
+                                                    <div className="flex-1 space-y-1.5">
+                                                        {hasSlots ? dayAvailabilities.map((avail) => (
+                                                            <div
+                                                                key={avail.id}
+                                                                className="flex items-center justify-between bg-purple-50 border border-purple-100 rounded-lg px-3 py-2"
+                                                            >
+                                                                <div>
+                                                                    <p className="text-sm font-medium text-gray-900">
+                                                                        {formatTime(avail.start_time)} – {formatTime(avail.end_time)}
+                                                                    </p>
+                                                                    <p className="text-xs text-gray-500">
+                                                                        {avail.slot_duration_minutes}-min slots
+                                                                    </p>
                                                                 </div>
-                                                            ))}
-                                                        </div>
-                                                    ) : (
-                                                        <p className="text-gray-500 text-sm italic">Not available</p>
-                                                    )}
+                                                                <button
+                                                                    onClick={() => handleDeleteAvailability(avail.id)}
+                                                                    className="p-1.5 rounded-lg text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors"
+                                                                    title="Delete slot"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </button>
+                                                            </div>
+                                                        )) : (
+                                                            <p className="text-xs text-gray-400 italic pt-0.5">Not scheduled</p>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             );
                                         })}
@@ -365,91 +357,63 @@ export default function AvailabilityManagePage() {
                                 </Card>
                             </div>
 
-                            {/* Add Availability Form */}
+                            {/* Add slot form */}
                             <div className="lg:col-span-1">
-                                <Card className="p-6 bg-white shadow-sm border-0 sticky top-4">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                        <Plus className="w-5 h-5 text-[#980194]" />
-                                        Add Time Slot
-                                    </h3>
+                                <Card className="p-5 border-gray-100 shadow-sm sticky top-4">
+                                    <p className="text-xs font-semibold uppercase tracking-widest text-[#980194] mb-3">Add Time Slot</p>
 
-                                    <div className="space-y-4">
+                                    <div className="space-y-3">
                                         <div>
-                                            <Label htmlFor="day" className="text-gray-700 font-medium">
+                                            <Label htmlFor="day" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                                                 Day of Week
                                             </Label>
                                             <select
                                                 id="day"
                                                 value={newAvailability.day_of_week}
-                                                onChange={(e) =>
-                                                    setNewAvailability({
-                                                        ...newAvailability,
-                                                        day_of_week: parseInt(e.target.value),
-                                                    })
-                                                }
-                                                className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                onChange={(e) => setNewAvailability({ ...newAvailability, day_of_week: parseInt(e.target.value) })}
+                                                className="mt-1.5 w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
                                             >
                                                 {DAYS_OF_WEEK.map((day, idx) => (
-                                                    <option key={idx} value={idx}>
-                                                        {day}
-                                                    </option>
+                                                    <option key={idx} value={idx}>{day}</option>
                                                 ))}
                                             </select>
                                         </div>
 
                                         <div>
-                                            <Label htmlFor="start-time" className="text-gray-700 font-medium">
+                                            <Label htmlFor="start-time" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                                                 Start Time
                                             </Label>
                                             <Input
                                                 id="start-time"
                                                 type="time"
                                                 value={newAvailability.start_time}
-                                                onChange={(e) =>
-                                                    setNewAvailability({
-                                                        ...newAvailability,
-                                                        start_time: e.target.value,
-                                                    })
-                                                }
-                                                className="mt-2"
+                                                onChange={(e) => setNewAvailability({ ...newAvailability, start_time: e.target.value })}
+                                                className="mt-1.5 border-gray-200 focus-visible:ring-purple-400 text-sm"
                                             />
                                         </div>
 
                                         <div>
-                                            <Label htmlFor="end-time" className="text-gray-700 font-medium">
+                                            <Label htmlFor="end-time" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                                                 End Time
                                             </Label>
                                             <Input
                                                 id="end-time"
                                                 type="time"
                                                 value={newAvailability.end_time}
-                                                onChange={(e) =>
-                                                    setNewAvailability({
-                                                        ...newAvailability,
-                                                        end_time: e.target.value,
-                                                    })
-                                                }
-                                                className="mt-2"
+                                                onChange={(e) => setNewAvailability({ ...newAvailability, end_time: e.target.value })}
+                                                className="mt-1.5 border-gray-200 focus-visible:ring-purple-400 text-sm"
                                             />
                                         </div>
 
                                         <div>
-                                            <Label
-                                                htmlFor="slot-duration"
-                                                className="text-gray-700 font-medium"
-                                            >
-                                                Slot Duration (minutes)
+                                            <Label htmlFor="slot-duration" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                                Slot Duration
                                             </Label>
                                             <select
                                                 id="slot-duration"
                                                 value={newAvailability.slot_duration_minutes}
-                                                onChange={(e) =>
-                                                    setNewAvailability({
-                                                        ...newAvailability,
-                                                        slot_duration_minutes: parseInt(e.target.value),
-                                                    })
-                                                }
-                                                className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                onChange={(e) => setNewAvailability({ ...newAvailability, slot_duration_minutes: parseInt(e.target.value) })}
+                                                className="mt-1.5 w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
                                             >
                                                 <option value={15}>15 minutes</option>
                                                 <option value={30}>30 minutes</option>
@@ -463,158 +427,123 @@ export default function AvailabilityManagePage() {
                                         <Button
                                             onClick={handleAddAvailability}
                                             disabled={submitting || isDayAlreadyScheduled(newAvailability.day_of_week)}
-                                            className="w-full bg-[#980194] hover:bg-[#7a0177] text-white py-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                            className="w-full bg-[#980194] hover:bg-[#7a0177] text-white disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {submitting ? (
-                                                <>
-                                                    <Loader className="w-4 h-4 animate-spin mr-2" />
-                                                    Adding...
-                                                </>
+                                                <><Loader className="w-4 h-4 animate-spin mr-2" />Adding...</>
                                             ) : isDayAlreadyScheduled(newAvailability.day_of_week) ? (
-                                                <>
-                                                    <AlertCircle className="w-4 h-4 mr-2" />
-                                                    Already Scheduled
-                                                </>
+                                                <><AlertCircle className="w-4 h-4 mr-2" />Already Scheduled</>
                                             ) : (
-                                                <>
-                                                    <Plus className="w-4 h-4 mr-2" />
-                                                    Add Time Slot
-                                                </>
+                                                <><Plus className="w-4 h-4 mr-2" />Add Time Slot</>
                                             )}
                                         </Button>
                                     </div>
                                 </Card>
                             </div>
-                        </div></TabsContent>
+                        </div>
+                    </TabsContent>
+
+                    {/* ── Time Off tab ── */}
                     <TabsContent value="TimeOff">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            {/* Time Off List */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-2">
+
+                            {/* Time off list */}
                             <div className="lg:col-span-2">
-                                <Card className="p-6 bg-white shadow-sm border-0">
+                                <Card className="p-5 border-gray-100 shadow-sm">
                                     {timeOffs.length > 0 ? (
-                                        <div className="space-y-3">
+                                        <div className="space-y-2">
                                             {timeOffs.map((timeoff) => (
                                                 <div
                                                     key={timeoff.id}
-                                                    className="border border-purple-200 bg-purple-50 rounded-lg p-4"
+                                                    className="flex items-start justify-between gap-3 border border-purple-100 bg-purple-50 rounded-xl px-4 py-3"
                                                 >
-                                                    <div className="flex items-start justify-between mb-2">
-                                                        <div className="flex-1">
-                                                            <p className="font-medium text-gray-900">
-                                                                {formatDateTime(timeoff.start_datetime)}
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-medium text-gray-900">
+                                                            {formatDateTime(timeoff.start_datetime)}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500 mt-0.5">
+                                                            to {formatDateTime(timeoff.end_datetime)}
+                                                        </p>
+                                                        {timeoff.reason && (
+                                                            <p className="text-xs text-[#980194] mt-1.5 font-medium">
+                                                                {timeoff.reason}
                                                             </p>
-                                                            <p className="text-sm text-gray-600">
-                                                                to {formatDateTime(timeoff.end_datetime)}
-                                                            </p>
-                                                            {timeoff.reason && (
-                                                                <p className="text-sm text-[#980194] mt-2">
-                                                                    Reason: {timeoff.reason}
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                        <button
-                                                            onClick={() => handleDeleteTimeOff(timeoff.id)}
-                                                            className="p-2 hover:bg-red-100 rounded-lg text-red-600 transition flex-shrink-0"
-                                                            title="Delete"
-                                                        >
-                                                            <Trash2 className="w-5 h-5" />
-                                                        </button>
+                                                        )}
                                                     </div>
+                                                    <button
+                                                        onClick={() => handleDeleteTimeOff(timeoff.id)}
+                                                        className="p-1.5 rounded-lg text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors shrink-0"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="text-gray-500 text-center py-8">
-                                            No time off periods scheduled
-                                        </p>
+                                        <div className="flex flex-col items-center justify-center py-16 gap-2 text-center">
+                                            <CalendarOff className="w-8 h-8 text-gray-200" />
+                                            <p className="text-sm text-gray-500">No time off periods scheduled.</p>
+                                            <p className="text-xs text-gray-400">Add a period using the form on the right.</p>
+                                        </div>
                                     )}
                                 </Card>
                             </div>
 
-                            {/* Add Time Off Form */}
+                            {/* Add time off form */}
                             <div className="lg:col-span-1">
-                                <Card className="p-6 bg-white shadow-sm border-0 sticky top-4">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                        <Plus className="w-5 h-5 text-[#980194]" />
-                                        Add Time Off
-                                    </h3>
+                                <Card className="p-5 border-gray-100 shadow-sm sticky top-4">
+                                    <p className="text-xs font-semibold uppercase tracking-widest text-[#980194] mb-3">Add Time Off</p>
 
-                                    <div className="space-y-4">
+                                    <div className="space-y-3">
                                         <div>
-                                            <Label
-                                                htmlFor="start-date"
-                                                className="text-gray-700 font-medium"
-                                            >
+                                            <Label htmlFor="start-date" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                                                 Start Date & Time
                                             </Label>
                                             <Input
                                                 id="start-date"
                                                 type="datetime-local"
                                                 value={newTimeOff.start_datetime}
-                                                onChange={(e) =>
-                                                    setNewTimeOff({
-                                                        ...newTimeOff,
-                                                        start_datetime: e.target.value,
-                                                    })
-                                                }
-                                                className="mt-2"
+                                                onChange={(e) => setNewTimeOff({ ...newTimeOff, start_datetime: e.target.value })}
+                                                className="mt-1.5 border-gray-200 focus-visible:ring-purple-400 text-sm"
                                             />
                                         </div>
 
                                         <div>
-                                            <Label
-                                                htmlFor="end-date"
-                                                className="text-gray-700 font-medium"
-                                            >
+                                            <Label htmlFor="end-date" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                                                 End Date & Time
                                             </Label>
                                             <Input
                                                 id="end-date"
                                                 type="datetime-local"
                                                 value={newTimeOff.end_datetime}
-                                                onChange={(e) =>
-                                                    setNewTimeOff({
-                                                        ...newTimeOff,
-                                                        end_datetime: e.target.value,
-                                                    })
-                                                }
-                                                className="mt-2"
+                                                onChange={(e) => setNewTimeOff({ ...newTimeOff, end_datetime: e.target.value })}
+                                                className="mt-1.5 border-gray-200 focus-visible:ring-purple-400 text-sm"
                                             />
                                         </div>
 
                                         <div>
-                                            <Label htmlFor="reason" className="text-gray-700 font-medium">
+                                            <Label htmlFor="reason" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                                                 Reason (Optional)
                                             </Label>
                                             <Input
                                                 id="reason"
                                                 placeholder="e.g., Vacation, Medical Leave"
                                                 value={newTimeOff.reason}
-                                                onChange={(e) =>
-                                                    setNewTimeOff({
-                                                        ...newTimeOff,
-                                                        reason: e.target.value,
-                                                    })
-                                                }
-                                                className="mt-2"
+                                                onChange={(e) => setNewTimeOff({ ...newTimeOff, reason: e.target.value })}
+                                                className="mt-1.5 border-gray-200 focus-visible:ring-purple-400 text-sm"
                                             />
                                         </div>
 
                                         <Button
                                             onClick={handleAddTimeOff}
                                             disabled={submitting}
-                                            className="w-full bg-[#980194] hover:bg-[#7a0177] text-white py-2"
+                                            className="w-full bg-[#980194] hover:bg-[#7a0177] text-white disabled:opacity-50"
                                         >
                                             {submitting ? (
-                                                <>
-                                                    <Loader className="w-4 h-4 animate-spin mr-2" />
-                                                    Adding...
-                                                </>
+                                                <><Loader className="w-4 h-4 animate-spin mr-2" />Adding...</>
                                             ) : (
-                                                <>
-                                                    <Plus className="w-4 h-4 mr-2" />
-                                                    Add Time Off
-                                                </>
+                                                <><Plus className="w-4 h-4 mr-2" />Add Time Off</>
                                             )}
                                         </Button>
                                     </div>
