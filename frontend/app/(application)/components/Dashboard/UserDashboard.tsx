@@ -10,11 +10,13 @@ export default function UserDashboard() {
     const [summaryCards, setSummaryCards] = useState<SummaryCard[]>([]);
     const [tips, setTips] = useState<Tip[]>([]);
     const [trendData, setTrendData] = useState<TrendData[]>([]);
+    const [appointments, setAppointments] = useState<Appointment[]>([]);
 
     useEffect(() => {
         loadSummaryCards();
         loadTips();
         loadTrendData();
+        loadAppointments();
     }, []);
 
     const loadSummaryCards = async () => {
@@ -70,11 +72,15 @@ export default function UserDashboard() {
         }
     }
 
-    const appointments: Appointment[] = [
-        { id: "1", doctor: "Dr. Liam Patel", date: "06-12-2026", time: "2:00 PM", status: "Pending" },
-        { id: "2", doctor: "Dr. Liam Patel", date: "31-11-2026", time: "2:00 PM", status: "Completed" },
-        { id: "3", doctor: "Dr. Liam Patel", date: "06-12-2026", time: "2:00 PM", status: "Canceled" },
-    ];
+    const loadAppointments = async () => {
+        try {
+            const response = await apiClient.get<Appointment[]>("/dashboard/users/appointments");
+            setAppointments(response.data);
+        } catch (error) {
+            console.error("Error fetching appointments:", error);
+            setAppointments([]);
+        }
+    };
 
     return (
         <div

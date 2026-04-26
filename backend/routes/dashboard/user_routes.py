@@ -8,8 +8,10 @@ from datetime import datetime, timedelta
 
 from chatbot.chatbot_gemini import MentalHealthChatbot_GEMINI
 from context import Context, get_context
+from models.doctor_v_patient import Appointment
 from models.questionnaire import QuestionnaireResponse
-from models.user import UserInformation, Users
+from models.user import DoctorInformation, UserInformation, Users
+from routes.avatar.avatar_routes import get_avatar
 from utils.dass21_level import get_dass21_level
 
 
@@ -156,3 +158,23 @@ def get_tips_for_level(level: str):
         tips.append({"bold": "Stay connected with loved ones", "light": "maintain strong social connections for emotional support"})
         tips.append({"bold": "Practice gratitude", "light": "focus on positive aspects of life to boost mood"})
     return tips
+
+@router.get("/appointments")
+def get_appointments_dashboard(ctx: Context = Depends(get_context)):
+    query = (
+        select(Appointment, DoctorInformation.full_name.label("doctor_name"))
+        .join(DoctorInformation, Appointment.doctor_id == DoctorInformation.userid)
+        .where(Appointment.patient_id == ctx.user.user_id)
+        .order_by(Appointment.start_time.desc())
+        .limit(4)
+    )
+    data = []
+    results = ctx.db.exec(query).all()
+
+    for appointment, doctor_name in results:
+        item = appointment.dict()
+        item["doctor_name"] = doctor_name
+        item["avatar"] = get_avatar(appointment.doctor_id, ctx)
+        data.append(item)
+
+    return ctx.response.success(data=data)

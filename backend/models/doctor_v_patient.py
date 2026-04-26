@@ -59,6 +59,8 @@ class Appointment(SQLModel, table=True):
 
     reason: Optional[str] = None
     notes: Optional[str] = None
+    
+    doctor_notes: Optional[str] = None
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     

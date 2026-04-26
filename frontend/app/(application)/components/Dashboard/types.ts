@@ -5,10 +5,11 @@ export interface SummaryCard {
 
 export interface Appointment {
   id: string;
-  doctor: string;
-  date: string;
+  doctor_name: string;
+  start_time: string;
   time: string;
   status: "Pending" | "Completed" | "Canceled";
+  avatar?: string;
 }
 
 export interface Tip {

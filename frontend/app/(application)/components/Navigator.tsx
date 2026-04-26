@@ -15,6 +15,11 @@ export const NAV_CONFIG = [
     roles: ["admin", "user"],
   },
   {
+    label: "Appointments",
+    path: "/appointments",
+    roles: ["admin", "user"],
+  },  
+  {
     label: "Availability",
     path: "/availability",
     roles: ["admin", "counselor"],
@@ -77,7 +82,7 @@ export default function NavBar() {
         </div>
         <ul className="flex space-x-4 justify-center items-center">
           {filteredNav.map((item) => (
-            <li key={item.label} className="relative group">
+            <li key={item.label} className="relative group hover:text-gray-900 hover:bg-gray-100 rounded-md px-3 py-2 cursor-pointer">
 
               <a
                 href={item.path}

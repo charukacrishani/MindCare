@@ -24,6 +24,7 @@ const ROLE_ACCESS: Record<string, string[]> = {
   "/analyze": ["admin", "user"],
   "/profile": ["admin", "user", "counselor"],
   "/patient": ["admin", "counselor"],
+  "/appointments": ["admin", "user"],
 };
 
 export default function AuthLayout({
