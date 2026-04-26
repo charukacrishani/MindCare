@@ -11,7 +11,7 @@ from models.chats import Messages
 from utils.c_types import MessageParsed, MessagesResponse, NewSession, SubmitRequest, SubmitResponse
 
 router = APIRouter(prefix="/api/chats", tags=["Chats"])
-chatbot = MentalHealthChatbot_GEMINI()
+chatbot = MentalHealthChatbot_GPT()
 
 def create_chat(ctx: Context, submitreq: SubmitRequest):
     query = select(Chats).where(Chats.userid == ctx.user.user_id, Chats.active == True)
@@ -48,7 +48,11 @@ def process_message(submitreq: SubmitRequest, chatid: Optional[str] = None, ctx 
             return ctx.response.error(message='chat is inactive or not found')
         
         # check if question exists
-        query = select(Messages).where(Messages.messageid == submitreq.questionid, Messages.answered == False)
+        query = select(Messages).where(
+            Messages.messageid == submitreq.questionid,
+            Messages.chatid == chatid,
+            Messages.answered == False
+        )
         message =  ctx.db.exec(query).first()
         
         if message is None:
@@ -62,10 +66,11 @@ def process_message(submitreq: SubmitRequest, chatid: Optional[str] = None, ctx 
         
         if len(messagehistory)/2 > chatbot.max_questions:
             questionid = str(uuid.uuid4())
-            message = Messages(messageid=questionid, question=chatbot.final_response, chatid=chatid)
+            finalResponse = chatbot.analyze_conversation(messagehistory)
+            message = Messages(messageid=questionid, question=finalResponse, chatid=chatid)
             ctx.db.add(message)
             ctx.db.commit()
-            return ctx.response.success(data=SubmitResponse(done=True, question=chatbot.final_response, questionid=questionid, chatid=message.chatid))
+            return ctx.response.success(data=SubmitResponse(done=True, question=finalResponse, questionid=questionid, chatid=message.chatid))
         else:
             next_question = chatbot.generate_next_question(messagehistory)
             questionid = str(uuid.uuid4())
@@ -90,8 +95,11 @@ def process_message(chatid: str, ctx : Context = Depends(get_context)):
     result = chatbot.analyze_conversation(messagehistory)
     
     chat.active = False
+    questionid = str(uuid.uuid4())
+    message = Messages(messageid=questionid, question=result, chatid=chatid)
+    ctx.db.add(message)
     ctx.db.commit()
-    return ctx.response.success(data=result)
+    return ctx.response.success(data=SubmitResponse(done=True, question=result, questionid=questionid, chatid=chatid))
 
 @router.get("/")
 def get_all_chats(ctx: Context = Depends(get_context)):
@@ -130,7 +138,7 @@ def get_chat_messages(chatid: str, ctx: Context = Depends(get_context)):
 
     
 def get_all_messages_of_session(ctx: Context, chatid: str, new_answer: Optional[str] = None, new_answer_id: Optional[str] = None) -> List[MessageParsed]:
-    query = select(Messages).where(Messages.chatid == chatid)
+    query = select(Messages).where(Messages.chatid == chatid).order_by(Messages.date.asc())
     messages = ctx.db.exec(query).all()
 
     messages_parsed: List[MessageParsed] = []

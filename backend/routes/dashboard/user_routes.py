@@ -6,7 +6,7 @@ from sqlmodel import select
 from sqlalchemy import func
 from datetime import datetime, timedelta
 
-from chatbot.chatbot_gemini import MentalHealthChatbot_GEMINI
+from chatbot.chatbot_chatgpt import MentalHealthChatbot_GPT
 from context import Context, get_context
 from models.doctor_v_patient import Appointment
 from models.questionnaire import QuestionnaireResponse
@@ -16,7 +16,7 @@ from utils.dass21_level import get_dass21_level
 
 
 router = APIRouter(prefix="/api/dashboard/users", tags=["Users Dashboard"])
-chatbot = MentalHealthChatbot_GEMINI()
+chatbot = MentalHealthChatbot_GPT()
 
 @router.get("/current")
 def get_current_stats_dashboard(ctx: Context = Depends(get_context)):

@@ -64,25 +64,7 @@ export function UserMessage({ text }: { text: string }) {
   );
 }
 
-// Mock responses for mental wellbeing chatbot
-const mockResponses = [
-  "I'm here to listen. Can you tell me more about what's on your mind?",
-  "That sounds like it's been challenging for you. How long have you been feeling this way?",
-  "It's completely normal to feel that way. What usually helps you when you're going through something like this?",
-  "Thank you for sharing that with me. Your feelings are valid and important.",
-  "Have you been able to talk to anyone else about this? Sometimes connecting with others can help.",
-  "Self-care is so important. What are some things that usually bring you comfort or joy?",
-  "I hear you. Taking things one step at a time can really help. What's one small thing you could do today for yourself?",
-  "It takes courage to open up about these feelings. I'm glad you're here.",
-  "Remember, it's okay to not be okay sometimes. What kind of support are you looking for right now?",
-  "That's a really insightful observation. How does recognizing that make you feel?",
-];
-
 const initialquestion = "Hello! I'm here to understand how you've been feeling lately. To start, what did you do most during your day today?"
-
-const getRandomResponse = (): string => {
-  return mockResponses[Math.floor(Math.random() * mockResponses.length)];
-};
 
 export default function Page() {
   const router = useRouter();
@@ -95,7 +77,6 @@ export default function Page() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isChatDone, setIsChatDone] = useState(false);
 
-  // Load messages from localStorage on mount
   useEffect(() => {
     initHomepage();
   }, []);
@@ -198,13 +179,16 @@ export default function Page() {
   };
 
   const handleChatReset = async () => {
+    setIsTyping(true);
     try {
       const response = await apiClient.post(`/chats/end-chat?chatid=${chatid}`, {});
       if (response.success) {
-        await initHomepage();
+        router.push("/chat/history");
       }
     } catch (err) {
       console.error("Error resetting chat:", err);
+    } finally {
+      setIsTyping(false);
     }
   }
 
