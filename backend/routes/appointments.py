@@ -14,6 +14,9 @@ from models.doctor_v_patient import (
 from models.user import DoctorInformation
 from routes.avatar.avatar_routes import get_avatar
 from models.user import Users
+from routes.user.user import get_user, get_user_by_id
+from utils.create_meet import create_meet_link
+from utils.send_email import send_email
 
 
 router = APIRouter(prefix="/api/appointments", tags=["Appointments"])
@@ -184,6 +187,17 @@ def create_appointment(
         if ctx.db.exec(existing_query).first():
             return ctx.response.error(message="Time slot is no longer available")
         
+        
+        patient = get_user_by_id(ctx.user.user_id, ctx)
+        doctor = get_user_by_id(doctor_id, ctx)
+        
+        meet_link = create_meet_link(
+            title=f"Appointment with {doctor.username}",
+            start_time=start_time,
+            attendees=[patient.email, doctor.email],
+            duration_minutes=int((end_time - start_time).total_seconds() // 60)
+        )
+        
         # Create appointment
         appointment = Appointment(
             doctor_id=doctor_id,
@@ -193,7 +207,10 @@ def create_appointment(
             status="scheduled",
             reason=reason,
             notes=notes,
+            meet_link=meet_link
         )
+        
+
         
         doctor_patient_query = select(DoctorVPatient).where(
             DoctorVPatient.doctor_id == doctor_id,
@@ -221,6 +238,12 @@ def create_appointment(
         ctx.db.add(appointment)
         ctx.db.commit()
         ctx.db.refresh(appointment)
+        
+        send_email(
+            to_email=patient.email,
+            subject="MindCare - Appointment Created",
+            html_body=f"<div><p>Dear {patient.username},</p><p>Your appointment with Dr. {doctor.username} has been scheduled for {start_time.strftime('%Y-%m-%d %H:%M')}.</p><p>Meeting Link: <a href='{meet_link}'>{meet_link}</a></p><p>Thank you for using MindCare!</p></div>"
+        )
         
         return ctx.response.success(
             message="Appointment created successfully",

@@ -63,6 +63,7 @@ class Appointment(SQLModel, table=True):
     doctor_notes: Optional[str] = None
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    meet_link: Optional[str] = None
     
 
 class AppointmentPayment(SQLModel, table=True):

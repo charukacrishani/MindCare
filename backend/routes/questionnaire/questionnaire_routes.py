@@ -6,7 +6,7 @@ from sqlmodel import select
 
 from context import Context, get_context
 from models.questionnaire import QuestionnaireResponse
-from utils.types import AnswerItem, QuestionnaireSubmitResponse
+from utils.c_types import AnswerItem, QuestionnaireSubmitResponse
 
 router = APIRouter(prefix="/api/questionnaire", tags=["Questionnaire"])
 

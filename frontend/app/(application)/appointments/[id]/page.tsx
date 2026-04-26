@@ -21,6 +21,7 @@ interface AppointmentDetails {
     notes?: string | null;
     doctor_notes?: string | null;
     created_at?: string;
+    meet_link?: string | null;
 }
 
 function formatStatus(status: string) {
@@ -231,6 +232,18 @@ export default function AppointmentPage() {
                         <div className="rounded-xl border border-[#edf0f3] p-4">
                             <p className="text-xs text-[#6b7280] mb-1">Schedule</p>
                             <p className="text-[#111827] font-medium">{timeWindow}</p>
+                            <p className="text-xs text-[#6b7280] mt-2">
+                                {appointment.meet_link && (
+                                    <a
+                                        href={appointment.meet_link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-500 hover:underline"
+                                    >
+                                        Join Meeting
+                                    </a>
+                                )}
+                            </p>
                         </div>
                         <div className="rounded-xl border border-[#edf0f3] p-4">
                             <p className="text-xs text-[#6b7280] mb-1">Created</p>

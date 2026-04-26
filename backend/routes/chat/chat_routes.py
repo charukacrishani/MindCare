@@ -8,7 +8,7 @@ from chatbot.chatbot_gemini import MentalHealthChatbot_GEMINI
 from context import Context, get_context
 from models import Chats
 from models.chats import Messages
-from utils.types import MessageParsed, MessagesResponse, NewSession, SubmitRequest, SubmitResponse
+from utils.c_types import MessageParsed, MessagesResponse, NewSession, SubmitRequest, SubmitResponse
 
 router = APIRouter(prefix="/api/chats", tags=["Chats"])
 chatbot = MentalHealthChatbot_GEMINI()
