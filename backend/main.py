@@ -11,7 +11,7 @@ from pathlib import Path
 from context import get_context_html
 from db import get_session, init_db
 from models.user import Users
-from routes import register_router, chat_router, login_router, user_router, doctor_router, user_info_router, doctor_info_router, questionnaire_router, profile_router, dashboard_user_router, forgot_password_router, dashboard_doctor_router, patient_router, appointments_router
+from routes import register_router, chat_router, login_router, user_router, doctor_router, user_info_router, doctor_info_router, questionnaire_router, profile_router, dashboard_user_router, forgot_password_router, dashboard_doctor_router, patient_router, appointments_router, appointment_details_router
 from routes.avatar import avatar_router
 from utils.hash import hash_password
 from models.password_reset import PasswordReset
@@ -46,3 +46,4 @@ app.include_router(avatar_router)  # ← avatar routes
 app.include_router(dashboard_doctor_router)  # ← added doctor dashboard routes
 app.include_router(patient_router)  # ← patient routes
 app.include_router(appointments_router)  # ← appointment booking routes
+app.include_router(appointment_details_router)  # ← appointment details route

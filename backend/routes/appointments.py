@@ -11,6 +11,8 @@ from models.doctor_v_patient import (
     AppointmentPayment,
     DoctorVPatient,
 )
+from models.user import DoctorInformation
+from routes.avatar.avatar_routes import get_avatar
 from models.user import Users
 
 
@@ -245,12 +247,27 @@ def get_user_appointments(
         query = (
             select(Appointment)
             .where(Appointment.patient_id == ctx.user.user_id)
-            .order_by(Appointment.start_time.desc())
+            .order_by(Appointment.start_time.asc())
         )
         
         appointments = ctx.db.exec(query).all()
-        
-        data = [ctx.serialize(a) for a in appointments]
+
+        data = []
+        for appointment in appointments:
+            item = ctx.serialize(appointment)
+            doctor_info = ctx.db.exec(
+                select(DoctorInformation).where(
+                    DoctorInformation.userid == appointment.doctor_id
+                )
+            ).first()
+            item["doctor_name"] = (
+                doctor_info.full_name
+                if doctor_info and doctor_info.full_name
+                else "Unknown Doctor"
+            )
+            item["avatar"] = get_avatar(appointment.doctor_id, ctx)
+            data.append(item)
+
         return ctx.response.success(message="Appointments retrieved", data=data)
     except Exception as e:
         return ctx.response.error(message="Failed to get appointments", errors=str(e))
