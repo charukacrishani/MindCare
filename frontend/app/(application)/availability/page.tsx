@@ -15,7 +15,6 @@ import {
     Clock,
     Calendar,
 } from 'lucide-react';
-import { a } from 'framer-motion/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Availability {
@@ -256,9 +255,9 @@ export default function AvailabilityManagePage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
+            <div className="flex items-center justify-center p-4 py-20">
                 <div className="text-center">
-                    <Loader className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
+                    <Loader className="w-12 h-12 animate-spin text-[#980194] mx-auto mb-4" />
                     <p className="text-gray-600">Loading your availability...</p>
                 </div>
             </div>
@@ -266,7 +265,7 @@ export default function AvailabilityManagePage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4 md:p-8">
+        <div className="w-full p-4 md:p-8">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
@@ -323,7 +322,7 @@ export default function AvailabilityManagePage() {
                                                             {day}
                                                         </h3>
                                                         {dayAvailabilities.length > 0 && (
-                                                            <span className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                                                            <span className="text-sm bg-purple-100 text-[#980194] px-3 py-1 rounded-full">
                                                                 {dayAvailabilities.length} slot
                                                                 {dayAvailabilities.length !== 1 ? 's' : ''}
                                                             </span>
@@ -335,7 +334,7 @@ export default function AvailabilityManagePage() {
                                                             {dayAvailabilities.map((avail) => (
                                                                 <div
                                                                     key={avail.id}
-                                                                    className="flex items-center justify-between bg-blue-50 p-3 rounded-lg"
+                                                                    className="flex items-center justify-between bg-purple-50 p-3 rounded-lg"
                                                                 >
                                                                     <div className="flex-1">
                                                                         <p className="font-medium text-gray-900">
@@ -370,7 +369,7 @@ export default function AvailabilityManagePage() {
                             <div className="lg:col-span-1">
                                 <Card className="p-6 bg-white shadow-sm border-0 sticky top-4">
                                     <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                        <Plus className="w-5 h-5 text-blue-600" />
+                                        <Plus className="w-5 h-5 text-[#980194]" />
                                         Add Time Slot
                                     </h3>
 
@@ -388,7 +387,7 @@ export default function AvailabilityManagePage() {
                                                         day_of_week: parseInt(e.target.value),
                                                     })
                                                 }
-                                                className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                             >
                                                 {DAYS_OF_WEEK.map((day, idx) => (
                                                     <option key={idx} value={idx}>
@@ -450,7 +449,7 @@ export default function AvailabilityManagePage() {
                                                         slot_duration_minutes: parseInt(e.target.value),
                                                     })
                                                 }
-                                                className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                             >
                                                 <option value={15}>15 minutes</option>
                                                 <option value={30}>30 minutes</option>
@@ -464,7 +463,7 @@ export default function AvailabilityManagePage() {
                                         <Button
                                             onClick={handleAddAvailability}
                                             disabled={submitting || isDayAlreadyScheduled(newAvailability.day_of_week)}
-                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                            className="w-full bg-[#980194] hover:bg-[#7a0177] text-white py-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
                                         >
                                             {submitting ? (
                                                 <>
@@ -497,7 +496,7 @@ export default function AvailabilityManagePage() {
                                             {timeOffs.map((timeoff) => (
                                                 <div
                                                     key={timeoff.id}
-                                                    className="border border-orange-200 bg-orange-50 rounded-lg p-4"
+                                                    className="border border-purple-200 bg-purple-50 rounded-lg p-4"
                                                 >
                                                     <div className="flex items-start justify-between mb-2">
                                                         <div className="flex-1">
@@ -508,7 +507,7 @@ export default function AvailabilityManagePage() {
                                                                 to {formatDateTime(timeoff.end_datetime)}
                                                             </p>
                                                             {timeoff.reason && (
-                                                                <p className="text-sm text-orange-700 mt-2">
+                                                                <p className="text-sm text-[#980194] mt-2">
                                                                     Reason: {timeoff.reason}
                                                                 </p>
                                                             )}
@@ -536,7 +535,7 @@ export default function AvailabilityManagePage() {
                             <div className="lg:col-span-1">
                                 <Card className="p-6 bg-white shadow-sm border-0 sticky top-4">
                                     <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                        <Plus className="w-5 h-5 text-orange-600" />
+                                        <Plus className="w-5 h-5 text-[#980194]" />
                                         Add Time Off
                                     </h3>
 
@@ -604,7 +603,7 @@ export default function AvailabilityManagePage() {
                                         <Button
                                             onClick={handleAddTimeOff}
                                             disabled={submitting}
-                                            className="w-full bg-orange-600 hover:bg-orange-700 text-white py-2"
+                                            className="w-full bg-[#980194] hover:bg-[#7a0177] text-white py-2"
                                         >
                                             {submitting ? (
                                                 <>

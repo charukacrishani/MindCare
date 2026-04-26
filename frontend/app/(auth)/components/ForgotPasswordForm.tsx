@@ -98,7 +98,7 @@ const [showConfirm, setShowConfirm] = useState(false)
   };
 
   return (
-    <div className="min-h-screen flex items-center p-4 w-full">
+    <div className="flex items-center p-4 w-full">
       <Card className="w-full max-w-xl bg-white border-none shadow-2xl relative overflow-hidden">
         {/* Decorative background element */}
         <div className="absolute top-0 left-0 w-32 h-32 bg-purple-200 rounded-full opacity-20 -translate-x-12 -translate-y-12 blur-2xl" />
@@ -127,9 +127,6 @@ const [showConfirm, setShowConfirm] = useState(false)
                 Enter your email and we&apos;ll send you a reset code.
               </p>
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  Email address
-                </Label>
                 <Input
                   type="email"
                   id="email"

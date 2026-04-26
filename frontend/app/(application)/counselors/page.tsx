@@ -48,7 +48,7 @@ export default function CounselorList() {
 
 
 return (
-  <div className="space-y-3">
+  <div className="w-full p-4 space-y-3">
     {error && (
       <div className="bg-red-50 border border-red-200 text-red-700 px-4 rounded-md">
         {error}

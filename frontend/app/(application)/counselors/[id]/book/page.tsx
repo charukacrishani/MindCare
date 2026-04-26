@@ -251,9 +251,9 @@ export default function BookAppointmentPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
+            <div className="flex items-center justify-center p-4 py-20">
                 <div className="text-center">
-                    <Loader className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
+                    <Loader className="w-12 h-12 animate-spin text-[#980194] mx-auto mb-4" />
                     <p className="text-gray-600">Loading doctor information...</p>
                 </div>
             </div>
@@ -262,7 +262,7 @@ export default function BookAppointmentPage() {
 
     return (
         <>
-            <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-4 md:p-8">
+            <div className="w-full p-4 md:p-8">
                 <div className="mx-auto">
                     {/* Header */}
                     <div className="flex items-center gap-4 mb-8">
@@ -311,8 +311,8 @@ export default function BookAppointmentPage() {
                                         className="w-16 h-16 rounded-full object-cover"
                                     />
                                 ) : (
-                                    <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-                                        <span className="text-xl font-semibold text-blue-600">
+                                    <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
+                                        <span className="text-xl font-semibold text-[#980194]">
                                             {doctor.full_name?.split(' ').map(n => n[0]).join('')}
                                         </span>
                                     </div>
@@ -333,7 +333,7 @@ export default function BookAppointmentPage() {
                                 {/* Date Selection */}
                                 <Card className="mb-8 p-6 bg-white shadow-sm border-0 w-full">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                                        <Calendar className="w-5 h-5 text-blue-600" />
+                                        <Calendar className="w-5 h-5 text-[#980194]" />
                                         Select Date
                                     </h3>
 
@@ -343,7 +343,7 @@ export default function BookAppointmentPage() {
                                                 key={date}
                                                 onClick={() => setSelectedDate(date)}
                                                 className={`p-3 rounded-lg font-medium transition-all ${selectedDate === date
-                                                    ? 'bg-blue-600 text-white shadow-md'
+                                                    ? 'bg-[#980194] text-white shadow-md'
                                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                     }`}
                                             >
@@ -369,13 +369,13 @@ export default function BookAppointmentPage() {
                                 {selectedDate && (
                                     <Card className="mb-8 p-6 bg-white shadow-sm border-0">
                                         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                                            <Clock className="w-5 h-5 text-blue-600" />
+                                            <Clock className="w-5 h-5 text-[#980194]" />
                                             Select Time
                                         </h3>
 
                                         {loadingSlots ? (
                                             <div className="flex justify-center py-8">
-                                                <Loader className="w-8 h-8 animate-spin text-blue-500" />
+                                                <Loader className="w-8 h-8 animate-spin text-[#980194]" />
                                             </div>
                                         ) : availableSlots.length > 0 ? (
                                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -384,7 +384,7 @@ export default function BookAppointmentPage() {
                                                         key={idx}
                                                         onClick={() => setSelectedSlot(slot)}
                                                         className={`p-3 rounded-lg font-medium transition-all ${selectedSlot?.start_time === slot.start_time
-                                                            ? 'bg-blue-600 text-white shadow-md'
+                                                            ? 'bg-[#980194] text-white shadow-md'
                                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                             }`}
                                                     >
@@ -436,7 +436,7 @@ export default function BookAppointmentPage() {
                                                 placeholder="Any additional information you'd like to share..."
                                                 value={notes}
                                                 onChange={(e) => setNotes(e.target.value)}
-                                                className="mt-2 w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="mt-2 w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                                 rows={4}
                                             />
                                         </div>
@@ -447,7 +447,7 @@ export default function BookAppointmentPage() {
                                                     id="chatAccess"
                                                     checked={allowChatAccess}
                                                     onChange={(e) => setAllowChatAccess(e.target.checked)}
-                                                    className="form-checkbox h-4 w-4 text-blue-600"
+                                                    className="form-checkbox h-4 w-4 text-[#980194]"
                                                 />
                                                 Allow counselor to access chat history (Optional)
                                             </Label>
@@ -459,7 +459,7 @@ export default function BookAppointmentPage() {
                                                     id="detailAccess"
                                                     checked={allowDetailAccess}
                                                     onChange={(e) => setAllowDetailAccess(e.target.checked)}
-                                                    className="form-checkbox h-4 w-4 text-blue-600"
+                                                    className="form-checkbox h-4 w-4 text-[#980194]"
                                                 />
                                                 Allow counselor to access your information (Optional)
                                             </Label>
@@ -471,7 +471,7 @@ export default function BookAppointmentPage() {
                                             setShowPayment(true);
                                         }}
                                         disabled={!selectedSlot || submitting}
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold"
+                                        className="w-full bg-[#980194] hover:bg-[#7a0177] text-white py-3 text-lg font-semibold"
                                     >
                                         {submitting ? (
                                             <>

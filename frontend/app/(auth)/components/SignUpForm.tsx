@@ -82,7 +82,7 @@ export default function SignUpForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center p-4 w-full">
+    <div className="flex items-center p-4 w-full">
       <Card className="w-full max-w-xl bg-white border-none shadow-2xl relative overflow-hidden">
         {/* Decorative background element */}
         <div className="absolute top-0 left-0 w-32 h-32 bg-purple-200 rounded-full opacity-20 -translate-x-12 -translate-y-12 blur-2xl" />
@@ -100,7 +100,7 @@ export default function SignUpForm() {
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4 max-h-[calc(100vh-12rem)] overflow-y-auto px-6">
+        <CardContent className="space-y-4 max-h-[60vh] overflow-y-auto px-6">
           {error && (<div className="text-sm p-2 bg-red-50 border border-red-200 text-red-700 rounded-lg">
             {error}
           </div>)}

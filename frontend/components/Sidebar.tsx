@@ -4,8 +4,8 @@ import { Calendar, Users, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+
 
 const navItems = [
   { label: "Appointments", href: "/", icon: Calendar },
@@ -14,7 +14,7 @@ const navItems = [
 
 export function Sidebar( { onTabChange, activeTab }: { onTabChange: (tab: string) => void; activeTab?: string }) {
   return (
-    <aside className="w-[220px] min-h-screen bg-white border-r border-gray-100 flex flex-col">
+    <aside className="w-[220px] h-full bg-white border-r border-gray-100 flex flex-col">
       {/* Nav */}
       <nav className="flex-1 px-3 mt-4 space-y-1">
         {navItems.map(({ label, href, icon: Icon }) => {

@@ -33,7 +33,7 @@ export default function AnalyzeHistoryPage() {
     }, []);
 
     return (
-        <div className="w-full h-full flex flex-col items-center py-10">
+        <div className="w-full flex flex-col items-center py-10 px-4">
 
             <h1 className="text-2xl font-bold mb-8">Analyze History</h1>
 

@@ -358,7 +358,7 @@ export default function ProfilePage() {
 
 	if (loading) {
 		return (
-			<div className="min-h-[70vh] flex items-center justify-center">
+			<div className="flex-1 flex items-center justify-center">
 				<div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-[#980194]" />
 			</div>
 		);
@@ -366,7 +366,7 @@ export default function ProfilePage() {
 
 	if (!role) {
 		return (
-			<div className="min-h-[70vh] flex items-center justify-center p-4">
+			<div className="flex-1 flex items-center justify-center p-4">
 				<Card className="w-full max-w-xl border-gray-100 shadow-xl">
 					<CardHeader>
 						<h1 className="text-xl font-semibold text-gray-800">Profile unavailable</h1>
@@ -381,7 +381,7 @@ export default function ProfilePage() {
 
 	if (error) {
 		return (
-			<div className="min-h-[70vh] flex items-center justify-center p-4">
+			<div className="flex-1 flex items-center justify-center p-4">
 				<Card className="w-full max-w-xl border-gray-100 shadow-xl">
 					<CardHeader>
 						<h1 className="text-xl font-semibold text-gray-800">Failed to load profile</h1>

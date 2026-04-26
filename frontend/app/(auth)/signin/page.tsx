@@ -3,8 +3,7 @@ import SignInForm from "../components/SignInForm";
 export default function page() {
   return (
     <div
-      className="max-w-7xl w-full px-4 mx-auto flex justify-between items-center overflow-hidden relative min-h-svh h-svh
-    "
+      className="max-w-7xl w-full h-full px-4 mx-auto flex justify-between items-center"
     >
       <div className="flex flex-col gap-2 w-full">
         <h1 className="text-6xl font-semibold tracking-tighter text-black">

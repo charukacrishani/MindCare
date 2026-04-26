@@ -72,48 +72,50 @@ export default function ChatHistoryPage() {
     }, [selectedChatId])
 
     return (
-        <div>
+        <div className="w-full p-4">
             <h1 className="text-2xl font-bold mb-2 mt-3">Chat History</h1>
-            <p className="text-gray-600 mb-4">This is where your chat history will be displayed.</p>
+            <p className="text-gray-600 mb-4">Review your past conversations.</p>
             {loading ? (
-                <p>Loading chat history...</p>
+                <p className="text-gray-500">Loading chat history...</p>
             ) : (
-                <div className="p-4 flex flex-row gap-4">
-                    <div>
-                        <ul className="space-y-2 w-96">
+                <div className="flex flex-row gap-4">
+                    <div className="shrink-0">
+                        <ul className="space-y-2 w-72">
                             {chatHistory.map((chat) => (
-                                <li key={chat.chatid} onClick={() => handleChatClick(chat.chatid)} className="p-4 border rounded-md hover:bg-gray-50 transition-colors cursor-pointer">
-                                    <p><strong> {new Date(chat.date).toLocaleString()}</strong> - {chat.active ? "Active" : "Inactive"}</p>
+                                <li
+                                    key={chat.chatid}
+                                    onClick={() => handleChatClick(chat.chatid)}
+                                    className={`p-4 border rounded-xl cursor-pointer transition-colors ${selectedChatId === chat.chatid ? "border-[#980194] bg-purple-50" : "hover:bg-gray-50"}`}
+                                >
+                                    <p className="text-sm"><strong>{new Date(chat.date).toLocaleString()}</strong></p>
+                                    <p className="text-xs text-gray-500 mt-1">{chat.active ? "Active" : "Completed"}</p>
                                 </li>
                             ))}
                         </ul>
                     </div>
                     {selectedChatId && (
-                        <div>
+                        <div className="flex-1">
                             {chatLoading ? (
-                                <p>Loading chat messages...</p>
+                                <p className="text-gray-500">Loading messages...</p>
                             ) : (
-                                <div className="space-y-2">
+                                <div className="space-y-3">
                                     {messages.map((message) => (
                                         <div
                                             key={message.id}
                                             className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
                                         >
                                             <div
-                                                className={`max-w-[70%] p-3 rounded-xl shadow-sm ${message.sender === "user"
-                                                        ? "bg-blue-100"
-                                                        : "bg-gray-100"
+                                                className={`max-w-[70%] p-3 rounded-xl shadow-sm text-sm text-gray-800 ${message.sender === "user"
+                                                        ? "bg-linear-to-r from-white from-70% via-[#FF96FC]/10 to-[#FF96FC]/20"
+                                                        : "bg-white border border-gray-100"
                                                     }`}
                                             >
-                                                <p className="text-sm text-gray-800">
-                                                    <span
-                                                        className={`text-xs font-semibold px-2 py-1 mr-2 rounded-md text-white ${message.sender === "user" ? "bg-blue-600" : "bg-gray-600"
-                                                            }`}
-                                                    >
-                                                        {message.sender === "user" ? "User" : "Bot"}
-                                                    </span>
-                                                    {message.text}
-                                                </p>
+                                                <span
+                                                    className={`text-xs font-semibold px-2 py-0.5 mr-2 rounded-md text-white ${message.sender === "user" ? "bg-[#980194]" : "bg-gray-500"}`}
+                                                >
+                                                    {message.sender === "user" ? "You" : "Bot"}
+                                                </span>
+                                                {message.text}
                                             </div>
                                         </div>
                                     ))}
@@ -122,8 +124,7 @@ export default function ChatHistoryPage() {
                         </div>
                     )}
                 </div>
-            )
-            }
+            )}
         </div>
     )
 }
