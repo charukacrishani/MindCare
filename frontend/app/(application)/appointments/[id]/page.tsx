@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "@/lib/apiClient";
+import PersonalDataPopup from "./PersonalDataPopup";
 
 interface AppointmentDetails {
     id: number;
@@ -67,6 +68,7 @@ export default function AppointmentPage() {
     const [error, setError] = useState<string | null>(null);
     const [isCancelling, setIsCancelling] = useState(false);
     const [actionMessage, setActionMessage] = useState<string | null>(null);
+    const [showPersonalDataPopup, setShowPersonalDataPopup] = useState(false);
 
     useEffect(() => {
         const loadAppointment = async () => {
@@ -172,18 +174,17 @@ export default function AppointmentPage() {
 
                     {actionMessage && (
                         <div
-                            className={`mb-5 rounded-lg border p-3 text-sm ${
-                                appointment.status === "cancelled"
+                            className={`mb-5 rounded-lg border p-3 text-sm ${appointment.status === "cancelled"
                                     ? "border-green-200 bg-green-50 text-green-700"
                                     : "border-red-200 bg-red-50 text-red-700"
-                            }`}
+                                }`}
                         >
                             {actionMessage}
                         </div>
                     )}
 
                     {appointment.status === "scheduled" && (
-                        <div className="mb-5 flex justify-end">
+                        <div className="mb-5 flex justify-end gap-2">
                             <button
                                 type="button"
                                 onClick={handleCancelAppointment}
@@ -191,6 +192,13 @@ export default function AppointmentPage() {
                                 className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
                             >
                                 {isCancelling ? "Cancelling..." : "Cancel Appointment"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={()=> setShowPersonalDataPopup(true)}
+                                className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+                            >
+                                Personal Data Consent
                             </button>
                         </div>
                     )}
@@ -258,6 +266,7 @@ export default function AppointmentPage() {
                     </div>
                 </section>
             )}
+            {showPersonalDataPopup && <PersonalDataPopup isOpen={showPersonalDataPopup} onClose={() => setShowPersonalDataPopup(false)} appointmentId={appointmentId!} />}
         </div>
     );
 }
