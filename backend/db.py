@@ -1,14 +1,16 @@
 # db.py
+import os
+
 from sqlmodel import SQLModel, Session, create_engine
 
 # -------------------------
 # DATABASE CONFIGURATION
 # -------------------------
-POSTGRES_USER = "postgres"
-POSTGRES_PASSWORD = "password"
-POSTGRES_HOST = "localhost"
-POSTGRES_PORT = "5432"
-POSTGRES_DB = "mindcare"
+POSTGRES_USER = os.environ.get("POSTGRES_USER", "mindcare")
+POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "password")
+POSTGRES_HOST = os.environ.get("POSTGRES_HOST", "localhost")
+POSTGRES_PORT = os.environ.get("POSTGRES_PORT", "5432")
+POSTGRES_DB = os.environ.get("POSTGRES_DB", "mindcaredb")
 
 DATABASE_URL = (
     f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@"
