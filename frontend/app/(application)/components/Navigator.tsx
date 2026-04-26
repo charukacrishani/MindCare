@@ -61,7 +61,7 @@ export default function NavBar() {
 
   const handleNavigate = (e: any) => {
     e.preventDefault();
-    const path = e.currentTarget.getAttribute("href");
+    const path = e.currentTarget.getAttribute("href") || e.currentTarget.getAttribute("data-path");
     router.push(path);
   };
 
@@ -82,8 +82,7 @@ export default function NavBar() {
         </div>
         <ul className="flex space-x-4 justify-center items-center">
           {filteredNav.map((item) => (
-            <li key={item.label} className="relative group hover:text-gray-900 hover:bg-gray-100 rounded-md px-3 py-2 cursor-pointer">
-
+            <li key={item.label} onClick={handleNavigate} data-path={item.path} className="relative group hover:text-gray-900 hover:bg-gray-100 rounded-md px-3 py-2 cursor-pointer">
               <a
                 href={item.path}
                 onClick={handleNavigate}
@@ -98,7 +97,7 @@ export default function NavBar() {
                   {item.children
                     .filter(child => child.roles.includes(user?.role))
                     .map(child => (
-                      <li key={child.label}>
+                      <li key={child.label} onClick={handleNavigate} data-path={child.path}>
                         <a
                           href={child.path}
                           onClick={handleNavigate}
