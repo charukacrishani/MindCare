@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation"
 import { SpecializationGrid } from "../components/SpecializationGrid"
 import { SPECIALIZATIONS } from "../components/ProfileSetupForm"
 import { Loader } from "lucide-react"
+import { PageHeader } from "@/components/PageHeader"
 
 type Doctor = {
   userid: string
@@ -51,11 +52,7 @@ export default function CounselorList() {
 return (
   <div className="w-full p-4 md:p-6">
     {/* Page header */}
-    <div className="mb-6">
-      <p className="text-xs font-semibold uppercase tracking-widest text-[#980194]">Find a Counselor</p>
-      <h1 className="text-2xl font-semibold text-gray-900 mt-1">Counselors</h1>
-      <p className="text-sm text-gray-500 mt-1">Browse and book sessions with our licensed counselors.</p>
-    </div>
+    <PageHeader title="Counselors" shortTitle="Find a Counselor" description="Browse through our list of qualified counselors and book an appointment that suits you." />
 
     {error && (
       <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-4">

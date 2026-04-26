@@ -99,7 +99,9 @@ export default function AuthLayout({
     <UserContext.Provider value={user}>
       <div className="h-screen flex flex-col overflow-hidden">
         <NavBar />
-        <div className="flex-1 min-h-0 overflow-y-auto">{children}</div>
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          {children}
+        </div>
         <Footer />
       </div>
     </UserContext.Provider>

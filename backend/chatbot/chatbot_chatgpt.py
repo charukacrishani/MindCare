@@ -180,7 +180,7 @@ Ask about 12-15 questions total. Start with general daily life questions, then m
                 model=self.model,
                 messages=[{"role": "user", "content": tips_prompt}],
                 temperature=0.3,
-                max_completion_tokens=200
+                max_completion_tokens=500
             )
             # Parse the response (it should be JSON)
             import json
