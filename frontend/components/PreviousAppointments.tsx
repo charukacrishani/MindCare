@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ClipboardList } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Appointment {
   id: string;
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function PreviousAppointments({ appointments }: Props) {
+  const router = useRouter();
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-6 h-[520px] overflow-y-auto">
       <h3 className="text-base font-semibold text-gray-900 mb-4">
@@ -33,8 +35,9 @@ export function PreviousAppointments({ appointments }: Props) {
               variant="outline"
               size="sm"
               className="rounded-full text-xs px-4 h-8 border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              onClick={() => router.push(`/patient/appointment/${appt.id}`)}
             >
-              view comments <ClipboardList size={12} className="ml-1" />
+              Details <ClipboardList size={12} className="ml-1" />
             </Button>
           </div>
         ))}
