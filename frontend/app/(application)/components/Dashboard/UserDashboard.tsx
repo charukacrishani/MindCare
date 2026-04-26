@@ -85,19 +85,22 @@ export default function UserDashboard() {
 
     return (
         <div className="w-full h-full overflow-y-auto bg-[linear-gradient(180deg,#faf7f4_0%,#f3f0ec_100%)]">
-            <div className="mx-auto w-full px-4">
+            <div className="mx-auto w-full">
                 <PageHeader title="Dashboard" shortTitle="Your Mental Health" description="Track your progress, review upcoming sessions, and follow practical wellness actions." />
 
 
-                <div className="w-full rounded-2xl border border-[#ddd4cd] bg-white/85 p-3 shadow-sm backdrop-blur-sm sm:p-4 lg:p-5">
-                    <SummaryCards summaryCards={summaryCards} />
+                <div className="p-4">
 
-                    <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-                        <TrendOverview data={trendData} />
-                        <AppointmentsPanel appointments={appointments} />
+                    <div className="w-full rounded-2xl border border-[#ddd4cd] bg-white/85 p-3 shadow-sm backdrop-blur-sm sm:p-4 lg:p-5">
+                        <SummaryCards summaryCards={summaryCards} />
+
+                        <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+                            <TrendOverview data={trendData} />
+                            <AppointmentsPanel appointments={appointments} />
+                        </div>
+
+                        <TipsExercises tips={tips} />
                     </div>
-
-                    <TipsExercises tips={tips} />
                 </div>
             </div>
         </div>

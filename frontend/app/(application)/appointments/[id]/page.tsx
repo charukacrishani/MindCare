@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "@/lib/apiClient";
 import PersonalDataPopup from "./PersonalDataPopup";
+import { PageHeader } from "@/components/PageHeader";
 
 interface AppointmentDetails {
     id: number;
@@ -140,146 +141,143 @@ export default function AppointmentPage() {
     }, [appointment]);
 
     return (
-        <div className="w-full max-w-4xl mx-auto p-4 sm:p-6">
-            <div className="mb-4">
-                <Link
-                    href="/appointments"
-                    className="text-sm text-[#374151] hover:text-[#111827] underline underline-offset-2"
-                >
-                    Back to appointments
-                </Link>
-            </div>
+        <div className="w-full mx-auto">
+            <PageHeader title="Appointment Details" shortTitle="Appointment" description="View the details of your appointment, including counselor information, schedule, and notes." />
 
-            {isLoading && (
-                <div className="rounded-xl border border-[#e5e7eb] bg-white p-6 text-sm text-[#6b7280]">
-                    Loading appointment details...
-                </div>
-            )}
+            <div className="p-4">
 
-            {!isLoading && error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    {error}
-                </div>
-            )}
-
-            {!isLoading && !error && appointment && (
-                <section className="rounded-2xl border border-[#e5e7eb] bg-white p-5 sm:p-6">
-                    <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-                        <h1 className="text-2xl font-semibold text-[#111827]">Appointment #{appointment.id}</h1>
-                        <span
-                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(appointment.status)}`}
-                        >
-                            {formatStatus(appointment.status)}
-                        </span>
+                {isLoading && (
+                    <div className="rounded-xl border border-[#e5e7eb] bg-white p-6 text-sm text-[#6b7280]">
+                        Loading appointment details...
                     </div>
+                )}
 
-                    {actionMessage && (
-                        <div
-                            className={`mb-5 rounded-lg border p-3 text-sm ${appointment.status === "cancelled"
+                {!isLoading && error && (
+                    <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        {error}
+                    </div>
+                )}
+
+                {!isLoading && !error && appointment && (
+                    <section className="rounded-2xl border border-[#e5e7eb] bg-white p-5 sm:p-6">
+                        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+                            <h1 className="text-2xl font-semibold text-[#111827]">Appointment #{appointment.id}</h1>
+                            <span
+                                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(appointment.status)}`}
+                            >
+                                {formatStatus(appointment.status)}
+                            </span>
+                        </div>
+
+                        {actionMessage && (
+                            <div
+                                className={`mb-5 rounded-lg border p-3 text-sm ${appointment.status === "cancelled"
                                     ? "border-green-200 bg-green-50 text-green-700"
                                     : "border-red-200 bg-red-50 text-red-700"
-                                }`}
-                        >
-                            {actionMessage}
-                        </div>
-                    )}
-
-                    {appointment.status === "scheduled" && (
-                        <div className="mb-5 flex justify-end gap-2">
-                            <button
-                                type="button"
-                                onClick={handleCancelAppointment}
-                                disabled={isCancelling}
-                                className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+                                    }`}
                             >
-                                {isCancelling ? "Cancelling..." : "Cancel Appointment"}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={()=> setShowPersonalDataPopup(true)}
-                                className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
-                            >
-                                Personal Data Consent
-                            </button>
-                        </div>
-                    )}
+                                {actionMessage}
+                            </div>
+                        )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                        <div className="rounded-xl border border-[#edf0f3] p-4">
-                            <p className="text-xs text-[#6b7280] mb-2">Counselor</p>
-                            <div className="flex items-center gap-3">
-                                <AvatarBlock src={appointment.doctor_avatar} label={appointment.doctor_name} />
-                                <div>
-                                    <p className="font-semibold text-[#111827]">{appointment.doctor_name}</p>
-                                    <p className="text-xs text-[#6b7280]">ID: {appointment.doctor_id}</p>
+                        {appointment.status === "scheduled" && (
+                            <div className="mb-5 flex justify-end gap-2">
+                                <button
+                                    type="button"
+                                    onClick={handleCancelAppointment}
+                                    disabled={isCancelling}
+                                    className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+                                >
+                                    {isCancelling ? "Cancelling..." : "Cancel Appointment"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPersonalDataPopup(true)}
+                                    className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300"
+                                >
+                                    Personal Data Consent
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                            <div className="rounded-xl border border-[#edf0f3] p-4">
+                                <p className="text-xs text-[#6b7280] mb-2">Counselor</p>
+                                <div className="flex items-center gap-3">
+                                    <AvatarBlock src={appointment.doctor_avatar} label={appointment.doctor_name} />
+                                    <div>
+                                        <p className="font-semibold text-[#111827]">{appointment.doctor_name}</p>
+                                        <p className="text-xs text-[#6b7280]">ID: {appointment.doctor_id}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="rounded-xl border border-[#edf0f3] p-4">
+                                <p className="text-xs text-[#6b7280] mb-2">Patient</p>
+                                <div className="flex items-center gap-3">
+                                    <AvatarBlock src={appointment.patient_avatar} label={appointment.patient_name} />
+                                    <div>
+                                        <p className="font-semibold text-[#111827]">{appointment.patient_name}</p>
+                                        <p className="text-xs text-[#6b7280]">ID: {appointment.patient_id}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="rounded-xl border border-[#edf0f3] p-4">
-                            <p className="text-xs text-[#6b7280] mb-2">Patient</p>
-                            <div className="flex items-center gap-3">
-                                <AvatarBlock src={appointment.patient_avatar} label={appointment.patient_name} />
-                                <div>
-                                    <p className="font-semibold text-[#111827]">{appointment.patient_name}</p>
-                                    <p className="text-xs text-[#6b7280]">ID: {appointment.patient_id}</p>
-                                </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
+                            <div className="rounded-xl border border-[#edf0f3] p-4">
+                                <p className="text-xs text-[#6b7280] mb-1">Schedule</p>
+                                <p className="text-[#111827] font-medium">{timeWindow}</p>
+                                <p className="text-xs text-[#6b7280] mt-2">
+                                    {appointment.meet_link && (
+                                        <a
+                                            href={appointment.meet_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-500 hover:underline"
+                                        >
+                                            Join Meeting
+                                        </a>
+                                    )}
+                                </p>
+                            </div>
+                            <div className="rounded-xl border border-[#edf0f3] p-4">
+                                <p className="text-xs text-[#6b7280] mb-1">Created</p>
+                                <p className="text-[#111827] font-medium">
+                                    {appointment.created_at
+                                        ? new Date(appointment.created_at).toLocaleString()
+                                        : "Not available"}
+                                </p>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
-                        <div className="rounded-xl border border-[#edf0f3] p-4">
-                            <p className="text-xs text-[#6b7280] mb-1">Schedule</p>
-                            <p className="text-[#111827] font-medium">{timeWindow}</p>
-                            <p className="text-xs text-[#6b7280] mt-2">
-                                {appointment.meet_link && (
-                                    <a
-                                        href={appointment.meet_link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-500 hover:underline"
-                                    >
-                                        Join Meeting
-                                    </a>
-                                )}
-                            </p>
-                        </div>
-                        <div className="rounded-xl border border-[#edf0f3] p-4">
-                            <p className="text-xs text-[#6b7280] mb-1">Created</p>
-                            <p className="text-[#111827] font-medium">
-                                {appointment.created_at
-                                    ? new Date(appointment.created_at).toLocaleString()
-                                    : "Not available"}
-                            </p>
-                        </div>
-                    </div>
+                        <div className="space-y-4 text-sm">
+                            <div className="rounded-xl border border-[#edf0f3] p-4">
+                                <p className="text-xs text-[#6b7280] mb-1">Reason</p>
+                                <p className="text-[#111827] whitespace-pre-wrap">
+                                    {appointment.reason?.trim() || "No reason provided."}
+                                </p>
+                            </div>
 
-                    <div className="space-y-4 text-sm">
-                        <div className="rounded-xl border border-[#edf0f3] p-4">
-                            <p className="text-xs text-[#6b7280] mb-1">Reason</p>
-                            <p className="text-[#111827] whitespace-pre-wrap">
-                                {appointment.reason?.trim() || "No reason provided."}
-                            </p>
-                        </div>
+                            <div className="rounded-xl border border-[#edf0f3] p-4">
+                                <p className="text-xs text-[#6b7280] mb-1">Patient Notes</p>
+                                <p className="text-[#111827] whitespace-pre-wrap">
+                                    {appointment.notes?.trim() || "No patient notes."}
+                                </p>
+                            </div>
 
-                        <div className="rounded-xl border border-[#edf0f3] p-4">
-                            <p className="text-xs text-[#6b7280] mb-1">Patient Notes</p>
-                            <p className="text-[#111827] whitespace-pre-wrap">
-                                {appointment.notes?.trim() || "No patient notes."}
-                            </p>
+                            <div className="rounded-xl border border-[#edf0f3] p-4">
+                                <p className="text-xs text-[#6b7280] mb-1">Counselor Notes</p>
+                                <p className="text-[#111827] whitespace-pre-wrap">
+                                    {appointment.doctor_notes?.trim() || "No counselor notes."}
+                                </p>
+                            </div>
                         </div>
+                    </section>
+                )}
+                {showPersonalDataPopup && <PersonalDataPopup isOpen={showPersonalDataPopup} onClose={() => setShowPersonalDataPopup(false)} appointmentId={appointmentId!} />}
+            </div>
 
-                        <div className="rounded-xl border border-[#edf0f3] p-4">
-                            <p className="text-xs text-[#6b7280] mb-1">Counselor Notes</p>
-                            <p className="text-[#111827] whitespace-pre-wrap">
-                                {appointment.doctor_notes?.trim() || "No counselor notes."}
-                            </p>
-                        </div>
-                    </div>
-                </section>
-            )}
-            {showPersonalDataPopup && <PersonalDataPopup isOpen={showPersonalDataPopup} onClose={() => setShowPersonalDataPopup(false)} appointmentId={appointmentId!} />}
         </div>
     );
 }

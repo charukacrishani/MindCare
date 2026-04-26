@@ -106,7 +106,7 @@ export function AppointmentsTable() {
         <h1 className="text-xl font-semibold text-gray-900">
           Appointments with Patients
         </h1>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-row gap-2">
           <div className="relative w-72">
             <Search
               size={15}

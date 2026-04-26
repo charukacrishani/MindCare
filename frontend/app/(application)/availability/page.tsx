@@ -15,6 +15,7 @@ import {
     CalendarOff,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PageHeader } from '@/components/PageHeader';
 
 interface Availability {
     id: number;
@@ -262,15 +263,10 @@ export default function AvailabilityManagePage() {
     }
 
     return (
-        <div className="w-full p-4 md:p-6">
-            <div className="max-w-5xl mx-auto space-y-4">
-
-                {/* Page header */}
-                <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-[#980194]">Schedule</p>
-                    <h1 className="text-2xl font-semibold text-gray-900 mt-1">Manage Availability</h1>
-                    <p className="text-sm text-gray-500 mt-1">Set your working hours and manage time off periods.</p>
-                </div>
+        <div className="w-full">
+            {/* Page header */}
+            <PageHeader title="Schedule" shortTitle="Manage Availability" description="Set your working hours and manage time off periods." />
+            <div className="mx-auto px-4">
 
                 {/* Alerts */}
                 {error && (

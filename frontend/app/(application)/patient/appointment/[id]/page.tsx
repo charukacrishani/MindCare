@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "@/lib/apiClient";
+import { PageHeader } from "@/components/PageHeader";
+import { div } from "framer-motion/m";
 
 interface AppointmentDetails {
     id: number;
@@ -191,207 +193,204 @@ export default function AppointmentDetail() {
     }, [appointment]);
 
     return (
-        <div className="w-full max-w-5xl mx-auto p-4 sm:p-6">
-            <div className="mb-4">
-                <Link
-                    href="/"
-                    className="text-sm text-[#374151] hover:text-[#111827] underline underline-offset-2"
-                >
-                    Back to dashboard
-                </Link>
-            </div>
+        <div className="w-full mx-auto">
+            <PageHeader title="Appointment Details" shortTitle={`Appointment #${appointmentId}`} description="Review the details of this appointment, update session notes, and manage the session status." />
 
-            {isLoading && (
-                <div className="rounded-xl border border-[#e5e7eb] bg-white p-6 text-sm text-[#6b7280]">
-                    Loading appointment details...
-                </div>
-            )}
+            <div className="p-4">
 
-            {!isLoading && error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    {error}
-                </div>
-            )}
+                {isLoading && (
+                    <div className="rounded-xl border border-[#e5e7eb] bg-white p-6 text-sm text-[#6b7280]">
+                        Loading appointment details...
+                    </div>
+                )}
 
-            {!isLoading && !error && appointment && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                    <section className="lg:col-span-2 rounded-2xl border border-[#e5e7eb] bg-white p-5 sm:p-6">
-                        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-                            <h1 className="text-2xl font-semibold text-[#111827]">Appointment #{appointment.id}</h1>
-                            <span
-                                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(
-                                    appointment.status
-                                )}`}
-                            >
-                                {formatStatus(appointment.status)}
-                            </span>
-                        </div>
+                {!isLoading && error && (
+                    <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        {error}
+                    </div>
+                )}
+
+                {!isLoading && !error && appointment && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                        <section className="lg:col-span-2 rounded-2xl border border-[#e5e7eb] bg-white p-5 sm:p-6">
+                            <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+                                <h1 className="text-2xl font-semibold text-[#111827]">Appointment #{appointment.id}</h1>
+                                <span
+                                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(
+                                        appointment.status
+                                    )}`}
+                                >
+                                    {formatStatus(appointment.status)}
+                                </span>
+                            </div>
 
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                            <div className="rounded-xl border border-[#edf0f3] p-4">
-                                <p className="text-xs text-[#6b7280] mb-2">Counselor</p>
-                                <div className="flex items-center gap-3">
-                                    <AvatarBlock src={appointment.doctor_avatar} label={appointment.doctor_name} />
-                                    <div>
-                                        <p className="font-semibold text-[#111827]">{appointment.doctor_name}</p>
-                                        <p className="text-xs text-[#6b7280]">ID: {appointment.doctor_id}</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                <div className="rounded-xl border border-[#edf0f3] p-4">
+                                    <p className="text-xs text-[#6b7280] mb-2">Counselor</p>
+                                    <div className="flex items-center gap-3">
+                                        <AvatarBlock src={appointment.doctor_avatar} label={appointment.doctor_name} />
+                                        <div>
+                                            <p className="font-semibold text-[#111827]">{appointment.doctor_name}</p>
+                                            <p className="text-xs text-[#6b7280]">ID: {appointment.doctor_id}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="rounded-xl border border-[#edf0f3] p-4">
+                                    <p className="text-xs text-[#6b7280] mb-2">Patient</p>
+                                    <div className="flex items-center gap-3">
+                                        <AvatarBlock src={appointment.patient_avatar} label={appointment.patient_name} />
+                                        <div>
+                                            <p className="font-semibold text-[#111827]">{appointment.patient_name}</p>
+                                            <p className="text-xs text-[#6b7280]">ID: {appointment.patient_id}</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="rounded-xl border border-[#edf0f3] p-4">
-                                <p className="text-xs text-[#6b7280] mb-2">Patient</p>
-                                <div className="flex items-center gap-3">
-                                    <AvatarBlock src={appointment.patient_avatar} label={appointment.patient_name} />
-                                    <div>
-                                        <p className="font-semibold text-[#111827]">{appointment.patient_name}</p>
-                                        <p className="text-xs text-[#6b7280]">ID: {appointment.patient_id}</p>
-                                    </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
+                                <div className="rounded-xl border border-[#edf0f3] p-4">
+                                    <p className="text-xs text-[#6b7280] mb-1">Schedule</p>
+                                    <p className="text-[#111827] font-medium">{timeWindow}</p>
+                                    {appointment.meet_link && (
+                                        <a
+                                            href={appointment.meet_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="mt-2 inline-block text-blue-600 hover:underline"
+                                        >
+                                            Join Meeting
+                                        </a>
+                                    )}
+                                </div>
+
+                                <div className="rounded-xl border border-[#edf0f3] p-4">
+                                    <p className="text-xs text-[#6b7280] mb-1">Created</p>
+                                    <p className="text-[#111827] font-medium">
+                                        {appointment.created_at
+                                            ? new Date(appointment.created_at).toLocaleString()
+                                            : "Not available"}
+                                    </p>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
-                            <div className="rounded-xl border border-[#edf0f3] p-4">
-                                <p className="text-xs text-[#6b7280] mb-1">Schedule</p>
-                                <p className="text-[#111827] font-medium">{timeWindow}</p>
-                                {appointment.meet_link && (
-                                    <a
-                                        href={appointment.meet_link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="mt-2 inline-block text-blue-600 hover:underline"
-                                    >
-                                        Join Meeting
-                                    </a>
-                                )}
+                            <div className="space-y-4 text-sm">
+                                <div className="rounded-xl border border-[#edf0f3] p-4">
+                                    <p className="text-xs text-[#6b7280] mb-1">Reason</p>
+                                    <p className="text-[#111827] whitespace-pre-wrap">
+                                        {appointment.reason?.trim() || "No reason provided."}
+                                    </p>
+                                </div>
+
+                                <div className="rounded-xl border border-[#edf0f3] p-4">
+                                    <p className="text-xs text-[#6b7280] mb-1">Patient Notes</p>
+                                    <p className="text-[#111827] whitespace-pre-wrap">
+                                        {appointment.notes?.trim() || "No patient notes."}
+                                    </p>
+                                </div>
                             </div>
-
-                            <div className="rounded-xl border border-[#edf0f3] p-4">
-                                <p className="text-xs text-[#6b7280] mb-1">Created</p>
-                                <p className="text-[#111827] font-medium">
-                                    {appointment.created_at
-                                        ? new Date(appointment.created_at).toLocaleString()
-                                        : "Not available"}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="space-y-4 text-sm">
-                            <div className="rounded-xl border border-[#edf0f3] p-4">
-                                <p className="text-xs text-[#6b7280] mb-1">Reason</p>
-                                <p className="text-[#111827] whitespace-pre-wrap">
-                                    {appointment.reason?.trim() || "No reason provided."}
-                                </p>
-                            </div>
-
-                            <div className="rounded-xl border border-[#edf0f3] p-4">
-                                <p className="text-xs text-[#6b7280] mb-1">Patient Notes</p>
-                                <p className="text-[#111827] whitespace-pre-wrap">
-                                    {appointment.notes?.trim() || "No patient notes."}
-                                </p>
-                            </div>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => { 
-                                window.open(`/patient/${appointment.patient_id}`, "_blank"); 
-                            }}
-                            className="inline-flex w-full items-center justify-center rounded-lg bg-[#111827] px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                            View Patient
-                        </button>
-                    </section>
-
-                    <aside className="rounded-2xl border border-[#e5e7eb] bg-white p-5 sm:p-6 h-fit">
-                        <h2 className="text-lg font-semibold text-[#111827] mb-4">Session Engine</h2>
-
-                        {actionMessage && (
-                            <div
-                                className={`mb-4 rounded-lg border p-3 text-sm ${actionMessage.includes("success")
-                                    ? "border-green-200 bg-green-50 text-green-700"
-                                    : "border-red-200 bg-red-50 text-red-700"
-                                    }`}
-                            >
-                                {actionMessage}
-                            </div>
-                        )}
-
-                        <div className="space-y-4">
-                            <div className="rounded-xl border border-[#edf0f3] p-3">
-                                <p className="text-xs text-[#6b7280] mb-2">Current State</p>
-                                <p className="text-sm font-semibold text-[#111827]">{formatStatus(appointment.status)}</p>
-                            </div>
-
-                            <div>
-                                <label htmlFor="counselor-notes" className="mb-1 block text-sm font-medium text-[#374151]">
-                                    Counselor Notes
-                                </label>
-                                <textarea
-                                    id="counselor-notes"
-                                    value={counselorNotes}
-                                    onChange={(event) => setCounselorNotes(event.target.value)}
-                                    placeholder="Add private session notes"
-                                    rows={7}
-                                    className="w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2 text-sm text-[#111827] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="counselor-patient-notes" className="mb-1 block text-sm font-medium text-[#374151]">
-                                    Patient Notes
-                                </label>
-                                <textarea
-                                    id="counselor-patient-notes"
-                                    value={patientNotes}
-                                    onChange={(event) => setPatientNotes(event.target.value)}
-                                    placeholder="Add private patient notes"
-                                    rows={7}
-                                    className="w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2 text-sm text-[#111827] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                />
-                            </div>
-
                             <button
                                 type="button"
-                                onClick={handleSaveNotes}
-                                disabled={isSaving}
+                                onClick={() => {
+                                    window.open(`/patient/${appointment.patient_id}`, "_blank");
+                                }}
                                 className="inline-flex w-full items-center justify-center rounded-lg bg-[#111827] px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-60"
                             >
-                                {isSaving ? "Saving..." : "Save Notes"}
+                                View Patient
                             </button>
+                        </section>
 
-                            <div className="grid grid-cols-1 gap-2">
+                        <aside className="rounded-2xl border border-[#e5e7eb] bg-white p-5 sm:p-6 h-fit">
+                            <h2 className="text-lg font-semibold text-[#111827] mb-4">Session Engine</h2>
+
+                            {actionMessage && (
+                                <div
+                                    className={`mb-4 rounded-lg border p-3 text-sm ${actionMessage.includes("success")
+                                        ? "border-green-200 bg-green-50 text-green-700"
+                                        : "border-red-200 bg-red-50 text-red-700"
+                                        }`}
+                                >
+                                    {actionMessage}
+                                </div>
+                            )}
+
+                            <div className="space-y-4">
+                                <div className="rounded-xl border border-[#edf0f3] p-3">
+                                    <p className="text-xs text-[#6b7280] mb-2">Current State</p>
+                                    <p className="text-sm font-semibold text-[#111827]">{formatStatus(appointment.status)}</p>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="counselor-notes" className="mb-1 block text-sm font-medium text-[#374151]">
+                                        Counselor Notes
+                                    </label>
+                                    <textarea
+                                        id="counselor-notes"
+                                        value={counselorNotes}
+                                        onChange={(event) => setCounselorNotes(event.target.value)}
+                                        placeholder="Add private session notes"
+                                        rows={7}
+                                        className="w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2 text-sm text-[#111827] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="counselor-patient-notes" className="mb-1 block text-sm font-medium text-[#374151]">
+                                        Patient Notes
+                                    </label>
+                                    <textarea
+                                        id="counselor-patient-notes"
+                                        value={patientNotes}
+                                        onChange={(event) => setPatientNotes(event.target.value)}
+                                        placeholder="Add private patient notes"
+                                        rows={7}
+                                        className="w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2 text-sm text-[#111827] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                    />
+                                </div>
+
                                 <button
                                     type="button"
-                                    onClick={handleStartSession}
-                                    disabled={isSaving || !canStartSession}
-                                    className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    onClick={handleSaveNotes}
+                                    disabled={isSaving}
+                                    className="inline-flex w-full items-center justify-center rounded-lg bg-[#111827] px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-60"
                                 >
-                                    {appointment.status === "in_progress" ? "Session Active" : "Start Session"}
+                                    {isSaving ? "Saving..." : "Save Notes"}
                                 </button>
 
-                                <button
-                                    type="button"
-                                    onClick={handleEndSession}
-                                    disabled={isSaving || !canEndSession}
-                                    className="inline-flex w-full items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    End Session
-                                </button>
+                                <div className="grid grid-cols-1 gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleStartSession}
+                                        disabled={isSaving || !canStartSession}
+                                        className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        {appointment.status === "in_progress" ? "Session Active" : "Start Session"}
+                                    </button>
 
-                                <button
-                                    type="button"
-                                    onClick={handleNoShow}
-                                    disabled={isSaving || !canMarkNoShow}
-                                    className="inline-flex w-full items-center justify-center rounded-lg bg-slate-600 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    No Show
-                                </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleEndSession}
+                                        disabled={isSaving || !canEndSession}
+                                        className="inline-flex w-full items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        End Session
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleNoShow}
+                                        disabled={isSaving || !canMarkNoShow}
+                                        className="inline-flex w-full items-center justify-center rounded-lg bg-slate-600 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        No Show
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </aside>
-                </div>
-            )}
+                        </aside>
+                    </div>
+                )}
+            </div>
+
         </div>
     );
 }

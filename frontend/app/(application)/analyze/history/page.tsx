@@ -2,6 +2,7 @@
 import { apiClient } from "@/lib/apiClient";
 import { useEffect, useState } from "react";
 import { Loader, BarChart2 } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 
 export interface QuestionnaireResponse {
     id: string;
@@ -34,15 +35,11 @@ export default function AnalyzeHistoryPage() {
     }, []);
 
     return (
-        <div className="w-full p-4 md:p-6">
-            <div className="max-w-3xl mx-auto">
+        <div className="w-full">
 
-                {/* Page header */}
-                <div className="mb-6">
-                    <p className="text-xs font-semibold uppercase tracking-widest text-[#980194]">Analyze</p>
-                    <h1 className="text-2xl font-semibold text-gray-900 mt-1">Assessment History</h1>
-                    <p className="text-sm text-gray-500 mt-1">Your past DASS-21 results, most recent first.</p>
-                </div>
+            <PageHeader title="Assessment History" shortTitle="Your Past Results" description="Review your past DASS-21 assessment results, track your progress over time, and gain insights into your mental health journey." />
+
+            <div className="p-4">
 
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20 gap-3">
@@ -111,5 +108,6 @@ export default function AnalyzeHistoryPage() {
                 )}
             </div>
         </div>
+
     );
 }
