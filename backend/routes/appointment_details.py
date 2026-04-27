@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, Depends
 from sqlmodel import select
 
 from context import Context, get_context
-from models.doctor_v_patient import Appointment, DoctorVPatient
+from models.doctor_v_patient import Appointment, DoctorReview, DoctorVPatient
 from models.user import DoctorInformation, Users
 from routes.avatar.avatar_routes import get_avatar
 
@@ -130,4 +130,94 @@ def update_appointment_for_counselor(
     return ctx.response.success(
         message="Appointment updated successfully",
         data=ctx.serialize(appointment),
+    )
+
+
+@router.post("/{appointment_id}/rate")
+def rate_appointment(
+    appointment_id: str,
+    payload: dict = Body(...),
+    ctx: Context = Depends(get_context),
+):
+    appointment = ctx.db.exec(
+        select(Appointment).where(Appointment.id == appointment_id)
+    ).first()
+
+    if not appointment:
+        return ctx.response.error(message="Appointment not found")
+    
+    if ctx.user.user_id != appointment.patient_id:
+        return ctx.response.error(message="Unauthorized")
+    
+    if appointment.status != "completed":
+        return ctx.response.error(message="Cannot rate this appointment")
+    
+    rate_query = ctx.db.exec(
+        select(DoctorReview).where(DoctorReview.appointment_id == appointment_id)
+    ).first()
+    
+    if rate_query:
+        return ctx.response.error(message="Appointment already rated")
+
+    if "rating" not in payload:
+        return ctx.response.error(message="Rating is required")
+
+    raw_rating = payload.get("rating")
+    try:
+        rating_value = int(raw_rating)
+    except (TypeError, ValueError):
+        return ctx.response.error(message="Rating must be an integer between 1 and 5")
+
+    if rating_value < 1 or rating_value > 5:
+        return ctx.response.error(message="Rating must be between 1 and 5")
+
+    raw_comment = payload.get("comment")
+    cleaned_comment = None
+    if raw_comment is not None:
+        cleaned_value = str(raw_comment).strip()
+        cleaned_comment = cleaned_value if cleaned_value else None
+
+    review = DoctorReview(
+        doctor_id=appointment.doctor_id,
+        patient_id=appointment.patient_id,
+        appointment_id=appointment.id,
+        rating=rating_value,
+        comment=cleaned_comment,
+    )
+
+    ctx.db.add(review)
+    ctx.db.commit()
+    ctx.db.refresh(review)
+
+    return ctx.response.success(
+        message="Doctor review submitted successfully",
+        data=ctx.serialize(review),
+    )
+    
+    
+@router.get("/{appointment_id}/rate")
+def get_appointment_rating(
+    appointment_id: str,
+    ctx: Context = Depends(get_context),
+):
+    appointment = ctx.db.exec(
+        select(Appointment).where(Appointment.id == appointment_id)
+    ).first()
+
+    if not appointment:
+        return ctx.response.error(message="Appointment not found")
+    
+    if ctx.user.user_id not in {appointment.patient_id, appointment.doctor_id}:
+        return ctx.response.error(message="Unauthorized")
+    
+    review = ctx.db.exec(
+        select(DoctorReview).where(DoctorReview.appointment_id == appointment_id)
+    ).first()
+
+    if not review:
+        return ctx.response.error(message="No review found for this appointment")
+
+    return ctx.response.success(
+        message="Doctor review retrieved successfully",
+        data=ctx.serialize(review),
     )

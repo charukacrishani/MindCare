@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "@/lib/apiClient";
@@ -23,6 +22,16 @@ interface AppointmentDetails {
     doctor_notes?: string | null;
     created_at?: string;
     meet_link?: string | null;
+}
+
+interface DoctorReview {
+    id: number;
+    doctor_id: string;
+    patient_id: string;
+    appointment_id: number;
+    rating: number;
+    comment?: string | null;
+    created_at?: string;
 }
 
 function formatStatus(status: string) {
@@ -71,6 +80,12 @@ export default function AppointmentPage() {
     const [isCancelling, setIsCancelling] = useState(false);
     const [actionMessage, setActionMessage] = useState<string | null>(null);
     const [showPersonalDataPopup, setShowPersonalDataPopup] = useState(false);
+    const [selectedRating, setSelectedRating] = useState<number>(0);
+    const [reviewComment, setReviewComment] = useState("");
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+    const [reviewMessage, setReviewMessage] = useState<string | null>(null);
+    const [reviewError, setReviewError] = useState<string | null>(null);
+    const [existingReview, setExistingReview] = useState<DoctorReview | null>(null);
 
     useEffect(() => {
         const loadAppointment = async () => {
@@ -83,8 +98,29 @@ export default function AppointmentPage() {
             try {
                 setIsLoading(true);
                 setError(null);
+                setExistingReview(null);
+                setReviewMessage(null);
+                setReviewError(null);
                 const response = await apiClient.get<AppointmentDetails>(`/appointments/${appointmentId}`);
                 setAppointment(response.data);
+
+                if (response.data?.status === "completed") {
+                    try {
+                        const reviewResponse = await apiClient.get<DoctorReview>(`/appointments/${appointmentId}/rate`);
+                        setExistingReview(reviewResponse.data);
+                        setSelectedRating(reviewResponse.data.rating);
+                        setReviewComment(reviewResponse.data.comment ?? "");
+                    } catch (reviewErr) {
+                        const message = reviewErr instanceof Error ? reviewErr.message : "";
+                        if (!message.toLowerCase().includes("no review found")) {
+                            console.error("Error loading appointment review:", reviewErr);
+                            setReviewError("Could not load appointment review.");
+                        }
+                    }
+                } else {
+                    setSelectedRating(0);
+                    setReviewComment("");
+                }
             } catch (err) {
                 console.error("Error fetching appointment details:", err);
                 setError("Could not load appointment details.");
@@ -95,6 +131,37 @@ export default function AppointmentPage() {
 
         loadAppointment();
     }, [appointmentId]);
+
+    const handleSubmitReview = async () => {
+        if (!appointment || appointment.status !== "completed") return;
+
+        if (selectedRating < 1 || selectedRating > 5) {
+            setReviewError("Please select a rating between 1 and 5.");
+            return;
+        }
+
+        try {
+            setIsSubmittingReview(true);
+            setReviewError(null);
+            setReviewMessage(null);
+
+            const response = await apiClient.post<DoctorReview>(
+                `/appointments/${appointment.id}/rate`,
+                {
+                    rating: selectedRating,
+                    comment: reviewComment,
+                }
+            );
+
+            setExistingReview(response.data);
+            setReviewMessage("Thank you. Your review was submitted.");
+        } catch (err) {
+            console.error("Error submitting doctor review:", err);
+            setReviewError(err instanceof Error ? err.message : "Could not submit review.");
+        } finally {
+            setIsSubmittingReview(false);
+        }
+    };
 
     const handleCancelAppointment = async () => {
         if (!appointment) return;
@@ -272,6 +339,70 @@ export default function AppointmentPage() {
                                     {appointment.doctor_notes?.trim() || "No counselor notes."}
                                 </p>
                             </div>
+
+                            {appointment.status === "completed" && (
+                                <div className="rounded-xl border border-[#edf0f3] p-4">
+                                    <p className="text-xs text-[#6b7280] mb-1">Doctor Review</p>
+
+                                    {existingReview ? (
+                                        <div className="space-y-2">
+                                            <p className="text-[#111827] font-medium">
+                                                Rating: {existingReview.rating}/5
+                                            </p>
+                                            <p className="text-[#111827] whitespace-pre-wrap">
+                                                {existingReview.comment?.trim() || "No comment provided."}
+                                            </p>
+                                            {existingReview.created_at && (
+                                                <p className="text-xs text-[#6b7280]">
+                                                    Submitted on {new Date(existingReview.created_at).toLocaleString()}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            <div className="flex flex-wrap gap-2">
+                                                {[1, 2, 3, 4, 5].map((value) => (
+                                                    <button
+                                                        key={value}
+                                                        type="button"
+                                                        onClick={() => setSelectedRating(value)}
+                                                        className={`rounded-lg border px-3 py-1 text-sm font-medium ${selectedRating === value
+                                                            ? "border-blue-600 bg-blue-600 text-white"
+                                                            : "border-[#d1d5db] bg-white text-[#111827]"
+                                                            }`}
+                                                    >
+                                                        {value}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            <textarea
+                                                value={reviewComment}
+                                                onChange={(event) => setReviewComment(event.target.value)}
+                                                rows={3}
+                                                placeholder="Write an optional comment about your experience"
+                                                className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm text-[#111827] outline-none focus:border-blue-500"
+                                            />
+
+                                            {reviewError && (
+                                                <p className="text-sm text-red-600">{reviewError}</p>
+                                            )}
+                                            {reviewMessage && (
+                                                <p className="text-sm text-green-700">{reviewMessage}</p>
+                                            )}
+
+                                            <button
+                                                type="button"
+                                                onClick={handleSubmitReview}
+                                                disabled={isSubmittingReview}
+                                                className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+                                            >
+                                                {isSubmittingReview ? "Submitting..." : "Submit Review"}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </section>
                 )}

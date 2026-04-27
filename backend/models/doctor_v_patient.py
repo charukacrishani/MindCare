@@ -86,6 +86,7 @@ class DoctorReview(SQLModel, table=True):
 
     doctor_id: str = Field(foreign_key="users.userid")
     patient_id: str = Field(foreign_key="users.userid")
+    appointment_id: str = Field(foreign_key="appointments.id")
 
     rating: int  # 1–5
     comment: Optional[str] = None
