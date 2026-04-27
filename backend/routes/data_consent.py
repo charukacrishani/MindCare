@@ -10,7 +10,7 @@ from models.doctor_v_patient import Appointment, DoctorVPatient
 router = APIRouter(prefix="/api/data-consent", tags=["Data Consent"])
 
 @router.get("/{appointment_id}")
-def get_data_consent(appointment_id: int, ctx: Context = Depends(get_context),):
+def get_data_consent(appointment_id: int, ctx: Context = Depends(get_context)):
     queryAppointment = (
         select(Appointment).where(Appointment.id == appointment_id)
     )

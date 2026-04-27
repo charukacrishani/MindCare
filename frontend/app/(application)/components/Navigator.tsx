@@ -18,7 +18,7 @@ export const NAV_CONFIG = [
     label: "Appointments",
     path: "/appointments",
     roles: ["admin", "user"],
-  },  
+  },
   {
     label: "Availability",
     path: "/availability",
@@ -49,6 +49,22 @@ export const NAV_CONFIG = [
     ],
   },
   {
+    label: "Study Hub",
+    roles: ["admin", "user"],
+    children: [
+      {
+        label: "Study Materials",
+        path: "/study-hub/materials",
+        roles: ["admin", "user"],
+      },
+      {
+        label: "Video Resources",
+        path: "/study-hub/video-resources",
+        roles: ["admin", "user"],
+      }
+    ],
+  },
+  {
     label: "Profile",
     path: "/profile",
     roles: ["admin", "user", "counselor"],
@@ -65,19 +81,21 @@ export default function NavBar() {
     item.roles.includes(user.role)
   );
 
-  const handleNavigate = (path: string) => {
-    router.push(path);
+  const handleNavigate = (path?: string) => {
+    if (path) {
+      router.push(path);
+    }
   };
 
   return (
     <nav className="w-full px-8 py-4 flex items-center justify-between">
-      
+
       {/* LEFT */}
       <div className="flex flex-row gap-12 items-center">
-        
+
         {/* Logo */}
         <div className="flex items-center gap-2 cursor-pointer"
-             onClick={() => router.push("/")}>
+          onClick={() => router.push("/")}>
           <div className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
             <Image
               src="/images/logo3.png"
