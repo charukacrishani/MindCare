@@ -11,11 +11,13 @@ from models.doctor_v_patient import (
     AppointmentPayment,
     DoctorVPatient,
 )
+from models.questionnaire import QuestionnaireResponse
 from models.user import DoctorInformation
 from routes.avatar.avatar_routes import get_avatar
 from models.user import Users
 from routes.user.user import get_user, get_user_by_id
 from utils.create_meet import create_meet_link
+from utils.dass21_level import get_dass21_level
 from utils.send_email import send_email
 
 
@@ -620,3 +622,49 @@ def delete_timeoff(
     except Exception as e:
         ctx.db.rollback()
         return ctx.response.error(message="Failed to delete time off", errors=str(e))
+
+
+@router.get("/fee")
+def get_consultation_fee(
+    ctx: Context = Depends(get_context),
+):
+    """
+    Get consultation fee for the doctor.
+    """
+    try:
+        feeAmounts = {
+            "one": 3000,
+            "two": 3500,
+            "three": 4500,
+        }
+        
+        query = (
+            select(QuestionnaireResponse)
+            .where(QuestionnaireResponse.userid == ctx.user.user_id)
+            .order_by(QuestionnaireResponse.date.desc())
+        )
+        
+        questionnaire_response = ctx.db.exec(query).first()
+        
+        if questionnaire_response is None:
+            return ctx.response.success(
+                message="Consultation fee retrieved", data={"amount": feeAmounts["one"]}
+            )
+        
+        a_level = int(get_dass21_level(questionnaire_response.anxiety_score))
+        d_level = int(get_dass21_level(questionnaire_response.depression_score))
+        s_level = int(get_dass21_level(questionnaire_response.stress_score))
+        
+        fee = feeAmounts["one"]
+        
+        if a_level == 1 and d_level == 1 and s_level == 1:
+            fee = feeAmounts["two"]
+        if a_level >= 2 or d_level >= 2 or s_level >= 2:
+            fee = feeAmounts["three"]
+            
+        return ctx.response.success(
+            message="Consultation fee retrieved", data={"amount": fee}
+        )
+        
+    except Exception as e:
+        return ctx.response.error(message="Failed to get consultation fee", errors=str(e))

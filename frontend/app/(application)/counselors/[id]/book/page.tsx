@@ -50,6 +50,7 @@ export default function BookAppointmentPage() {
     const [notes, setNotes] = useState('');
     const [allowChatAccess, setAllowChatAccess] = useState(false);
     const [allowDetailAccess, setAllowDetailAccess] = useState(false);
+    const [paymentAmount, setPaymentAmount] = useState(3000);
 
     // UI State
     const [loading, setLoading] = useState(true);
@@ -100,8 +101,20 @@ export default function BookAppointmentPage() {
             }
         };
 
+        const fetchPaymentAmount = async () => {
+            try {
+                const response = await apiClient.get<{ amount: number }>(`/appointments/fee`);
+                if (response.success && response.data) {
+                    setPaymentAmount(response.data.amount);
+                }
+            } catch (error) {
+                console.error('Failed to fetch payment amount:', error);
+            }
+        };
+
         if (doctorId) {
             fetchDoctorData();
+            fetchPaymentAmount();
         }
     }, [doctorId]);
 
@@ -480,7 +493,7 @@ export default function BookAppointmentPage() {
                     }}
                     isOpen={showPayment}
                     onClose={() => setShowPayment(false)}
-                    amount={"GBP 25"}
+                    amount={paymentAmount}
                 />
             )}
         </>

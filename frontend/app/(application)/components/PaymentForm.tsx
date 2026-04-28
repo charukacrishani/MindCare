@@ -12,13 +12,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function CardPaymentMockup( {handleBookAppointment, isOpen, onClose, amount}: {handleBookAppointment: () => void; isOpen: boolean; onClose: () => void; amount: string} ) {
+export default function CardPaymentMockup( {handleBookAppointment, isOpen, onClose, amount}: {handleBookAppointment: () => void; isOpen: boolean; onClose: () => void; amount: number} ) {
   const [form, setForm] = useState({
     name: "",
     cardNumber: "",
     expiry: "",
     cvv: "",
-    amount: amount,
+    amount: `LKR ${amount}`,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
