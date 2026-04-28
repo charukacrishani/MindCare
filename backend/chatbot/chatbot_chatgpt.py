@@ -4,6 +4,7 @@ import re
 from openai import OpenAI
 import os
 
+from models.user import UserInformation
 from utils.c_types import MessageParsed
 
 client = OpenAI(api_key=os.getenv("GPT_API_KEY"))
@@ -23,7 +24,7 @@ Ask about 12-15 questions total. Start with general daily life questions, then m
  
         # Initial question
         self.initial_question = "Hello! I'm here to understand how you've been feeling lately. To start, what did you do most during your day today?"
-        self.final_response = "Thank "
+        self.final_response = "Thank you for sharing that with me. "
  
         # Question counter
         self.max_questions = 20
@@ -41,7 +42,9 @@ Ask about 12-15 questions total. Start with general daily life questions, then m
  
     def prepare_conversation_history(self, messages: List[MessageParsed], noPrompt: bool = False) -> List[Dict[str, str]]:
         """Format conversation history for OpenAI API"""
-        history: List[Dict[str, str]] = [{"role": "system", "content": self.system_prompt}]
+        history: List[Dict[str, str]] = []
+        if not noPrompt:
+            history.append({"role": "system", "content": self.system_prompt})
 
         for msg in messages:
             role = msg.role if msg.role in ["assistant", "user"] else "user"
@@ -64,31 +67,49 @@ Ask about 12-15 questions total. Start with general daily life questions, then m
 
         return cleaned + "?"
  
-    def generate_next_question(self, conversation_history: List[MessageParsed]) -> str:
+    def generate_next_question(
+        self,
+        conversation_history: List[MessageParsed],
+        userName: str,
+        firstChat: bool = False,
+        userInfo : UserInformation = None
+    ) -> str:
         """Generate next question using OpenAI"""
         try:
-
             prepared_history = self.prepare_conversation_history(conversation_history)
+
+            system_content = (
+                f"This user's occupation is {userInfo.occupation}, and they are {userInfo.age} years old. Secual orientation is {userInfo.sexual_orientation} and marital status is {userInfo.marital_status}. "
+                "Use the full conversation above as context."
+                "Ask exactly ONE brief empathetic follow-up question that directly builds on the user's latest answer. "
+                "Do not restart the conversation, do not summarize, and do not provide advice yet. "
+                "If the user goes off-topic (shopping, product choices, finance, tech, entertainment), "
+                "briefly acknowledge and redirect to one mental-health question. "
+                "Never provide non-mental-health recommendations."
+            )
+
+            # Only add greeting rule if it's the first chat
+            if firstChat:
+                system_content = (
+                    f"Start with the format 'Hello {userName}! [question]'. "
+                    + system_content
+                )
+
             response = client.chat.completions.create(
                 model=self.model,
                 messages=prepared_history + [
                     {
                         "role": "system",
-                        "content": (
-                            "Use the full conversation above as context. "
-                            "Ask exactly ONE brief empathetic follow-up question that directly builds on the user's latest answer. "
-                            "Do not restart the conversation, do not summarize, and do not provide advice yet. "
-                            "If the user goes off-topic (shopping, product choices, finance, tech, entertainment), "
-                            "briefly acknowledge and redirect to one mental-health question. "
-                            "Never provide non-mental-health recommendations."
-                        ),
+                        "content": system_content,
                     }
                 ],
                 temperature=0.4,
                 max_completion_tokens=150
             )
+
             content = response.choices[0].message.content or ""
             return self._extract_single_question(content)
+
         except Exception as e:
             print(e)
             return "I'm here to listen. Could you tell me more about how you've been feeling?"

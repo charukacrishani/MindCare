@@ -8,6 +8,8 @@ from chatbot.chatbot_gemini import MentalHealthChatbot_GEMINI
 from context import Context, get_context
 from models import Chats
 from models.chats import Messages
+from routes.user.user import get_user
+from routes.user.user_info import get_user_by_id, get_user_info_by_id
 from utils.c_types import MessageParsed, MessagesResponse, NewSession, SubmitRequest, SubmitResponse
 
 router = APIRouter(prefix="/api/chats", tags=["Chats"])
@@ -33,9 +35,11 @@ def create_chat(ctx: Context, submitreq: SubmitRequest):
 
 @router.post("/submit")
 def process_message(submitreq: SubmitRequest, chatid: Optional[str] = None, ctx : Context = Depends(get_context)):
+    firstChat = False
     try:
         if chatid is None:
             chatid = create_chat(ctx, submitreq)
+            firstChat = True
     except ValueError as e:
         return ctx.response.error(message=str(e))
         
@@ -72,7 +76,9 @@ def process_message(submitreq: SubmitRequest, chatid: Optional[str] = None, ctx 
             ctx.db.commit()
             return ctx.response.success(data=SubmitResponse(done=True, question=finalResponse, questionid=questionid, chatid=message.chatid))
         else:
-            next_question = chatbot.generate_next_question(messagehistory)
+            user = get_user_by_id(ctx.user.user_id, ctx)
+            userInfo = get_user_info_by_id(ctx.user.user_id, ctx)
+            next_question = chatbot.generate_next_question(messagehistory, userName=user.first_name, firstChat=firstChat, userInfo=userInfo)
             questionid = str(uuid.uuid4())
             message = Messages(messageid=questionid, question=next_question, chatid=chatid)
             ctx.db.add(message)
@@ -83,7 +89,7 @@ def process_message(submitreq: SubmitRequest, chatid: Optional[str] = None, ctx 
     
     
 @router.post("/end-chat")
-def process_message(chatid: str, ctx : Context = Depends(get_context)):
+def process_end_chat(chatid: str, ctx : Context = Depends(get_context)):
     query = select(Chats).where(Chats.userid == ctx.user.user_id, Chats.chatid == chatid, Chats.active == True)
     chat = ctx.db.exec(query).first()
     
