@@ -2,6 +2,7 @@
 import { PageHeader } from "@/components/PageHeader";
 import { apiClient } from "@/lib/apiClient";
 import { useEffect, useState } from "react";
+import { Loader, Video } from "lucide-react";
 
 type VideoContent = {
     title: string;
@@ -51,24 +52,24 @@ export default function VideoResourcesPage() {
     return (
         <div className="w-full mx-auto">
             <PageHeader title="Video Resources" shortTitle="Video Resources" description="Access a collection of educational videos on mental health and self-care techniques." />
-            <div className="p-4 md:p-6 lg:p-8">
+            <div className="p-4">
                 {loading && (
-                    <div className="flex items-center justify-center py-12">
-                        <div className="text-center">
-                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4" />
-                            <p className="text-gray-600">Loading videos...</p>
-                        </div>
+                    <div className="flex flex-col items-center justify-center py-20 gap-3">
+                        <Loader className="w-8 h-8 animate-spin text-[#980194]" />
+                        <p className="text-sm text-gray-500">Loading videos...</p>
                     </div>
                 )}
                 {!loading && videoContent.length === 0 && (
-                    <div className="text-center py-12">
-                        <p className="text-gray-600">No videos available at the moment.</p>
+                    <div className="flex flex-col items-center justify-center py-20 gap-2 text-center">
+                        <Video className="w-10 h-10 text-gray-200" />
+                        <p className="text-gray-500">No videos available at the moment.</p>
+                        <p className="text-sm text-gray-400">Check back soon for new resources.</p>
                     </div>
                 )}
                 {!loading && videoContent.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {videoContent.map((video, index) => (
-                            <div key={index} className="group border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 bg-white flex flex-col">
+                            <div key={index} className="group border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-white flex flex-col">
                                 <div className="h-125 bg-gray-900 overflow-hidden relative">
                                     <iframe
                                         src={getYouTubeEmbedUrl(video.url)}
@@ -79,10 +80,10 @@ export default function VideoResourcesPage() {
                                     />
                                 </div>
                                 <div className="p-4 flex flex-col grow">
-                                    <h3 className="text-base font-semibold text-gray-900 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">{video.title}</h3>
+                                    <h3 className="text-base font-semibold text-gray-900 line-clamp-2 mb-2 group-hover:text-[#980194] transition-colors">{video.title}</h3>
                                     <p className="text-sm text-gray-600 mb-1">{video.channel}</p>
                                     <p className="text-xs text-gray-500 mb-4">{new Date(video.published).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
-                                    <a href={video.url} target="_blank" rel="noopener noreferrer" className="mt-auto inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                                    <a href={video.url} target="_blank" rel="noopener noreferrer" className="mt-auto inline-flex items-center text-sm font-medium text-[#980194] hover:text-[#7a0177] transition-colors">
                                         Watch on YouTube
                                         <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

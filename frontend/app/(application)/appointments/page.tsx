@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { apiClient } from "@/lib/apiClient";
 import { PageHeader } from "@/components/PageHeader";
+import { Loader, Calendar } from "lucide-react";
 
 interface AppointmentItem {
     id: number;
@@ -53,17 +54,16 @@ export default function AppointmentsPage() {
         loadAppointments();
     }, []);
 
-
     return (
         <div className="w-full mx-auto">
             <PageHeader title="My Appointments" shortTitle="Appointments" description="View and manage your upcoming and past appointments with counselors." />
 
             <div className="p-4">
 
-
                 {isLoading && (
-                    <div className="rounded-xl border border-[#e5e7eb] bg-white p-6 text-sm text-[#6b7280]">
-                        Loading appointments...
+                    <div className="flex flex-col items-center justify-center py-20 gap-3">
+                        <Loader className="w-8 h-8 animate-spin text-[#980194]" />
+                        <p className="text-sm text-gray-500">Loading appointments...</p>
                     </div>
                 )}
 
@@ -74,8 +74,10 @@ export default function AppointmentsPage() {
                 )}
 
                 {!isLoading && !error && appointments.length === 0 && (
-                    <div className="rounded-xl border border-[#e5e7eb] bg-white p-6 text-sm text-[#6b7280]">
-                        No appointments found.
+                    <div className="flex flex-col items-center justify-center py-20 gap-2 text-center">
+                        <Calendar className="w-10 h-10 text-gray-200" />
+                        <p className="text-gray-500">No appointments found.</p>
+                        <p className="text-sm text-gray-400">Book a session with a counselor to get started.</p>
                     </div>
                 )}
 
@@ -92,10 +94,10 @@ export default function AppointmentsPage() {
                                 <Link
                                     href={`/appointments/${appointment.id}`}
                                     key={appointment.id}
-                                    className="block rounded-1xl border border-[#e5e7eb] bg-white p-4 hover:border-[#d1d5db] hover:shadow-sm transition"
+                                    className="block rounded-xl border border-gray-200 bg-white p-4 hover:border-gray-300 hover:shadow-sm transition"
                                 >
                                     <div className="flex items-start gap-4">
-                                        <div className="h-14 w-14 overflow-hidden rounded-xl bg-[#f3f4f6] flex items-center justify-center text-xs text-[#6b7280]">
+                                        <div className="h-14 w-14 overflow-hidden rounded-xl bg-gray-100 flex items-center justify-center text-xs text-gray-500">
                                             {avatarSrc ? (
                                                 <img
                                                     src={avatarSrc}
@@ -109,7 +111,7 @@ export default function AppointmentsPage() {
 
                                         <div className="flex-1 min-w-0">
                                             <div className="flex flex-wrap items-center justify-between gap-2">
-                                                <h2 className="text-base sm:text-lg font-semibold text-[#111827] truncate">
+                                                <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                                                     {appointment.doctor_name || "Unknown Doctor"}
                                                 </h2>
                                                 <span
@@ -119,20 +121,20 @@ export default function AppointmentsPage() {
                                                 </span>
                                             </div>
 
-                                            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-[#374151]">
+                                            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
                                                 <p>
-                                                    <span className="text-[#6b7280]">Date:</span>{" "}
+                                                    <span className="text-gray-500">Date:</span>{" "}
                                                     {start.toLocaleDateString()}
                                                 </p>
                                                 <p>
-                                                    <span className="text-[#6b7280]">Time:</span>{" "}
+                                                    <span className="text-gray-500">Time:</span>{" "}
                                                     {start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - {end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                                                 </p>
                                             </div>
 
                                             {appointment.reason && (
-                                                <p className="mt-2 text-sm text-[#4b5563] line-clamp-2">
-                                                    <span className="text-[#6b7280]">Reason:</span> {appointment.reason}
+                                                <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                                                    <span className="text-gray-500">Reason:</span> {appointment.reason}
                                                 </p>
                                             )}
                                         </div>

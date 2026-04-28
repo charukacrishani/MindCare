@@ -113,14 +113,12 @@ export default function UserDashboard() {
     };
 
     return (
-        <div className="w-full h-full overflow-y-auto bg-[linear-gradient(180deg,#faf7f4_0%,#f3f0ec_100%)]">
+        <div className="w-full h-full overflow-y-auto">
             <div className="mx-auto w-full">
                 <PageHeader title="Dashboard" shortTitle="Your Mental Health" description="Track your progress, review upcoming sessions, and follow practical wellness actions." />
 
-
                 <div className="p-4">
-
-                    <div className="w-full rounded-2xl border border-[#ddd4cd] bg-white/85 p-3 shadow-sm backdrop-blur-sm sm:p-4 lg:p-5">
+                    <div className="w-full rounded-2xl border border-gray-200 bg-white/85 p-3 shadow-sm backdrop-blur-sm sm:p-4 lg:p-5">
                         {suggestCounselors && counselors.length > 0 && (
                             <div className="mb-4">
                                 <h3 className="mb-4 font-semibold text-gray-800">
@@ -140,7 +138,7 @@ export default function UserDashboard() {
                                             />
 
                                             <div className="flex-1">
-                                                <div className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                                <div className="text-base font-semibold text-gray-900 group-hover:text-[#980194] transition-colors">
                                                     {c.full_name}
                                                 </div>
 
@@ -149,7 +147,10 @@ export default function UserDashboard() {
                                                 </div>
                                             </div>
 
-                                            <button onClick={()=> router.push(`/counselors/${c.userid}/view`)} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md active:scale-95">
+                                            <button
+                                                onClick={() => router.push(`/counselors/${c.userid}/view`)}
+                                                className="rounded-lg bg-[#980194] px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-[#7a0177] hover:shadow-md active:scale-95"
+                                            >
                                                 View
                                             </button>
                                         </div>
@@ -165,7 +166,6 @@ export default function UserDashboard() {
                         </div>
 
                         <TipsExercises tips={tips} />
-
                     </div>
                 </div>
             </div>

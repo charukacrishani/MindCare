@@ -266,7 +266,7 @@ export default function AvailabilityManagePage() {
         <div className="w-full">
             {/* Page header */}
             <PageHeader title="Schedule" shortTitle="Manage Availability" description="Set your working hours and manage time off periods." />
-            <div className="mx-auto px-4">
+            <div className="mx-auto p-4">
 
                 {/* Alerts */}
                 {error && (

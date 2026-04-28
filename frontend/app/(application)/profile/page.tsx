@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SpecializationGrid } from "../components/SpecializationGrid";
 import { OptionItem, SPECIALIZATIONS } from "../components/ProfileSetupForm";
+import { Loader } from "lucide-react";
 
 type ProfileMeResponse = {
 	role: string;
@@ -124,7 +125,7 @@ function fileToBase64(file: File): Promise<string> {
 		const reader = new FileReader();
 		reader.onload = () => {
 			const result = reader.result as string;
-			resolve(result.split(",")[1]); // Remove the data:image/* prefix
+			resolve(result.split(",")[1]);
 		};
 		reader.onerror = reject;
 		reader.readAsDataURL(file);
@@ -159,20 +160,21 @@ function AvatarUploadField({
 }) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+	const [fileError, setFileError] = useState<string | null>(null);
 
 	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
 
-		// Validate file type
+		setFileError(null);
+
 		if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(file.type)) {
-			alert("Please select a valid image file (JPEG, PNG, GIF, or WebP)");
+			setFileError("Please select a valid image file (JPEG, PNG, GIF, or WebP)");
 			return;
 		}
 
-		// Validate file size (max 5MB)
 		if (file.size > 5 * 1024 * 1024) {
-			alert("File size must be less than 5MB");
+			setFileError("File size must be less than 5MB");
 			return;
 		}
 
@@ -181,7 +183,7 @@ function AvatarUploadField({
 			onAvatarChange(base64);
 			setPreviewUrl(URL.createObjectURL(file));
 		} catch (error) {
-			alert("Error processing image");
+			setFileError("Error processing image. Please try again.");
 		}
 	};
 
@@ -217,6 +219,9 @@ function AvatarUploadField({
 					<p className="text-xs text-gray-400">Max 5MB • PNG, JPEG, GIF</p>
 				</div>
 			</div>
+			{fileError && (
+				<p className="text-xs text-red-600 mt-1">{fileError}</p>
+			)}
 			<input
 				ref={fileInputRef}
 				type="file"
@@ -318,7 +323,7 @@ export default function ProfilePage() {
 					occupation: userForm.occupation,
 					avatar: userForm.avatar,
 				};
-				
+
 				const res = await apiClient.patch<ProfileMeResponse>("/profile/me", { data: payload });
 				const updated = res.data.profile as UserProfile;
 				setUserProfile(updated);
@@ -336,7 +341,6 @@ export default function ProfilePage() {
 					specializations: counselorForm.specializations,
 				};
 
-				// Include avatar if it was changed
 				if (counselorForm.avatar) {
 					payload.avatar = counselorForm.avatar;
 				}
@@ -357,8 +361,9 @@ export default function ProfilePage() {
 
 	if (loading) {
 		return (
-			<div className="flex-1 flex items-center justify-center">
-				<div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-[#980194]" />
+			<div className="flex-1 flex flex-col items-center justify-center gap-3">
+				<Loader className="w-8 h-8 animate-spin text-[#980194]" />
+				<p className="text-sm text-gray-500">Loading profile...</p>
 			</div>
 		);
 	}

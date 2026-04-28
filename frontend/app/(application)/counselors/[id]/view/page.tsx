@@ -95,7 +95,7 @@ function StarRow({ rating }: { rating: number }) {
             {[1, 2, 3, 4, 5].map((value) => (
                 <Star
                     key={value}
-                    className={`h-4 w-4 ${value <= rating ? "fill-amber-400 text-amber-400" : "text-slate-300"}`}
+                    className={`h-4 w-4 ${value <= rating ? "fill-amber-400 text-amber-400" : "text-gray-300"}`}
                 />
             ))}
         </div>
@@ -185,8 +185,8 @@ export default function ViewCounselorPage() {
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-56" />
 
                 {loading && (
-                    <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-white/85 p-10 shadow-sm backdrop-blur-sm">
-                        <div className="flex items-center gap-3 text-sm text-slate-600">
+                    <div className="flex items-center justify-center rounded-2xl border border-gray-200 bg-white/85 p-10 shadow-sm backdrop-blur-sm">
+                        <div className="flex items-center gap-3 text-sm text-gray-600">
                             <Loader className="h-5 w-5 animate-spin text-[#980194]" />
                             Loading counselor profile...
                         </div>
@@ -201,11 +201,11 @@ export default function ViewCounselorPage() {
 
                 {!loading && !error && doctor && (
                     <div className="relative space-y-6">
-                        <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+                        <section className="relative overflow-hidden rounded-3xl border border-gray-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
                             <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[#980194]/10 blur-3xl" />
                             <div className="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                                 <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                                    <Avatar className="h-24 w-24 rounded-2xl border border-slate-200 shadow-sm">
+                                    <Avatar className="h-24 w-24 rounded-2xl border border-gray-200 shadow-sm">
                                         <AvatarImage
                                             src={doctor.avatar ? `data:image/jpeg;base64,${doctor.avatar}` : undefined}
                                             alt={doctor.display_name}
@@ -218,15 +218,15 @@ export default function ViewCounselorPage() {
                                     <div className="space-y-3">
                                         <div className="space-y-2">
                                             <div className="flex flex-wrap items-center gap-2">
-                                                <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+                                                <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
                                                     {doctor.display_name}
                                                 </h1>
-                                                <Badge className={doctor.available ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-slate-100 text-slate-600 border-slate-200"}>
+                                                <Badge className={doctor.available ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-gray-100 text-gray-600 border-gray-200"}>
                                                     {doctor.available ? "Available" : "Unavailable"}
                                                 </Badge>
                                             </div>
 
-                                            <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
+                                            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
                                                 <span className="inline-flex items-center gap-1.5">
                                                     <Star className="h-4 w-4 text-amber-400" />
                                                     {formatRating(averageRating)}
@@ -244,28 +244,28 @@ export default function ViewCounselorPage() {
                                             />
                                         </div>
 
-                                        <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-4">
-                                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                                                <p className="text-xs uppercase tracking-wide text-slate-500">Experience</p>
-                                                <p className="mt-1 font-medium text-slate-900">
+                                        <div className="grid gap-3 text-sm text-gray-600 sm:grid-cols-2 lg:grid-cols-4">
+                                            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                                                <p className="text-xs uppercase tracking-wide text-gray-500">Experience</p>
+                                                <p className="mt-1 font-medium text-gray-900">
                                                     {doctor.years_of_experience != null ? `${doctor.years_of_experience} years` : "Not specified"}
                                                 </p>
                                             </div>
-                                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                                                <p className="text-xs uppercase tracking-wide text-slate-500">Location</p>
-                                                <p className="mt-1 font-medium text-slate-900">
+                                            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                                                <p className="text-xs uppercase tracking-wide text-gray-500">Location</p>
+                                                <p className="mt-1 font-medium text-gray-900">
                                                     {doctor.location || "Not specified"}
                                                 </p>
                                             </div>
-                                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                                                <p className="text-xs uppercase tracking-wide text-slate-500">Hospital</p>
-                                                <p className="mt-1 font-medium text-slate-900">
+                                            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                                                <p className="text-xs uppercase tracking-wide text-gray-500">Hospital</p>
+                                                <p className="mt-1 font-medium text-gray-900">
                                                     {doctor.hospital || "Not specified"}
                                                 </p>
                                             </div>
-                                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                                                <p className="text-xs uppercase tracking-wide text-slate-500">License</p>
-                                                <p className="mt-1 font-medium text-slate-900">
+                                            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                                                <p className="text-xs uppercase tracking-wide text-gray-500">License</p>
+                                                <p className="mt-1 font-medium text-gray-900">
                                                     {doctor.licence_number || doctor.license_no || "Not specified"}
                                                 </p>
                                             </div>
@@ -276,7 +276,7 @@ export default function ViewCounselorPage() {
                                 <div className="flex flex-col gap-3 sm:flex-row lg:flex-col lg:items-stretch">
                                     <Button
                                         variant="outline"
-                                        className="border-slate-200 text-slate-700 hover:border-[#980194] hover:text-[#980194]"
+                                        className="border-gray-200 text-gray-700 hover:border-[#980194] hover:text-[#980194]"
                                         onClick={() => router.push("/counselors")}
                                     >
                                         <ArrowLeft className="h-4 w-4" />
@@ -293,12 +293,12 @@ export default function ViewCounselorPage() {
                         </section>
 
                         <div className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
-                            <Card className="overflow-hidden rounded-3xl border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm">
+                            <Card className="overflow-hidden rounded-3xl border-gray-200 bg-white/90 shadow-sm backdrop-blur-sm">
                                 <CardContent className="space-y-4">
                                     <div className="flex items-center justify-between gap-3">
                                         <div>
-                                            <h2 className="text-lg font-semibold text-slate-900">Availability</h2>
-                                            <p className="text-sm text-slate-500">Weekly schedule pulled from the booking backend.</p>
+                                            <h2 className="text-lg font-semibold text-gray-900">Availability</h2>
+                                            <p className="text-sm text-gray-500">Weekly schedule pulled from the booking backend.</p>
                                         </div>
                                         <CalendarDays className="h-5 w-5 text-[#980194]" />
                                     </div>
@@ -310,17 +310,17 @@ export default function ViewCounselorPage() {
                                     )}
 
                                     {!availabilityError && groupedAvailability.length === 0 && (
-                                        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+                                        <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-500">
                                             No availability has been published yet.
                                         </div>
                                     )}
 
                                     <div className="space-y-3">
                                         {groupedAvailability.map(([dayOfWeek, slots]) => (
-                                            <div key={dayOfWeek} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                            <div key={dayOfWeek} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
                                                 <div className="flex flex-wrap items-center justify-between gap-2">
-                                                    <p className="font-medium text-slate-900">{DAY_LABELS[dayOfWeek] || `Day ${dayOfWeek + 1}`}</p>
-                                                    <span className="text-xs uppercase tracking-wide text-slate-500">
+                                                    <p className="font-medium text-gray-900">{DAY_LABELS[dayOfWeek] || `Day ${dayOfWeek + 1}`}</p>
+                                                    <span className="text-xs uppercase tracking-wide text-gray-500">
                                                         {slots.length} slot{slots.length === 1 ? "" : "s"}
                                                     </span>
                                                 </div>
@@ -328,7 +328,7 @@ export default function ViewCounselorPage() {
                                                     {slots.map((slot) => (
                                                         <span
                                                             key={slot.id}
-                                                            className="inline-flex items-center gap-1 rounded-full border border-[#980194]/20 bg-white px-3 py-1 text-xs font-medium text-slate-700"
+                                                            className="inline-flex items-center gap-1 rounded-full border border-[#980194]/20 bg-white px-3 py-1 text-xs font-medium text-gray-700"
                                                         >
                                                             <Clock3 className="h-3.5 w-3.5 text-[#980194]" />
                                                             {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
@@ -341,23 +341,23 @@ export default function ViewCounselorPage() {
                                 </CardContent>
                             </Card>
 
-                            <Card className="overflow-hidden rounded-3xl border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm">
+                            <Card className="overflow-hidden rounded-3xl border-gray-200 bg-white/90 shadow-sm backdrop-blur-sm">
                                 <CardContent className="space-y-4">
                                     <div className="flex items-center justify-between gap-3">
                                         <div>
-                                            <h2 className="text-lg font-semibold text-slate-900">Doctor Reviews</h2>
-                                            <p className="text-sm text-slate-500">What patients have said after their appointments.</p>
+                                            <h2 className="text-lg font-semibold text-gray-900">Doctor Reviews</h2>
+                                            <p className="text-sm text-gray-500">What patients have said after their appointments.</p>
                                         </div>
                                         <div className="text-right">
                                             <div className="flex justify-end">
                                                 <StarRow rating={Math.round(averageRating || 0)} />
                                             </div>
-                                            <p className="mt-1 text-xs text-slate-500">{formatRating(averageRating)}</p>
+                                            <p className="mt-1 text-xs text-gray-500">{formatRating(averageRating)}</p>
                                         </div>
                                     </div>
 
                                     {reviews.length === 0 ? (
-                                        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
+                                        <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-5 text-sm text-gray-500">
                                             No reviews yet for this counselor.
                                         </div>
                                     ) : (
@@ -366,14 +366,14 @@ export default function ViewCounselorPage() {
                                                 const submittedAt = review.created_at ? new Date(review.created_at) : null
 
                                                 return (
-                                                    <div key={review.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                                    <div key={review.id} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
                                                         <div className="flex items-start gap-3">
-                                                            <Avatar className="h-11 w-11 border border-slate-200">
+                                                            <Avatar className="h-11 w-11 border border-gray-200">
                                                                 <AvatarImage
                                                                     src={review.patient_avatar ? `data:image/jpeg;base64,${review.patient_avatar}` : undefined}
                                                                     alt={review.patient_name || "Patient"}
                                                                 />
-                                                                <AvatarFallback className="bg-white text-xs font-semibold text-slate-600">
+                                                                <AvatarFallback className="bg-white text-xs font-semibold text-gray-600">
                                                                     {getInitials(review.patient_name)}
                                                                 </AvatarFallback>
                                                             </Avatar>
@@ -381,15 +381,15 @@ export default function ViewCounselorPage() {
                                                             <div className="min-w-0 flex-1 space-y-2">
                                                                 <div className="flex flex-wrap items-center justify-between gap-2">
                                                                     <div>
-                                                                        <p className="font-medium text-slate-900">{review.patient_name || "Patient"}</p>
-                                                                        <p className="text-xs text-slate-500">
+                                                                        <p className="font-medium text-gray-900">{review.patient_name || "Patient"}</p>
+                                                                        <p className="text-xs text-gray-500">
                                                                             {submittedAt ? submittedAt.toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" }) : "Recently"}
                                                                         </p>
                                                                     </div>
                                                                     <StarRow rating={review.rating} />
                                                                 </div>
 
-                                                                <p className="whitespace-pre-wrap text-sm leading-6 text-slate-600">
+                                                                <p className="whitespace-pre-wrap text-sm leading-6 text-gray-600">
                                                                     {review.comment?.trim() || "No written comment was provided for this review."}
                                                                 </p>
                                                             </div>

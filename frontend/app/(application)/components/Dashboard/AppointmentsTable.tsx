@@ -37,7 +37,7 @@ const statusConfig: Record<
   },
   scheduled: {
     label: "Scheduled",
-    className: "text-blue-600 bg-blue-50 border-blue-100",
+    className: "text-yellow-600 bg-yellow-50 border-yellow-100",
   },
   completed: {
     label: "Completed",

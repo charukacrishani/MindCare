@@ -122,20 +122,21 @@ function AvatarUpload({
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
+    setFileError(null);
+
     if (!["image/jpeg", "image/png", "image/gif", "image/webp"].includes(file.type)) {
-      alert("Please select a valid image file (JPEG, PNG, GIF, or WebP)");
+      setFileError("Please select a valid image file (JPEG, PNG, GIF, or WebP)");
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size must be less than 5MB");
+      setFileError("File size must be less than 5MB");
       return;
     }
 
@@ -144,7 +145,7 @@ function AvatarUpload({
       onChange(base64);
       setPreviewUrl(URL.createObjectURL(file));
     } catch (error) {
-      alert("Error processing image");
+      setFileError("Error processing image. Please try again.");
     }
   };
 
@@ -185,6 +186,9 @@ function AvatarUpload({
           Upload Avatar
         </button>
       </div>
+      {fileError && (
+        <p className="text-xs text-red-600">{fileError}</p>
+      )}
       <p className="text-xs text-gray-400">Max 5MB • PNG, JPEG, GIF, WebP</p>
     </div>
   );
