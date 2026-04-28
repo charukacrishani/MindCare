@@ -25,7 +25,8 @@ def get_user_self(
             return ctx.response.error(message='Requesting user not found')
         if requesting_user.role == 'counselor':
             doctorInfo = get_doctor_info_by_id(requesting_user.userid, ctx)
-            requesting_user.first_name = doctorInfo.full_name
+            if doctorInfo is not None:
+                requesting_user.first_name = doctorInfo.full_name
 
         return ctx.response.success(message='User retrieved', data=ctx.serialize(requesting_user))
 
