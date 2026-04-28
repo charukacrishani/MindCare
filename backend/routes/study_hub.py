@@ -10,7 +10,7 @@ router = APIRouter(prefix="/api/study-hub", tags=["Study Hub"])
 
 @router.get("/videos")
 def get_study_hub_videos(ctx: Context = Depends(get_context)):
-    results = search_youtube("mental health self-care techniques", max_results=5)
+    results = search_youtube("mental health self-care techniques", max_results=10)
     return ctx.response.success(data=[r.__dict__ for r in results])
     
 @router.get("/resources")

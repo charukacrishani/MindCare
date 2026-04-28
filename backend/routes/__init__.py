@@ -9,6 +9,7 @@ from .dashboard.doctor_routes import router as dashboard_doctor_router
 from .appointments import router as appointments_router
 from .appointment_details import router as appointment_details_router
 from .data_consent import router as data_consent_router
+from .study_hub import router as study_hub_router
 
 __all__ = [
     "register_router",
@@ -26,5 +27,6 @@ __all__ = [
     "dashboard_doctor_router",
     "appointments_router",
     "appointment_details_router",
-    "data_consent_router"
+    "data_consent_router",
+    "study_hub_router"
 ]

@@ -1,6 +1,8 @@
 import os
 import requests
+from dataclasses import dataclass
 
+@dataclass
 class VideoResult:
     title: str
     channel: str
@@ -8,36 +10,42 @@ class VideoResult:
     thumbnail: str
     published: str
 
-API_KEY = os.getenv("GOOGLE_API_KEY")  # Ensure
+API_KEY = os.getenv("GOOGLE_API_KEY")
 
-def search_youtube(query, max_results=5) -> list[VideoResult]:
+def search_youtube(query: str, max_results: int = 10) -> list[VideoResult]:
+    if not API_KEY:
+        raise ValueError("Missing GOOGLE_API_KEY environment variable")
+
     url = "https://www.googleapis.com/youtube/v3/search"
-    
+
     params = {
         "key": API_KEY,
         "q": query,
         "part": "snippet",
-        "type": "video",          # ensures only videos
+        "type": "video",
         "maxResults": max_results,
-        "safeSearch": "strict"    # good for general/public apps
+        "safeSearch": "strict"
     }
 
     response = requests.get(url, params=params, timeout=10)
-    response.raise_for_status()  # raises error if request fails
+    response.raise_for_status()
 
     data = response.json()
 
     results = []
     for item in data.get("items", []):
-        video_id = item["id"]["videoId"]
-        snippet = item["snippet"]
+        video_id = item["id"].get("videoId")
+        snippet = item.get("snippet", {})
+
+        if not video_id:
+            continue
 
         results.append(VideoResult(
-            title=snippet["title"],
-            channel=snippet["channelTitle"],
+            title=snippet.get("title", ""),
+            channel=snippet.get("channelTitle", ""),
             url=f"https://www.youtube.com/watch?v={video_id}",
-            thumbnail=snippet["thumbnails"]["medium"]["url"],
-            published=snippet["publishedAt"]
+            thumbnail=snippet.get("thumbnails", {}).get("medium", {}).get("url", ""),
+            published=snippet.get("publishedAt", "")
         ))
 
     return results
