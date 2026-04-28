@@ -1,13 +1,14 @@
 'use client';
 import { PatientChatHistory } from "@/components/PatientChatHistory";
 import { PreviousAppointments } from "@/components/PreviousAppointments";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader } from "lucide-react";
 import Link from "next/link";
 import { PatientProfileCard, PatientStatistics } from "@/components/PatientProfileCard";
 import { useEffect, useState } from "react";
 import { apiClient } from "@/lib/apiClient";
 import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PageHeader } from "@/components/PageHeader";
 
 type Patient = {
   name: string;
@@ -57,10 +58,7 @@ export default function PatientDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) {
-      return;
-    }
-
+    if (!id) return;
     loadData();
   }, [id]);
 
@@ -88,63 +86,69 @@ export default function PatientDetailPage() {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="flex min-h-screen bg-gray-50/80">
-      <div className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-purple-400 via-pink-300 to-purple-200 z-50" />
+    <div className="w-full">
+      <PageHeader
+        title={!loading && patient.name ? patient.name : "Patient Details"}
+        shortTitle="Patients"
+        description="View patient profile, statistics, appointments, and chat history."
+      />
 
-      <main className="flex-1 p-8 pb-16">
+      <div className="px-4 pb-8">
         {loading && (
-          <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-500">
-            Loading patient details...
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <Loader className="w-8 h-8 animate-spin text-[#980194]" />
+            <p className="text-sm text-gray-500">Loading patient details...</p>
           </div>
         )}
 
         {!loading && error && (
-          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             {error}
           </div>
         )}
 
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-          <Link
-            href="/"
-            className="hover:text-gray-800 transition-colors"
-          >
-            Patients
-          </Link>
-          <ChevronRight size={14} className="text-gray-400" />
-          <span className="text-gray-800 font-medium">{patient?.name}</span>
-        </div>
+        {!loading && !error && (
+          <>
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+              <Link href="/" className="hover:text-[#980194] transition-colors">
+                Patients
+              </Link>
+              <ChevronRight size={14} className="text-gray-400" />
+              <span className="text-gray-800 font-medium">{patient?.name}</span>
+            </div>
 
-        <Tabs defaultValue="Profile" className="w-full">
-          <TabsList>
-            <TabsTrigger value="Profile">Profile</TabsTrigger>
-            <TabsTrigger value="Statistics">Statistics</TabsTrigger>
-            <TabsTrigger value="Appointments">Appointments</TabsTrigger>
-            <TabsTrigger value="ChatHistory">Chat History</TabsTrigger>
-          </TabsList>
+            <Tabs defaultValue="Profile" className="w-full">
+              <TabsList className="mb-6 bg-gray-100/80 p-1 rounded-xl h-auto gap-1">
+                {["Profile", "Statistics", "Appointments", "ChatHistory"].map((tab) => (
+                  <TabsTrigger
+                    key={tab}
+                    value={tab}
+                    className="rounded-lg px-4 py-2 text-sm font-medium text-gray-500 transition-all data-[state=active]:bg-white data-[state=active]:text-[#980194] data-[state=active]:shadow-sm"
+                  >
+                    {tab === "ChatHistory" ? "Chat History" : tab}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
 
-          <TabsContent value="Profile">
-            <PatientProfileCard {...patient} />
-          </TabsContent>
-          <TabsContent value="Statistics">
-            <PatientStatistics stats={statistics} />
-          </TabsContent>
-          <TabsContent value="Appointments">
-            <PreviousAppointments appointments={appointments} />
-          </TabsContent>
-          <TabsContent value="ChatHistory">
-            <PatientChatHistory date={chatDate} messages={messages} />
-          </TabsContent>
-        </Tabs>
-
-        {/* Bottom section */}
-        <div className="grid grid-cols-2 gap-4">
-        </div>
-      </main>
+              <TabsContent value="Profile">
+                <PatientProfileCard {...patient} />
+              </TabsContent>
+              <TabsContent value="Statistics">
+                <PatientStatistics stats={statistics} />
+              </TabsContent>
+              <TabsContent value="Appointments">
+                <PreviousAppointments appointments={appointments} />
+              </TabsContent>
+              <TabsContent value="ChatHistory">
+                <PatientChatHistory date={chatDate} messages={messages} />
+              </TabsContent>
+            </Tabs>
+          </>
+        )}
+      </div>
     </div>
   );
 }

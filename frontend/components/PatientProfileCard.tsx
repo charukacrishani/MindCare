@@ -1,3 +1,5 @@
+import { User } from "lucide-react";
+
 interface StatEntry {
   dateRange: string;
   anxiety: number;
@@ -16,7 +18,21 @@ interface Props {
   sexualOrientation?: string;
 }
 
-const levelLabel = (n: number) => String(n).padStart(2, "0");
+function getInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0])
+    .join("")
+    .toUpperCase() || "P";
+}
+
+const METRIC_COLORS = {
+  Anxiety: { bar: "bg-rose-400", badge: "bg-rose-50 text-rose-700 border-rose-200" },
+  Depression: { bar: "bg-emerald-400", badge: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  Stress: { bar: "bg-amber-400", badge: "bg-amber-50 text-amber-700 border-amber-200" },
+};
 
 export function PatientProfileCard({
   name,
@@ -28,115 +44,111 @@ export function PatientProfileCard({
   gender,
   sexualOrientation,
 }: Props) {
-  const imageBase64 = `data:image/jpeg;base64,${imageSrc}`;
+  const imageBase64 = imageSrc ? `data:image/jpeg;base64,${imageSrc}` : null;
+
+  const infoItems = [
+    { label: "Age", value: age ? `${age} years old` : null },
+    { label: "Marital Status", value: maritalStatus },
+    { label: "Occupation", value: occupation },
+    { label: "Gender", value: gender },
+    { label: "Sexual Orientation", value: sexualOrientation },
+  ].filter((item) => item.value != null);
+
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-6 flex gap-6 flex justify-between">
-      {/* LEFT — Photo + Info */}
-      <div className="flex gap-5 w-full">
-        <img
-          src={imageBase64}
-          alt={name}
-          className="rounded-xl object-cover aspect-square h-full shrink-0 bg-gray-200"
-        />
-        <div className="flex flex-col justify-center gap-3">
+    <section className="relative overflow-hidden rounded-3xl border border-gray-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+      <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[#980194]/10 blur-3xl pointer-events-none" />
+
+      <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start">
+        {/* Avatar */}
+        <div className="shrink-0">
+          {imageBase64 ? (
+            <img
+              src={imageBase64}
+              alt={name}
+              className="h-28 w-28 rounded-2xl object-cover border border-gray-200 shadow-sm"
+            />
+          ) : (
+            <div className="h-28 w-28 rounded-2xl border border-[#980194]/20 bg-[#f5e8f5] flex items-center justify-center shadow-sm">
+              <span className="text-2xl font-semibold text-[#980194]">{getInitials(name)}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="flex flex-col gap-4 flex-1">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">{name}</h2>
-            <p className="text-gray-400 text-sm mt-0.5">{age} years old</p>
+            <h2 className="text-2xl font-semibold tracking-tight text-gray-900">{name}</h2>
+            {description && (
+              <p className="mt-1 text-sm text-gray-500 leading-relaxed max-w-prose">{description}</p>
+            )}
           </div>
-          <div>
-            <p className="text-xs font-medium text-gray-400 mb-1">
-              Description
-            </p>
-            <p className="text-sm text-gray-600 leading-relaxed max-w-xs">
-              {description}
-            </p>
-          </div>
-          {maritalStatus && (
-            <div>
-              <p className="text-xs font-medium text-gray-400 mb-1">
-                Marital Status
-              </p>
-              <p className="text-sm text-gray-600">{maritalStatus}</p>
-            </div>
-          )}
-          {occupation && (
-            <div>
-              <p className="text-xs font-medium text-gray-400 mb-1">
-                Occupation
-              </p>
-              <p className="text-sm text-gray-600">{occupation}</p>
-            </div>
-          )}
-          {gender && (
-            <div>
-              <p className="text-xs font-medium text-gray-400 mb-1">
-                Gender
-              </p>
-              <p className="text-sm text-gray-600">{gender}</p>
-            </div>
-          )}
-          {sexualOrientation && (
-            <div>
-              <p className="text-xs font-medium text-gray-400 mb-1">
-                Sexual Orientation
-              </p>
-              <p className="text-sm text-gray-600">{sexualOrientation}</p>
+
+          {infoItems.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {infoItems.map(({ label, value }) => (
+                <div key={label} className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                  <p className="text-xs uppercase tracking-wide text-gray-500">{label}</p>
+                  <p className="mt-1 font-medium text-gray-900 text-sm">{value}</p>
+                </div>
+              ))}
             </div>
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-
 export function PatientStatistics({ stats }: { stats: StatEntry[] }) {
+  if (stats.length === 0) {
+    return (
+      <div className="rounded-3xl border border-gray-200 bg-white/90 shadow-sm p-10 flex flex-col items-center justify-center gap-2 text-center">
+        <User className="w-10 h-10 text-gray-200" />
+        <p className="text-gray-500 text-sm">No statistics available yet.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full overflow-y-auto max-h-52">
-      <h3 className="text-base font-semibold text-gray-900 mb-3">
-        Statistics
-      </h3>
-      <div className="space-y-5">
+    <section className="rounded-3xl border border-gray-200 bg-white/90 shadow-sm backdrop-blur-sm p-6">
+      <h3 className="text-base font-semibold text-gray-900 mb-5">Mental Health Statistics</h3>
+
+      <div className="space-y-6 max-h-115 overflow-y-auto pr-1">
         {stats.map((entry, i) => (
-          <div key={i}>
-            <p className="text-xs text-gray-400 mb-2">{entry.dateRange}</p>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                {
-                  label: "Anxiety",
-                  value: entry.anxiety,
-                  color: "bg-rose-300",
-                },
-                {
-                  label: "Depression",
-                  value: entry.depression,
-                  color: "bg-green-300",
-                },
-                {
-                  label: "Stress",
-                  value: entry.stress,
-                  color: "bg-amber-200",
-                },
-              ].map(({ label, value, color }) => (
-                <div key={label}>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span
-                      className={`w-3 h-3 rounded-sm ${color} inline-block`}
-                    />
-                    <span className="text-xs text-gray-500">{label}</span>
+          <div key={i} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+            <p className="text-xs uppercase tracking-wide text-gray-500 mb-4">{entry.dateRange}</p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {(
+                [
+                  { label: "Anxiety" as const, value: entry.anxiety },
+                  { label: "Depression" as const, value: entry.depression },
+                  { label: "Stress" as const, value: entry.stress },
+                ] as { label: keyof typeof METRIC_COLORS; value: number }[]
+              ).map(({ label, value }) => {
+                const colors = METRIC_COLORS[label];
+                const pct = Math.min(100, Math.max(0, (value / 10) * 100));
+                return (
+                  <div key={label}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">{label}</span>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${colors.badge}`}>
+                        {String(value).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${colors.bar} transition-all`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
                   </div>
-                  <p className="text-gray-300 font-semibold text-sm">
-                    Level{" "}
-                    <span className="text-gray-800 text-lg font-bold">
-                      {levelLabel(value)}
-                    </span>
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))}
       </div>
-    </div>
-  )
+    </section>
+  );
 }
