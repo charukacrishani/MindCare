@@ -110,26 +110,28 @@ def send_verification_email(userid: str, email: str, username: str) -> Exception
     return send_email(
         to_email=email,
         subject="MindCare – Verify your account",
-        html_body=f"""
-        <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;
-                    padding:20px;border:1px solid #eee;border-radius:10px;">
-            <h2 style="color:#2c3e50;text-align:center;">Welcome to MindCare 💙</h2>
-
-            <p style="font-size:15px;color:#444;">Hi <b>{username}</b>,</p>
-
-            <p style="font-size:15px;color:#444;">
-                Thanks for signing up! Please confirm your email address by pasting this code in MindCare.
-            </p>
-
-            <div style="text-align:center;margin:25px 0;">{token}</div>
-
-            <hr style="margin:25px 0;border:none;border-top:1px solid #eee;" />
-
-            <p style="font-size:12px;color:#999;text-align:center;">
-                If you didn't create a MindCare account, you can safely ignore this email.
-            </p>
-        </div>
-        """,
+            html_body = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 32px;">
+        <h2 style="color: #980194;">Hi <b>{username}</b>,</h2>
+        <p style="color: #444;">
+           Thanks for signing up! Please confirm your email address by pasting this code in MindCare.
+        </p>
+        <div style="
+            font-size: 40px;
+            font-weight: bold;
+            letter-spacing: 12px;
+            color: #980194;
+            background: #f9f0ff;
+            border-radius: 12px;
+            padding: 20px 32px;
+            text-align: center;
+            margin: 24px 0;
+        ">{token}</div>
+        <p style="color: #888; font-size: 13px;">
+            If you didn't request this, you can safely ignore this email.
+        </p>
+    </div>
+    """
     )
 
 

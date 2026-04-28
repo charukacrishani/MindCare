@@ -59,7 +59,7 @@ export default function UserDashboard() {
                 { title: "Depression Score", value: depression_score.toString() },
                 { title: "Stress Score", value: stress_score.toString() },
             ]);
-            if (anxiety_score > 2 || depression_score > 2 || stress_score > 2) {
+            if (anxiety_score >= 2 || depression_score >= 2 || stress_score >= 2) {
                 setSuggestCounselors(true);
             }
         } catch (error) {
