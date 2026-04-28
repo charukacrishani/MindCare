@@ -203,6 +203,13 @@ export default function BookAppointmentPage() {
         }
     };
 
+    const toLocalDateString = (date: Date): string => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    };
+
     const getNextAvailableDate = (availabilityData: Availability[]): string => {
         const availableDays = availabilityData.map((a) => a.day_of_week);
         if (availableDays.length === 0) return '';
@@ -214,7 +221,7 @@ export default function BookAppointmentPage() {
             // Convert JavaScript's getDay (0=Sun) to backend's day_of_week (0=Mon)
             const backendDayOfWeek = (date.getDay() + 6) % 7;
             if (availableDays.includes(backendDayOfWeek)) {
-                return date.toISOString().split('T')[0];
+                return toLocalDateString(date);
             }
         }
 
@@ -232,7 +239,7 @@ export default function BookAppointmentPage() {
             // Convert JavaScript's getDay (0=Sun) to backend's day_of_week (0=Mon)
             const backendDayOfWeek = (date.getDay() + 6) % 7;
             if (availableDays.includes(backendDayOfWeek)) {
-                dates.push(date.toISOString().split('T')[0]);
+                dates.push(toLocalDateString(date));
             }
         }
 
