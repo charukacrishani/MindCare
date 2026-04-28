@@ -66,21 +66,27 @@ def get_trend_data(ctx: Context = Depends(get_context)):
     
     # Generate all dates for last 5 days including today
     trend_data = []
-    for i in range(5):
-        if responses and i < len(responses):
-            response = responses[i]
+
+    # how many empty slots needed
+    missing = max(0, 5 - len(responses)) if responses else 5
+
+    # add empty entries FIRST
+    for _ in range(missing):
+        trend_data.append({
+            "anxiety_score": 0,
+            "depression_score": 0,
+            "stress_score": 0,
+            "date": ""
+        })
+
+    # then add actual response data (max 5 total)
+    if responses:
+        for response in responses[:5]:
             trend_data.append({
                 "anxiety_score": response.anxiety_score,
                 "depression_score": response.depression_score,
                 "stress_score": response.stress_score,
                 "date": response.date
-            })
-        else:
-            trend_data.append({
-                "anxiety_score": 0,
-                "depression_score": 0,
-                "stress_score": 0,
-                "date": ""
             })
     
     return ctx.response.success(data=trend_data)

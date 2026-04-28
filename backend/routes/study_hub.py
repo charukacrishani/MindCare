@@ -1,8 +1,10 @@
-import os
-
 from fastapi import APIRouter, Depends
+from fastapi.responses import FileResponse
+from sqlmodel import select
+from pathlib import Path
 
 from context import Context, get_context
+from models.resources import Resources
 from utils.youtube_vids import search_youtube
 
 
@@ -15,19 +17,17 @@ def get_study_hub_videos(ctx: Context = Depends(get_context)):
     
 @router.get("/resources")
 def get_study_hub_resources(ctx: Context = Depends(get_context)):
-    resources_folder = "resources"
-    resources = []
-    try:
-        for filename in os.listdir(resources_folder):
-            if filename.endswith(".pdf") or filename.endswith(".txt"):
-                resources.append(filename)
-    except Exception as e:
-        return ctx.response.error(message="Failed to load resources", errors=str(e))
-    return ctx.response.success(data=resources)
+    query = select(Resources)
+    availability = ctx.db.exec(query).all()
+    return ctx.response.success(data=[a.__dict__ for a in availability])
 
-@router.get("/resources/{filename}")
-def get_study_hub_resource(filename: str, ctx: Context = Depends(get_context)):
-    resource_path = os.path.join("resources", filename)
-    if not os.path.exists(resource_path):
+@router.get("/resources/{id}")
+def get_study_hub_resource(id: int, ctx: Context = Depends(get_context)):
+    query = select(Resources).where(Resources.id == id)
+    resource = ctx.db.exec(query).first()
+    if not resource:
         return ctx.response.error(message="Resource not found")
-    return ctx.response.success(data={"path": resource_path})
+    resource_path = Path(__file__).resolve().parent.parent / "resources" / f"{resource.id}.pdf"
+    if not resource_path.exists():
+        return ctx.response.error(message="Resource not found")
+    return FileResponse(path=str(resource_path), filename=resource.title)
