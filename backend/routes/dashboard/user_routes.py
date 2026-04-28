@@ -8,7 +8,7 @@ from datetime import date, datetime, timedelta
 
 from chatbot.chatbot_chatgpt import MentalHealthChatbot_GPT
 from context import Context, get_context
-from models.doctor_v_patient import Appointment
+from models.doctor_v_patient import Appointment, DoctorReview
 from models.questionnaire import QuestionnaireResponse
 from models.user import DoctorInformation, UserInformation, Users
 from routes.avatar.avatar_routes import get_avatar
@@ -166,3 +166,33 @@ def get_appointments_dashboard(ctx: Context = Depends(get_context)):
         data.append(item)
 
     return ctx.response.success(data=data)
+
+
+@router.get("/counselors")
+def get_counselors_dashboard(ctx: Context = Depends(get_context)):
+    query = (
+        select(
+            Users.userid,
+            DoctorInformation.full_name,
+            func.count(DoctorReview.id).label("review_count")
+        )
+        .join(DoctorInformation, Users.userid == DoctorInformation.userid)
+        .outerjoin(DoctorReview, DoctorReview.doctor_id == Users.userid)
+        .where(Users.role == "counselor")
+        .group_by(Users.userid, DoctorInformation.full_name)
+        .order_by(func.count(DoctorReview.id).desc())
+        .limit(4)
+    )
+
+    counselors = []
+    results = ctx.db.exec(query).all()
+
+    for userid, full_name, review_count in results:
+        counselors.append({
+            "userid": userid,
+            "full_name": full_name,
+            "review_count": review_count,
+            "avatar": get_avatar(userid, ctx)
+        })
+
+    return ctx.response.success(data=counselors)
