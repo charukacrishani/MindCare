@@ -40,22 +40,6 @@ export function Sidebar( { onTabChange, activeTab }: { onTabChange: (tab: string
           );
         })}
       </nav>
-
-      {/* User profile */}
-      <div className="px-4 py-5 border-t border-gray-100 flex items-center gap-3">
-        <Avatar className="w-8 h-8">
-          <AvatarImage src="/doctor.jpg" alt="Dr. Liam Patel" />
-          <AvatarFallback className="bg-purple-100 text-purple-700 text-xs font-semibold">
-            LP
-          </AvatarFallback>
-        </Avatar>
-        <span className="text-sm font-medium text-gray-800 flex-1 truncate">
-          Dr. Liam Patel
-        </span>
-        <Button variant="ghost" size="icon" className="w-7 h-7 text-gray-400">
-          <MoreHorizontal size={15} />
-        </Button>
-      </div>
     </aside>
   );
 }
