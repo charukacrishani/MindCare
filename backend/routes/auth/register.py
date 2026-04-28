@@ -8,6 +8,7 @@ from sqlmodel import Session, select
 from context import Context, get_context_unverified
 from db import get_session
 from models import Users
+from routes.auth.forgot_password import generate_code
 from utils.auth import create_access_token
 from utils.send_email import send_email
 from utils.hash import hash_password
@@ -58,9 +59,6 @@ EMAIL_WINDOW_SECONDS = 200
 # Helpers
 # ─────────────────────────────────────────────
 
-def generate_token() -> str:
-    return str(uuid.uuid4())
-
 
 def check_rate_limit(userid: str) -> bool:
     now = datetime.utcnow()
@@ -101,7 +99,7 @@ def get_valid_verification(token: str) -> VerifyInfo | None:
 
 def send_verification_email(userid: str, email: str, username: str) -> Exception | None:
     """Queue a verification token and dispatch the email. Returns an Exception on failure."""
-    token = generate_token()
+    token = generate_code()
 
     activeVerifications.append(VerifyInfo(
         email=email,
@@ -239,7 +237,7 @@ def verify_user(token: str, session: Session = Depends(get_session)):
 
     except Exception as e:
         session.rollback()
-        return ResponseHelper.error(message=f"Internal server error: {str(e)}", status_code=500)
+        return ResponseHelper.error(message=f"Internal server error: {str(e)}")
 
 
 @router.post("/send-verification")

@@ -6,6 +6,8 @@ from context import Context, get_context
 from models.user import Users
 from fastapi import Body
 
+from routes.doctor.doctor_info import get_doctor_info_by_id
+
 router = APIRouter(prefix="/api/user", tags=["Users"])
 
 
@@ -21,6 +23,9 @@ def get_user_self(
         requesting_user = get_user_by_id(ctx.user.user_id, ctx)
         if requesting_user is None:
             return ctx.response.error(message='Requesting user not found')
+        if requesting_user.role == 'counselor':
+            doctorInfo = get_doctor_info_by_id(requesting_user.userid, ctx)
+            requesting_user.first_name = doctorInfo.full_name
 
         return ctx.response.success(message='User retrieved', data=ctx.serialize(requesting_user))
 

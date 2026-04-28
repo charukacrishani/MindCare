@@ -61,7 +61,7 @@ export default function SignInForm() {
               className="w-10 h-10 mr-2 opacity-20"
             />
             <h1 className="text-4xl font-medium text-[#980194] text-right">
-              Sign in
+              Login
             </h1>
           </div>
         </CardHeader>
@@ -123,7 +123,7 @@ export default function SignInForm() {
               className="w-full bg-gradient-to-r from-purple-400 via-pink-400 to-pink-500 text-white hover:from-purple-500 hover:via-pink-500 hover:to-pink-600 shadow-lg"
               size="lg"
             >
-              Sign in
+              Log in
             </Button>
 
             {/* Divider */}
@@ -169,7 +169,7 @@ export default function SignInForm() {
             {!loading && (<p className="text-center text-sm text-gray-400 pt-1">
               Don&apos;t have an account?{" "}
               <a href="/signup" className="text-blue-500 hover:underline">
-                Sign up
+                Register
               </a>
             </p>)}
           </form>

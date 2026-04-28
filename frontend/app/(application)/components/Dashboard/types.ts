@@ -8,7 +8,7 @@ export interface Appointment {
   doctor_name: string;
   start_time: string;
   time: string;
-  status: "Pending" | "Completed" | "Canceled";
+  status: "scheduled" | "completed" | "cancelled";
   avatar?: string;
 }
 

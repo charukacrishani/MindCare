@@ -75,7 +75,12 @@ export function AppointmentsTable() {
   const [search, setSearch] = useState("");
   const router = useRouter();
   const [appointments, setAppointments] = useState<Appointment[]>([])
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]); // Default to today's date
+  const today = new Date();
+  const localDate = today.getFullYear() + "-" +
+    String(today.getMonth() + 1).padStart(2, "0") + "-" +
+    String(today.getDate()).padStart(2, "0");
+
+  const [selectedDate, setSelectedDate] = useState<string>(localDate);
 
   useEffect(() => {
     loadData();

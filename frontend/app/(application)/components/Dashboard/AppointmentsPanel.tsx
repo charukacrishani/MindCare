@@ -28,8 +28,8 @@ function DoctorAvatar({ avatar }: { avatar?: string }) {
 }
 
 function statusStyle(status: Appointment["status"]) {
-  if (status === "Pending") return { background: "#fef08a", color: "#854d0e" };
-  if (status === "Completed") return { background: "#bbf7d0", color: "#15803d" };
+  if (status === "scheduled") return { background: "#fef08a", color: "#854d0e" };
+  if (status === "completed") return { background: "#bbf7d0", color: "#15803d" };
   return { background: "#fecaca", color: "#b91c1c" };
 }
 
@@ -69,12 +69,12 @@ export default function AppointmentsPanel({ appointments }: AppointmentsPanelPro
                 </div>
               </div>
             </div>
-            {item.status === "Completed" && (
+            {/* {item.status === "completed" && (
               <div className="mt-4 flex items-center justify-between rounded-xl border border-[#e4e4e8] bg-white px-3 py-2">
                 <span className="text-[12px] text-[#6b6b73]">Rate Your Appointment</span>
                 <span className="text-[18px]">⭐</span>
               </div>
-            )}
+            )} */}
           </article>
         ))}
       </div>

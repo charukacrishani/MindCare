@@ -127,7 +127,7 @@ export function PatientStatistics({ stats }: { stats: StatEntry[] }) {
                 ] as { label: keyof typeof METRIC_COLORS; value: number }[]
               ).map(({ label, value }) => {
                 const colors = METRIC_COLORS[label];
-                const pct = Math.min(100, Math.max(0, (value / 10) * 100));
+                const pct = Math.min(100, Math.max(0, (value / 3) * 100));
                 return (
                   <div key={label}>
                     <div className="flex items-center justify-between mb-2">

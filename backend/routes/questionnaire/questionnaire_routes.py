@@ -7,6 +7,7 @@ from sqlmodel import select
 from context import Context, get_context
 from models.questionnaire import QuestionnaireResponse
 from utils.c_types import AnswerItem, QuestionnaireSubmitResponse
+from utils.dass21_level import get_dass21_level
 
 router = APIRouter(prefix="/api/questionnaire", tags=["Questionnaire"])
 
@@ -79,7 +80,20 @@ def get_my_responses(ctx: Context = Depends(get_context)):
         .order_by(QuestionnaireResponse.date.desc())
     )
     responses = ctx.db.exec(query).all()
-    return ctx.response.success(data=ctx.serialize(responses))
+    data = []
+    for row in responses:
+        level_anxiety = get_dass21_level(row.anxiety_score)
+        level_depression = get_dass21_level(row.depression_score)
+        level_stress = get_dass21_level(row.stress_score)
+
+        data.append({
+            "id": row.id,
+            "anxiety_score": level_anxiety,
+            "depression_score": level_depression,
+            "stress_score": level_stress,
+            "date": row.date.isoformat() if row.date else None,
+        })
+    return ctx.response.success(data=ctx.serialize(data))
 
 
 # ─── GET /api/questionnaire/{response_id} ────────────────────────────────────

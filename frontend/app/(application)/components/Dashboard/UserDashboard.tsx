@@ -21,7 +21,7 @@ export default function UserDashboard() {
     const [tips, setTips] = useState<Tip[]>([]);
     const [trendData, setTrendData] = useState<TrendData[]>([]);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
-    const [suggestCounselors, setSuggestCounselors] = useState(true);
+    const [suggestCounselors, setSuggestCounselors] = useState(false);
     const [counselors, setCounselors] = useState<Counselor[]>([]);
 
     useEffect(() => {
@@ -119,6 +119,7 @@ export default function UserDashboard() {
 
                 <div className="p-4">
                     <div className="w-full rounded-2xl border border-gray-200 bg-white/85 p-3 shadow-sm backdrop-blur-sm sm:p-4 lg:p-5">
+                        <SummaryCards summaryCards={summaryCards} />
                         {suggestCounselors && counselors.length > 0 && (
                             <div className="mb-4">
                                 <h3 className="mb-4 font-semibold text-gray-800">
@@ -158,8 +159,6 @@ export default function UserDashboard() {
                                 </div>
                             </div>
                         )}
-                        <SummaryCards summaryCards={summaryCards} />
-
                         <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
                             <TrendOverview data={trendData} />
                             <AppointmentsPanel appointments={appointments} />

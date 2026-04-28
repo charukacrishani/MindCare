@@ -251,7 +251,7 @@ export default function ViewCounselorPage() {
                                                     {doctor.years_of_experience != null ? `${doctor.years_of_experience} years` : "Not specified"}
                                                 </p>
                                             </div>
-                                            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                                            {/* <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
                                                 <p className="text-xs uppercase tracking-wide text-gray-500">Location</p>
                                                 <p className="mt-1 font-medium text-gray-900">
                                                     {doctor.location || "Not specified"}
@@ -262,7 +262,7 @@ export default function ViewCounselorPage() {
                                                 <p className="mt-1 font-medium text-gray-900">
                                                     {doctor.hospital || "Not specified"}
                                                 </p>
-                                            </div>
+                                            </div> */}
                                             <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
                                                 <p className="text-xs uppercase tracking-wide text-gray-500">License</p>
                                                 <p className="mt-1 font-medium text-gray-900">

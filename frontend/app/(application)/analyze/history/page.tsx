@@ -86,19 +86,19 @@ export default function AnalyzeHistoryPage() {
                                     <div className="p-3 bg-red-50 border border-red-100 rounded-xl">
                                         <p className="text-xs text-gray-500 mb-1">Depression</p>
                                         <p className="text-2xl font-semibold text-red-600 leading-none">
-                                            {response.depression_score}
+                                            Level {response.depression_score}
                                         </p>
                                     </div>
                                     <div className="p-3 bg-yellow-50 border border-yellow-100 rounded-xl">
                                         <p className="text-xs text-gray-500 mb-1">Anxiety</p>
                                         <p className="text-2xl font-semibold text-yellow-600 leading-none">
-                                            {response.anxiety_score}
+                                            Level {response.anxiety_score}
                                         </p>
                                     </div>
                                     <div className="p-3 bg-purple-50 border border-purple-100 rounded-xl">
                                         <p className="text-xs text-gray-500 mb-1">Stress</p>
                                         <p className="text-2xl font-semibold text-[#980194] leading-none">
-                                            {response.stress_score}
+                                            Level {response.stress_score}
                                         </p>
                                     </div>
                                 </div>
