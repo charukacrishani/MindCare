@@ -83,9 +83,9 @@ def get_trend_data(ctx: Context = Depends(get_context)):
     if responses:
         for response in responses[:5]:
             trend_data.append({
-                "anxiety_score": response.anxiety_score,
-                "depression_score": response.depression_score,
-                "stress_score": response.stress_score,
+                "anxiety_score": get_dass21_level(response.anxiety_score),
+                "depression_score": get_dass21_level(response.depression_score),
+                "stress_score": get_dass21_level(response.stress_score),
                 "date": response.date
             })
     
