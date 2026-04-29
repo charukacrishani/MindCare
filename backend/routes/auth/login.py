@@ -17,7 +17,7 @@ class LoginRequest(BaseModel):
 
 @router.post("")
 def userLogin(request: LoginRequest, session: Session = Depends(get_session)):
-    query = select(Users).where(Users.username == request.username)
+    query = select(Users).where(Users.username == request.username or Users.email == request.username)
     user = session.exec(query).first()
     
     if user is None:
