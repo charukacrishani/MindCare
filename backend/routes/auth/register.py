@@ -3,7 +3,7 @@ from typing import List
 import uuid
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from sqlmodel import Session, select
 from context import Context, get_context_unverified
 from db import get_session
@@ -40,7 +40,7 @@ class VerifyInfo(BaseModel):
     email: str
     userid: str
     token: str
-    created_at: datetime = datetime.utcnow()
+    created_at: datetime = Field(default_factory=datetime.utcnow)
     expires_in: int = 3600          # seconds
 
 activeVerifications: List[VerifyInfo] = []
