@@ -216,9 +216,7 @@ def verify_user(token: str, session: Session = Depends(get_session)):
 
         if not check_rate_limit(verify_data.userid):
             return ResponseHelper.error(
-                message="Too many verification attempts. Please try again later.",
-                status_code=429,
-            )
+                message="Too many verification attempts. Please try again later.")
 
         user = session.exec(
             select(Users).where(Users.userid == verify_data.userid)
