@@ -114,41 +114,59 @@ export function PatientStatistics({ stats }: { stats: StatEntry[] }) {
       <h3 className="text-base font-semibold text-gray-900 mb-5">Mental Health Statistics</h3>
 
       <div className="space-y-6 max-h-115 overflow-y-auto pr-1">
-        {stats.map((entry, i) => (
-          <div key={i} className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-            <p className="text-xs uppercase tracking-wide text-gray-500 mb-4">{entry.dateRange}</p>
+        <ul className="space-y-3">
+          {stats.map((response, idx) => (
+            <li
+              key={response.dateRange}
+              className="p-5 border border-gray-100 rounded-xl shadow-sm bg-white hover:shadow-md transition-shadow"
+            >
+              {/* Card header */}
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-[#980194]">
+                    Session {stats.length - idx}
+                  </p>
+                  <p className="text-sm font-medium text-gray-700 mt-0.5">
+                    {new Date(response.dateRange).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+                <p className="text-xs text-gray-400">
+                  {new Date(response.dateRange).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {(
-                [
-                  { label: "Anxiety" as const, value: entry.anxiety },
-                  { label: "Depression" as const, value: entry.depression },
-                  { label: "Stress" as const, value: entry.stress },
-                ] as { label: keyof typeof METRIC_COLORS; value: number }[]
-              ).map(({ label, value }) => {
-                const colors = METRIC_COLORS[label];
-                const pct = Math.min(100, Math.max(0, (value / 3) * 100));
-                return (
-                  <div key={label}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-700">{label}</span>
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${colors.badge}`}>
-                        {String(value).padStart(2, "0")}
-                      </span>
-                    </div>
-                    <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${colors.bar} transition-all`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+              {/* Score grid */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 bg-red-50 border border-red-100 rounded-xl">
+                  <p className="text-xs text-gray-500 mb-1">Depression</p>
+                  <p className="text-2xl font-semibold text-red-600 leading-none">
+                    Level {response.depression}
+                  </p>
+                </div>
+                <div className="p-3 bg-yellow-50 border border-yellow-100 rounded-xl">
+                  <p className="text-xs text-gray-500 mb-1">Anxiety</p>
+                  <p className="text-2xl font-semibold text-yellow-600 leading-none">
+                    Level {response.anxiety}
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-50 border border-purple-100 rounded-xl">
+                  <p className="text-xs text-gray-500 mb-1">Stress</p>
+                  <p className="text-2xl font-semibold text-[#980194] leading-none">
+                    Level {response.stress}
+                  </p>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
-    </section>
+    </section >
   );
 }
