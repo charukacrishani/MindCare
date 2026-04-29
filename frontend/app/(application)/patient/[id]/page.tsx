@@ -113,7 +113,7 @@ export default function PatientDetailPage() {
         {!loading && !error && (
           <>
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-              <Link href="/" className="hover:text-[#980194] transition-colors">
+              <Link href="/dashboard" className="hover:text-[#980194] transition-colors">
                 Patients
               </Link>
               <ChevronRight size={14} className="text-gray-400" />

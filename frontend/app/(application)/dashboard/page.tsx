@@ -1,7 +1,7 @@
 "use client"
-import DoctorDashboard from "./components/Dashboard/DoctorDashboard";
-import UserDashboard from "./components/Dashboard/UserDashboard";
-import { useUser } from "./layout";
+import DoctorDashboard from "../components/Dashboard/DoctorDashboard";
+import UserDashboard from "../components/Dashboard/UserDashboard";
+import { useUser } from "../layout";
 
 export default function Dashboard() {
   const user = useUser();

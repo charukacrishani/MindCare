@@ -22,7 +22,7 @@ export default function AuthLayout({
         const response = await apiClient.get("/user/me");
         if (response.success) {
           // User is logged in, redirect to dashboard
-          router.push('/');
+          router.push('/dashboard');
         }
         // If not logged in, stay on the page
       } catch (error) {

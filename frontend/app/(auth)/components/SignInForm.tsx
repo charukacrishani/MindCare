@@ -34,7 +34,7 @@ export default function SignInForm() {
     try {
       const response = await apiClient.post('/login', formData)
       if (response.success) {
-        router.push('/');
+        router.push('/dashboard');
       } else {
         setError(response.message || "Invalid username or password");
       }

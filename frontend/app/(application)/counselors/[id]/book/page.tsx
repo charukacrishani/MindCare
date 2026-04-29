@@ -190,7 +190,7 @@ export default function BookAppointmentPage() {
 
                 // Redirect after 2 seconds
                 setTimeout(() => {
-                    window.location.href = '/';
+                    window.location.href = '/dashboard';
                 }, 2000);
             } else {
                 setError(response.message || 'Failed to book appointment');

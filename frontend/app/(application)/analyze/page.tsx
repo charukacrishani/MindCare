@@ -262,7 +262,7 @@ export default function Page() {
                 </div> */}
                 <div className="mt-8 flex justify-center gap-6">
                   <button
-                    onClick={() => router.replace("/")}
+                    onClick={() => router.replace("/dashboard")}
                     className={`flex items-center gap-2 px-6 py-2.5 rounded-full border text-sm font-medium transition-all duration-200 ${currentQuestion === 1
                       ? "border-gray-200 text-gray-300 cursor-not-allowed"
                       : "border-gray-300 text-gray-600 hover:border-[#980194] hover:text-[#980194]"

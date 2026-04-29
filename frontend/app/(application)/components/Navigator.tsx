@@ -6,7 +6,7 @@ import Image from "next/image";
 export const NAV_CONFIG = [
   {
     label: "Dashboard",
-    path: "/",
+    path: "/dashboard",
     roles: ["admin", "user", "counselor"],
   },
   {
@@ -95,7 +95,7 @@ export default function NavBar() {
 
         {/* Logo */}
         <div className="flex items-center gap-2 cursor-pointer"
-          onClick={() => router.push("/")}>
+          onClick={() => router.push("/dashboard")}>
           <div className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
             <Image
               src="/images/logo3.png"

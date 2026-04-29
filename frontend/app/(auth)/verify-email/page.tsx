@@ -32,7 +32,7 @@ export default function page() {
             const response = await apiClient.get("/register/verify", { token: verificationCode })
             if(response.success) {
                 setMessage("Email verified successfully. You can now log in.");
-                router.push("/");
+                router.push("/dashboard");
             } else {
                 setError("Invalid verification code. Please try again.");
             }
