@@ -142,8 +142,14 @@ class ApiClient {
     return this.request<T>('PATCH', path, { body, headers });
   }
 
-  public delete<T>(path: string, params?: Record<string, any>, headers?: HeadersInit) {
-    return this.request<T>('DELETE', path, { params, headers });
+  public delete<T>(
+    path: string,
+    options?: { params?: Record<string, any>; body?: any },
+    headers?: HeadersInit
+  ) {
+    const params = options?.params;
+    const body = options?.body;
+    return this.request<T>('DELETE', path, { params, body, headers });
   }
 }
 

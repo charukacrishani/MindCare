@@ -5,11 +5,22 @@ import base64
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlmodel import select
+from sqlalchemy import or_
 
 from context import Context, get_context
+from models.chats import Chats, Messages
+from models.doctor_v_patient import (
+    Appointment,
+    AppointmentPayment,
+    DoctorAvailability,
+    DoctorReview,
+    DoctorTimeOff,
+    DoctorVPatient,
+)
+from models.questionnaire import QuestionnaireResponse
 from models.user import Avatar, DoctorInformation, UserInformation, Users
 from routes.avatar.avatar_routes import get_avatar, set_avatar
-from routes.user import user
+from utils.hash import verify_password
 
 router = APIRouter(prefix="/api/profile", tags=["Profile"])
 
@@ -39,6 +50,10 @@ class ProfileSetupRequest(BaseModel):
 
 class ProfileUpdateRequest(BaseModel):
     data: dict
+
+
+class ProfileDeleteRequest(BaseModel):
+    password: str
 
 
 def parse_dob(value: str) -> datetime:
@@ -302,3 +317,153 @@ def save_profile_setup(body: ProfileSetupRequest, ctx: Context = Depends(get_con
     except Exception as e:
         ctx.db.rollback()
         return ctx.response.error(message=str(e))
+
+
+@router.delete("/me")
+def delete_my_profile(body: ProfileDeleteRequest, ctx: Context = Depends(get_context)):
+    try:
+        user = ctx.db.exec(select(Users).where(Users.userid == ctx.user.user_id)).first()
+        if user is None:
+            return ctx.response.error(message="Requesting user not found")
+
+        if not verify_password(body.password, user.password):
+            return ctx.response.error(message="Invalid password")
+
+        chats = ctx.db.exec(select(Chats).where(Chats.userid == user.userid)).all()
+        chat_ids = [chat.chatid for chat in chats if chat.chatid]
+        if chat_ids:
+            messages = ctx.db.exec(select(Messages).where(Messages.chatid.in_(chat_ids))).all()
+            for message in messages:
+                ctx.db.delete(message)
+        for chat in chats:
+            ctx.db.delete(chat)
+
+        responses = ctx.db.exec(
+            select(QuestionnaireResponse).where(QuestionnaireResponse.userid == user.userid)
+        ).all()
+        for response in responses:
+            ctx.db.delete(response)
+        
+        if user.role == "counselor":
+            deleteCounselorProfile(ctx, user)
+        else:
+            deleteUserProfile(ctx, user)
+
+        avatar = ctx.db.exec(select(Avatar).where(Avatar.userid == user.userid)).first()
+        if avatar:
+            ctx.db.delete(avatar)
+
+        ctx.db.delete(user)
+        ctx.db.commit()
+
+        return ctx.response.success(message="Profile deleted successfully")
+    except Exception as e:
+        ctx.db.rollback()
+        return ctx.response.error(message="Failed to delete profile", errors=str(e))
+
+
+def deleteUserProfile(ctx: Context, user: Users):
+    relationships = ctx.db.exec(
+    select(DoctorVPatient).where(
+            DoctorVPatient.patient_id == user.userid,
+    )
+    ).all()
+    for relationship in relationships:
+        ctx.db.delete(relationship)
+    
+    appointments = ctx.db.exec(
+        select(Appointment).where(
+            Appointment.patient_id == user.userid
+        )
+    ).all()
+    appointment_ids = [appointment.id for appointment in appointments if appointment.id is not None]
+
+    if appointment_ids:
+        deleteAppointments(ctx, appointment_ids)
+    
+    reviews_by_user = ctx.db.exec(
+        select(DoctorReview).where(
+           DoctorReview.patient_id == user.userid
+        )
+    ).all()
+    for review in reviews_by_user:
+        ctx.db.delete(review)
+    
+    user_profile = ctx.db.exec(
+        select(UserInformation).where(UserInformation.userid == user.userid)
+    ).first()
+    if user_profile:
+        ctx.db.delete(user_profile)
+
+    
+        
+def deleteCounselorProfile(ctx: Context, user: Users):
+    relationships = ctx.db.exec(
+    select(DoctorVPatient).where(
+            DoctorVPatient.doctor_id == user.userid,
+    )
+    ).all()
+    for relationship in relationships:
+        ctx.db.delete(relationship)
+        
+    availabilities = ctx.db.exec(
+            select(DoctorAvailability).where(DoctorAvailability.doctor_id == user.userid)
+    ).all()
+    for availability in availabilities:
+        ctx.db.delete(availability)
+        
+    time_offs = ctx.db.exec(
+        select(DoctorTimeOff).where(DoctorTimeOff.doctor_id == user.userid)
+    ).all()
+    for time_off in time_offs:
+        ctx.db.delete(time_off)
+    
+    appointments = ctx.db.exec(
+    select(Appointment).where(
+        Appointment.doctor_id == user.userid
+    )
+    ).all()
+    appointment_ids = [appointment.id for appointment in appointments if appointment.id is not None]
+
+    if appointment_ids:
+        deleteAppointments(ctx, appointment_ids)
+    
+    reviews_by_user = ctx.db.exec(
+    select(DoctorReview).where(
+        DoctorReview.doctor_id == user.userid
+    )
+    ).all()
+    for review in reviews_by_user:
+        ctx.db.delete(review)
+    
+    counselor_profile = ctx.db.exec(
+            select(DoctorInformation).where(DoctorInformation.userid == user.userid)
+        ).first()
+    if counselor_profile:
+        ctx.db.delete(counselor_profile)
+        
+        
+def deleteAppointments(ctx: Context, appointment_ids: list[int]):
+    if appointment_ids:
+        payments = ctx.db.exec(
+            select(AppointmentPayment).where(AppointmentPayment.appointment_id.in_(appointment_ids))
+        ).all()
+        for payment in payments:
+            ctx.db.delete(payment)
+            
+        appointmentsAsStr = []
+        for appointment_id in appointment_ids:
+            appointmentsAsStr.append(str(appointment_id))
+
+        reviews_by_appointment = ctx.db.exec(
+            select(DoctorReview).where(DoctorReview.appointment_id.in_(appointmentsAsStr))
+        ).all()
+        for review in reviews_by_appointment:
+            ctx.db.delete(review)
+            
+        appointments = ctx.db.exec(
+            select(Appointment).where(Appointment.id.in_(appointment_ids))
+        ).all()
+        for appointment in appointments:
+            ctx.db.delete(appointment)    
+        

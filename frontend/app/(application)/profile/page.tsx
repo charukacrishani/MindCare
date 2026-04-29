@@ -6,6 +6,14 @@ import { apiClient } from "@/lib/apiClient";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { SpecializationGrid } from "../components/SpecializationGrid";
 import { OptionItem, SPECIALIZATIONS } from "../components/ProfileSetupForm";
 import { Loader } from "lucide-react";
@@ -238,8 +246,12 @@ export default function ProfilePage() {
 	const user = useUser() as User | null;
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
+	const [deleting, setDeleting] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [deleteOpen, setDeleteOpen] = useState(false);
+	const [deletePassword, setDeletePassword] = useState("");
+	const [deleteError, setDeleteError] = useState<string | null>(null);
 	const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 	const [counselorProfile, setCounselorProfile] = useState<CounselorProfile | null>(null);
 	const [userForm, setUserForm] = useState<UserProfileForm | null>(null);
@@ -309,6 +321,30 @@ export default function ProfilePage() {
 			console.error("Logout failed:", error);
 		}
 	}
+
+	const handleDeleteProfile = () => {
+		setDeleteError(null);
+		setDeletePassword("");
+		setDeleteOpen(true);
+	};
+
+	const confirmDeleteProfile = async () => {
+		if (!deletePassword) {
+			setDeleteError("Password is required to delete your profile.");
+			return;
+		}
+
+		setDeleting(true);
+		setDeleteError(null);
+		try {
+			await apiClient.delete("/profile/me", { body: { password: deletePassword } });
+			window.location.href = "/signin";
+		} catch (e: unknown) {
+			setDeleteError(e instanceof Error ? e.message : "Unable to delete profile");
+		} finally {
+			setDeleting(false);
+		}
+	};
 
 	const handleSave = async () => {
 		setSaving(true);
@@ -425,6 +461,14 @@ export default function ProfilePage() {
 								</Button>
 								<Button type="button" onClick={handleLogout}>
 									Logout
+								</Button>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={handleDeleteProfile}
+									disabled={deleting}
+								>
+									{deleting ? "Deleting..." : "Delete Profile"}
 								</Button>
 							</>
 						)}
@@ -587,6 +631,45 @@ export default function ProfilePage() {
 					)}
 				</CardContent>
 			</Card>
+
+			<Dialog
+				open={deleteOpen}
+				onOpenChange={(open) => {
+					setDeleteOpen(open);
+					if (!open) {
+						setDeletePassword("");
+						setDeleteError(null);
+					}
+				}}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Delete profile</DialogTitle>
+						<DialogDescription>
+							This will permanently delete your profile and account data. This action cannot be undone.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="space-y-2">
+						<p className="text-xs uppercase tracking-wide text-gray-500">Confirm with password</p>
+						<Input
+							type="password"
+							value={deletePassword}
+							onChange={(e) => setDeletePassword(e.target.value)}
+							disabled={deleting}
+							placeholder="Enter your password"
+						/>
+						{deleteError && <p className="text-xs text-red-600">{deleteError}</p>}
+					</div>
+					<DialogFooter>
+						<Button type="button" variant="outline" onClick={() => setDeleteOpen(false)} disabled={deleting}>
+							Cancel
+						</Button>
+						<Button type="button" onClick={confirmDeleteProfile} disabled={deleting}>
+							{deleting ? "Deleting..." : "Delete Profile"}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

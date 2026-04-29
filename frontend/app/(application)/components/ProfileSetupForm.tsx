@@ -573,7 +573,7 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
             <img src="/images/logo3.png" alt="Logo" className="w-10 h-10 mr-2 opacity-20" />
             <div className="text-right">
               <h1 className="text-3xl font-medium text-[#980194]">
-                {role === "user" ? "User – Details" : "Doctor – Details"}
+                {role === "user" ? "User – Details" : "Counselor – Details"}
               </h1>
               <p className="text-xs text-gray-400 mt-0.5">
                 {role === "user" ? "Tell us a little about yourself" : "Set up your professional profile"}

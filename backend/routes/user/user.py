@@ -63,7 +63,7 @@ def delete_user(userid: str, ctx: Context = Depends(get_context)):
         requesting_user = get_user_by_id(ctx.user.user_id, ctx)
         if requesting_user is None:
             return ctx.response.error(message='Requesting user not found')
-        if requesting_user.role != 'admin':
+        if requesting_user.userid != userid:
             return ctx.response.error(message='Permission denied')
 
         user_to_delete = get_user_by_id(userid, ctx)
