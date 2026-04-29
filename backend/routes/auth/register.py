@@ -212,7 +212,7 @@ def verify_user(token: str, session: Session = Depends(get_session)):
     try:
         verify_data = get_valid_verification(token)
         if not verify_data:
-            return ResponseHelper.error(message="Invalid or expired token.", status_code=400)
+            return ResponseHelper.error(message="Invalid or expired token.")
 
         if not check_rate_limit(verify_data.userid):
             return ResponseHelper.error(
@@ -224,7 +224,7 @@ def verify_user(token: str, session: Session = Depends(get_session)):
             select(Users).where(Users.userid == verify_data.userid)
         ).first()
         if not user:
-            return ResponseHelper.error(message="User not found.", status_code=404)
+            return ResponseHelper.error(message="User not found.")
 
         if user.isVerified:
             return ResponseHelper.error(message="Account is already verified.")
