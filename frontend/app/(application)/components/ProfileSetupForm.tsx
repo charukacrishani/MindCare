@@ -563,15 +563,15 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
   }
 
   return (
-    <div className="min-h-screen flex items-center p-4 w-full">
-      <Card className="w-full max-w-xl bg-white border-none shadow-2xl relative overflow-hidden">
+    <div className="min-h-0 lg:min-h-screen flex items-start lg:items-center p-0 sm:p-4 w-full">
+      <Card className="w-full max-w-none sm:max-w-xl bg-white border-none shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-40 h-40 bg-purple-200 rounded-full opacity-20 -translate-x-16 -translate-y-16 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-0 w-32 h-32 bg-pink-200 rounded-full opacity-20 translate-x-12 translate-y-12 blur-2xl pointer-events-none" />
 
         <CardHeader className="space-y-4 pb-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <img src="/images/logo3.png" alt="Logo" className="w-10 h-10 mr-2 opacity-20" />
-            <div className="text-right">
+            <div className="text-center sm:text-right">
               <h1 className="text-3xl font-medium text-[#980194]">
                 {role === "user" ? "User – Details" : "Counselor – Details"}
               </h1>
@@ -583,7 +583,7 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
         </CardHeader>
 
         {/* No overflow-hidden on the card scroll container — use overflow-visible so portals work */}
-        <CardContent className="space-y-5 max-h-[calc(100vh-12rem)] overflow-y-auto px-6 pb-8">
+        <CardContent className="space-y-5 max-h-none sm:max-h-[calc(100vh-12rem)] overflow-y-visible sm:overflow-y-auto px-5 sm:px-6 pb-8">
 
           {role === "user" && (
             <div className="space-y-5">
@@ -599,7 +599,7 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
                   onChange={(v) => setUserDetails((p) => ({ ...p, gender: v }))} disabled={loading} />
               </Field>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Date of Birth">
                   <CalendarPicker value={userDetails.dob}
                     onChange={(v) => setUserDetails((p) => ({ ...p, dob: v }))} disabled={loading} />
@@ -648,7 +648,7 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
                   onChange={(v) => setDoctorDetails((p) => ({ ...p, gender: v }))} disabled={loading} />
               </Field>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Date of Birth">
                   <CalendarPicker value={doctorDetails.dob}
                     onChange={(v) => setDoctorDetails((p) => ({ ...p, dob: v }))} disabled={loading} />
@@ -666,7 +666,7 @@ export default function UserDetailsForm({ role }: UserDetailsFormProps) {
                 )}
               </Field>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Years of Experience">
                   <Input type="number" min={0} max={60} placeholder="e.g. 5" value={doctorDetails.yearsOfExperience}
                     disabled={loading} onChange={(e) => setDoctorDetails((p) => ({ ...p, yearsOfExperience: e.target.value }))}
