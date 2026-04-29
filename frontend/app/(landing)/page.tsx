@@ -42,7 +42,7 @@ export default function Home() {
                         <img
                             src="/images/home_logo.png"
                             alt="MindCare"
-                            className="object-contain"
+                            className="object-contain w-48 sm:w-64 md:w-80 lg:w-96"
                         />
                     </div>
                 </div>

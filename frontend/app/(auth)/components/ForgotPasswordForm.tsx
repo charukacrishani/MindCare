@@ -98,7 +98,7 @@ const [showConfirm, setShowConfirm] = useState(false)
   };
 
   return (
-    <div className="flex items-center p-4 w-full">
+    <div className="flex items-center justify-center p-4 w-full">
       <Card className="w-full max-w-xl bg-white border-none shadow-2xl relative overflow-hidden">
         {/* Decorative background element */}
         <div className="absolute top-0 left-0 w-32 h-32 bg-purple-200 rounded-full opacity-20 -translate-x-12 -translate-y-12 blur-2xl" />

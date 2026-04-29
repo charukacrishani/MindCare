@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from sqlmodel import Session, select
+from sqlmodel import Session, or_, select
 from db import get_session
 from models import Users
 from utils.hash import verify_password
@@ -17,7 +17,7 @@ class LoginRequest(BaseModel):
 
 @router.post("")
 def userLogin(request: LoginRequest, session: Session = Depends(get_session)):
-    query = select(Users).where(Users.username == request.username or Users.email == request.username)
+    query = select(Users).where(or_(Users.username == request.username,Users.email == request.username))   
     user = session.exec(query).first()
     
     if user is None:

@@ -44,24 +44,24 @@ export default function page() {
     }
 
     return (
-        <div className="max-w-7xl w-full h-full px-4 mx-auto flex justify-between items-center">
-            <div className="flex flex-col gap-2 w-full">
-                <h1 className="text-6xl font-semibold tracking-tighter text-black">
+        <div className="max-w-7xl w-full px-4 mx-auto flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16">
+            <div className="flex flex-col gap-2 w-full max-w-xl text-center lg:text-left">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tighter text-black">
                     Your <br />
-                    <span className=" text-[#980194]">Mental Wellbeing</span>
+                    <span className="text-[#980194]">Mental Wellbeing</span>
                     <br />
                     Starts Here.
                 </h1>
-                <p className="text-lg text-gray-400">
+                <p className="text-base sm:text-lg text-gray-400">
                     Smart questions. Meaningful support
                 </p>
             </div>
-            <div>
-            </div>
-            <div>
+            <div className="w-full max-w-md">
                 {message && <div className="text-green-500">{message}</div>}
                 {error && <div className="text-red-500">{error}</div>}
-                <div>Check your email for a verification code to complete your registration.</div>
+                <div className="text-sm sm:text-base">
+                    Check your email for a verification code to complete your registration.
+                </div>
                 <input
                     className="mt-4 px-4 py-2 border rounded w-full"
                     type="text"
@@ -69,11 +69,19 @@ export default function page() {
                     value={verificationCode}
                     onChange={(e) => setVerificationCode(e.target.value)}
                 />
-                <div className="flex gap-4">
-                    <button className="mt-4 px-4 py-2 bg-[#980194] text-white rounded hover:bg-[#7a0175] transition-colors" onClick={handleVerifyEmail} disabled={loading || verificationCode.trim() === ""}>
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <button
+                        className="mt-4 px-4 py-2 bg-[#980194] text-white rounded hover:bg-[#7a0175] transition-colors w-full sm:w-auto"
+                        onClick={handleVerifyEmail}
+                        disabled={loading || verificationCode.trim() === ""}
+                    >
                         Verify
                     </button>
-                    <button className="mt-4 px-4 py-2 bg-[#980194] text-white rounded hover:bg-[#7a0175] transition-colors" onClick={handleResendEmail} disabled={loading}>
+                    <button
+                        className="mt-4 px-4 py-2 bg-[#980194] text-white rounded hover:bg-[#7a0175] transition-colors w-full sm:w-auto"
+                        onClick={handleResendEmail}
+                        disabled={loading}
+                    >
                         Resend
                     </button>
                 </div>

@@ -219,7 +219,7 @@ export default function Page() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-6xl text-center font-bold tracking-tight text-gray-900 mt-12"
+            className="text-3xl sm:text-3xl md:text-4xl lg:text-2xl text-center font-bold tracking-tight text-gray-900 mt-12"
           >
             Your <span className="text-[#980194]">Mental Wellbeing</span>
             <br />

@@ -47,11 +47,11 @@ export function PatientsTable() {
   );
 
   return (
-    <div className="flex-1 p-8">
+    <div className="flex-1 p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <h1 className="text-xl font-semibold text-gray-900">Patients</h1>
-        <div className="relative w-72">
+        <div className="relative w-full sm:w-64">
           <Search
             size={15}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -66,7 +66,7 @@ export function PatientsTable() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="border-b border-gray-100 hover:bg-transparent">

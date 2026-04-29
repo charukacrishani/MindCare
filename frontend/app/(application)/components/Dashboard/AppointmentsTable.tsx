@@ -105,14 +105,14 @@ export function AppointmentsTable() {
   }
 
   return (
-    <div className="flex-1 p-8">
+    <div className="flex-1 p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <h1 className="text-xl font-semibold text-gray-900">
           Appointments with Patients
         </h1>
-        <div className="flex flex-row gap-2">
-          <div className="relative w-72">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative w-full sm:w-64">
             <Search
               size={15}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -124,12 +124,12 @@ export function AppointmentsTable() {
               className="pl-9 bg-white border-gray-200 text-sm rounded-xl shadow-none"
             />
           </div>
-          <div className="relative w-72 ">
+          <div className="relative w-full sm:w-48">
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="mb-2 w-full bg-white border-gray-200 text-sm rounded-xl shadow-none p-2"
+              className="mb-2 w-full bg-white border border-gray-200 text-sm rounded-xl shadow-none p-2"
             />
           </div>
         </div>
@@ -137,7 +137,7 @@ export function AppointmentsTable() {
 
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="border-b border-gray-100 hover:bg-transparent">
