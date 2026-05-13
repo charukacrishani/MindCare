@@ -22,9 +22,9 @@ def submit_questionnaire(
         # Validate & map all 21 answers
         numeric = {k - 1: v for k, v in req.items()}
             
-        depression_idx = [2, 4, 9, 12, 15, 16, 20]
-        anxiety_idx = [1, 3, 6, 8, 14, 18, 19]
-        stress_idx = [0, 5, 7, 10, 11, 13, 17]
+        depression_idx = [3, 5, 10, 13, 16, 17, 21]
+        anxiety_idx = [2, 4, 7, 9, 15, 19, 20]
+        stress_idx = [1, 6, 8, 11, 12, 14, 18]
 
         depression_score = sum(numeric[i] for i in depression_idx)
         anxiety_score = sum(numeric[i] for i in anxiety_idx)

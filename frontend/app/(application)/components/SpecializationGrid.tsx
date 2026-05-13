@@ -40,7 +40,8 @@ export function SpecializationGrid({
   const [selected, setSelected] = useState<OptionItem[]>([]);
 
   useEffect(() => {
-    setSelected(parseValue(value));
+    const items = parseValue(value)
+    setSelected(items);
   }, [value]);
 
   const isSelected = (id: string) => selected.some((s) => s.id === id);
