@@ -82,9 +82,9 @@ def get_my_responses(ctx: Context = Depends(get_context)):
     responses = ctx.db.exec(query).all()
     data = []
     for row in responses:
-        level_anxiety = get_dass21_level(row.anxiety_score)
-        level_depression = get_dass21_level(row.depression_score)
-        level_stress = get_dass21_level(row.stress_score)
+        level_anxiety = get_dass21_level(row.anxiety_score, "anxiety")
+        level_depression = get_dass21_level(row.depression_score, "depression")
+        level_stress = get_dass21_level(row.stress_score, "stress")
 
         data.append({
             "id": row.id,

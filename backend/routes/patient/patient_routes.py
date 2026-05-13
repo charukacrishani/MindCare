@@ -121,9 +121,9 @@ def get_patient_overview(
         trend = []
         for row in questionnaire_rows:
             safe_date = row.date.date().isoformat() if isinstance(row.date, datetime) else "N/A"
-            level_anxiety = get_dass21_level(row.anxiety_score)
-            level_depression = get_dass21_level(row.depression_score)
-            level_stress = get_dass21_level(row.stress_score)
+            level_anxiety = get_dass21_level(row.anxiety_score, "anxiety")
+            level_depression = get_dass21_level(row.depression_score, "depression")
+            level_stress = get_dass21_level(row.stress_score, "stress")
 
             statistics.append({
                 "dateRange": safe_date,

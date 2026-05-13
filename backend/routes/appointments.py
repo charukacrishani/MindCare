@@ -651,9 +651,9 @@ def get_consultation_fee(
                 message="Consultation fee retrieved", data={"amount": feeAmounts["one"]}
             )
         
-        a_level = int(get_dass21_level(questionnaire_response.anxiety_score))
-        d_level = int(get_dass21_level(questionnaire_response.depression_score))
-        s_level = int(get_dass21_level(questionnaire_response.stress_score))
+        a_level = int(get_dass21_level(questionnaire_response.anxiety_score, "anxiety"))
+        d_level = int(get_dass21_level(questionnaire_response.depression_score,"depression"))
+        s_level = int(get_dass21_level(questionnaire_response.stress_score, "stress"))
         
         fee = feeAmounts["one"]
         

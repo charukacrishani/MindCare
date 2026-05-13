@@ -35,9 +35,9 @@ def get_current_stats_dashboard(ctx: Context = Depends(get_context)):
         })
     
     response = responses[0]
-    a_level = get_dass21_level(response.anxiety_score)
-    d_level = get_dass21_level(response.depression_score)
-    s_level = get_dass21_level(response.stress_score)
+    a_level = get_dass21_level(response.anxiety_score, "anxiety")
+    d_level = get_dass21_level(response.depression_score, "depression")
+    s_level = get_dass21_level(response.stress_score, "stress")
     res = {
         "anxiety_score": a_level,
         "depression_score": d_level,
@@ -83,9 +83,9 @@ def get_trend_data(ctx: Context = Depends(get_context)):
     if responses:
         for response in responses[:5]:
             trend_data.append({
-                "anxiety_score": get_dass21_level(response.anxiety_score),
-                "depression_score": get_dass21_level(response.depression_score),
-                "stress_score": get_dass21_level(response.stress_score),
+                "anxiety_score": get_dass21_level(response.anxiety_score, "anxiety"),
+                "depression_score": get_dass21_level(response.depression_score, "depression"),
+                "stress_score": get_dass21_level(response.stress_score, "stress"),
                 "date": response.date
             })
     
